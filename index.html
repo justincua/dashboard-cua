@@ -22,6 +22,12 @@
     }
 
     * { box-sizing: border-box; }
+
+    html, body {
+      max-width: 100%;
+      overflow-x: hidden;
+    }
+
     body {
       margin: 0;
       font-family: Inter, Arial, Helvetica, sans-serif;
@@ -37,6 +43,7 @@
       max-width: 1280px;
       margin: 0 auto;
       padding: 14px;
+      overflow-x: hidden;
     }
 
     .topbar {
@@ -52,6 +59,8 @@
       border-radius: var(--radius);
       box-shadow: var(--shadow);
       backdrop-filter: blur(10px);
+      overflow: hidden;
+      min-width: 0;
     }
 
     .hero {
@@ -63,20 +72,24 @@
       margin: 0 0 4px;
       font-size: 21px;
       line-height: 1.15;
+      word-break: break-word;
     }
 
     .sub {
       color: var(--muted);
       font-size: 12px;
+      line-height: 1.5;
     }
 
-    .search-box, .meta-box {
+    .search-box,
+    .meta-box {
       padding: 12px 14px;
       display: flex;
       flex-direction: column;
       justify-content: center;
       gap: 6px;
       min-height: 78px;
+      min-width: 0;
     }
 
     .label {
@@ -86,7 +99,8 @@
       letter-spacing: 0.08em;
     }
 
-    .search-input, .month-input {
+    .search-input,
+    .month-input {
       width: 100%;
       border: 1px solid rgba(255,255,255,0.08);
       background: rgba(255,255,255,0.04);
@@ -95,9 +109,11 @@
       border-radius: 12px;
       font-size: 15px;
       outline: none;
+      min-width: 0;
     }
 
-    .search-input:focus, .month-input:focus {
+    .search-input:focus,
+    .month-input:focus {
       border-color: rgba(86,168,255,0.65);
       box-shadow: 0 0 0 3px rgba(86,168,255,0.12);
     }
@@ -109,6 +125,12 @@
       flex-wrap: wrap;
       font-size: 13px;
       color: var(--muted);
+      min-width: 0;
+    }
+
+    .status-row strong {
+      min-width: 0;
+      word-break: break-word;
     }
 
     .dot {
@@ -117,20 +139,29 @@
       border-radius: 50%;
       background: var(--yellow);
       box-shadow: 0 0 12px rgba(245,196,81,0.55);
+      flex: 0 0 auto;
     }
 
-    .dot.live { background: var(--green); box-shadow: 0 0 12px rgba(29,211,138,0.55); }
-    .dot.error { background: var(--red); box-shadow: 0 0 12px rgba(255,93,115,0.55); }
+    .dot.live {
+      background: var(--green);
+      box-shadow: 0 0 12px rgba(29,211,138,0.55);
+    }
+
+    .dot.error {
+      background: var(--red);
+      box-shadow: 0 0 12px rgba(255,93,115,0.55);
+    }
 
     .grid {
       display: grid;
-      grid-template-columns: repeat(12, 1fr);
+      grid-template-columns: repeat(12, minmax(0, 1fr));
       gap: 16px;
     }
 
     .card {
       padding: 14px;
       min-height: 126px;
+      min-width: 0;
     }
 
     .span-3 { grid-column: span 3; }
@@ -154,9 +185,11 @@
       font-weight: 800;
       line-height: 1.1;
       margin-bottom: 6px;
+      word-break: break-word;
     }
 
     .big.small { font-size: 24px; }
+
     .green { color: var(--green); }
     .red { color: var(--red); }
     .yellow { color: var(--yellow); }
@@ -165,20 +198,30 @@
 
     .kv {
       display: grid;
-      grid-template-columns: 1fr auto;
+      grid-template-columns: minmax(0, 1fr) auto;
       gap: 10px;
       padding: 8px 0;
       border-bottom: 1px solid rgba(255,255,255,0.05);
       font-size: 14px;
+      min-width: 0;
     }
 
     .kv:last-child { border-bottom: 0; }
-    .kv .k { color: var(--muted); }
-    .kv .v { text-align: right; font-weight: 700; }
+    .kv .k {
+      color: var(--muted);
+      min-width: 0;
+      word-break: break-word;
+    }
+    .kv .v {
+      text-align: right;
+      font-weight: 700;
+      min-width: 0;
+      word-break: break-word;
+    }
 
     .metrics-2 {
       display: grid;
-      grid-template-columns: repeat(2, 1fr);
+      grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 14px;
     }
 
@@ -187,6 +230,7 @@
       border: 1px solid rgba(255,255,255,0.05);
       border-radius: 14px;
       padding: 14px;
+      min-width: 0;
     }
 
     .mini .t {
@@ -200,10 +244,12 @@
     .mini .n {
       font-size: 22px;
       font-weight: 800;
+      word-break: break-word;
     }
 
     .calendar-wrap {
       padding: 14px;
+      overflow: hidden;
     }
 
     .calendar-head {
@@ -218,12 +264,16 @@
     .calendar-head h2 {
       font-size: 16px;
       margin: 0;
+      line-height: 1.3;
     }
 
-    .weekdays, .calendar {
+    .weekdays,
+    .calendar {
       display: grid;
-      grid-template-columns: repeat(7, 1fr);
+      grid-template-columns: repeat(7, minmax(0, 1fr));
       gap: 6px;
+      width: 100%;
+      min-width: 0;
     }
 
     .weekday {
@@ -245,6 +295,7 @@
       flex-direction: column;
       gap: 3px;
       overflow: hidden;
+      min-width: 0;
     }
 
     .day.empty {
@@ -270,6 +321,14 @@
       font-size: 10px;
       color: var(--muted);
       margin-top: auto;
+      min-width: 0;
+    }
+
+    .day.compact-data .meta-row span {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
 
     .day.compact-data .value-row {
@@ -277,12 +336,14 @@
       flex-wrap: wrap;
       gap: 4px;
       min-height: 20px;
+      min-width: 0;
     }
 
     .day .num {
       font-size: 13px;
       font-weight: 800;
       line-height: 1;
+      flex: 0 0 auto;
     }
 
     .pill {
@@ -314,7 +375,12 @@
       text-overflow: ellipsis;
     }
 
-    .table-wrap { padding: 18px; overflow: auto; }
+    .table-wrap {
+      padding: 18px;
+      overflow-x: auto;
+      overflow-y: hidden;
+      -webkit-overflow-scrolling: touch;
+    }
 
     table {
       width: 100%;
@@ -353,22 +419,233 @@
 
     @media (max-width: 1180px) {
       .topbar { grid-template-columns: 1fr 1fr; }
-      .span-3, .span-4, .span-5, .span-6, .span-7, .span-8 { grid-column: span 6; }
-      .calendar, .weekdays { gap: 5px; }
-      .day { min-height: 70px; padding: 7px; }
+      .span-3,
+      .span-4,
+      .span-5,
+      .span-6,
+      .span-7,
+      .span-8 { grid-column: span 6; }
+
+      .calendar,
+      .weekdays { gap: 5px; }
+
+      .day {
+        min-height: 70px;
+        padding: 7px;
+      }
     }
 
     @media (max-width: 720px) {
-      .wrap { padding: 10px; }
-      .topbar { grid-template-columns: 1fr; }
-      .grid { gap: 10px; }
-      .span-3, .span-4, .span-5, .span-6, .span-7, .span-8, .span-12 { grid-column: span 12; }
-      .metrics-2 { grid-template-columns: 1fr; }
-      .calendar, .weekdays { grid-template-columns: repeat(7, minmax(68px, 1fr)); gap: 4px; overflow-x: auto; }
-      .day { min-height: 66px; padding: 6px; border-radius: 10px; }
-      .day .small { font-size: 9px; }
-      .pill { font-size: 9px; padding: 2px 6px; }
-      .big { font-size: 24px; }
+      .wrap {
+        padding: 8px;
+      }
+
+      .topbar {
+        grid-template-columns: 1fr;
+        gap: 8px;
+      }
+
+      .grid {
+        gap: 10px;
+      }
+
+      .span-3,
+      .span-4,
+      .span-5,
+      .span-6,
+      .span-7,
+      .span-8,
+      .span-12 {
+        grid-column: span 12;
+      }
+
+      .hero,
+      .search-box,
+      .meta-box,
+      .card,
+      .calendar-wrap,
+      .table-wrap {
+        padding: 12px;
+      }
+
+      .hero h1 {
+        font-size: 18px;
+      }
+
+      .sub,
+      .label,
+      .status-row {
+        font-size: 11px;
+      }
+
+      .search-input,
+      .month-input {
+        font-size: 14px;
+        padding: 11px 12px;
+      }
+
+      .big {
+        font-size: 23px;
+      }
+
+      .big.small {
+        font-size: 20px;
+      }
+
+      .kv {
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 8px;
+        font-size: 13px;
+      }
+
+      .metrics-2 {
+        grid-template-columns: 1fr;
+        gap: 10px;
+      }
+
+      .mini .n {
+        font-size: 19px;
+      }
+
+      .calendar-head {
+        gap: 6px;
+      }
+
+      .calendar-head h2 {
+        font-size: 14px;
+      }
+
+      .weekdays,
+      .calendar {
+        grid-template-columns: repeat(7, minmax(0, 1fr));
+        gap: 3px;
+        overflow: visible;
+      }
+
+      .weekday {
+        font-size: 9px;
+        padding: 2px 0;
+        letter-spacing: 0.04em;
+      }
+
+      .day {
+        min-height: 58px;
+        padding: 4px;
+        border-radius: 9px;
+        gap: 2px;
+      }
+
+      .day .num {
+        font-size: 11px;
+      }
+
+      .pill {
+        font-size: 7px;
+        padding: 1px 4px;
+        gap: 2px;
+      }
+
+      .day .small {
+        font-size: 7px;
+      }
+
+      .day.compact-data .value-row {
+        gap: 2px;
+        min-height: auto;
+      }
+
+      .day.compact-data .meta-row {
+        font-size: 7px;
+        gap: 3px;
+      }
+
+      .table-wrap {
+        padding: 12px;
+      }
+
+      table {
+        min-width: 760px;
+      }
+    }
+
+    @media (max-width: 420px) {
+      .wrap {
+        padding: 6px;
+      }
+
+      .hero,
+      .search-box,
+      .meta-box,
+      .card,
+      .calendar-wrap,
+      .table-wrap {
+        padding: 10px;
+      }
+
+      .card-title {
+        font-size: 11px;
+        margin-bottom: 8px;
+      }
+
+      .big {
+        font-size: 21px;
+      }
+
+      .big.small {
+        font-size: 18px;
+      }
+
+      .calendar-head h2 {
+        font-size: 13px;
+      }
+
+      .weekdays,
+      .calendar {
+        gap: 2px;
+      }
+
+      .weekday {
+        font-size: 8px;
+      }
+
+      .day {
+        min-height: 54px;
+        padding: 3px;
+        border-radius: 8px;
+      }
+
+      .day .num {
+        font-size: 10px;
+      }
+
+      .day.compact-data .value-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1px;
+      }
+
+      .pill {
+        font-size: 6px;
+        padding: 1px 3px;
+        max-width: 100%;
+      }
+
+      .day.compact-data .meta-row {
+        display: none;
+      }
+
+      .day.compact-empty .small,
+      .day .small {
+        font-size: 6px;
+      }
+
+      .kv {
+        font-size: 12px;
+      }
+
+      .mini .n {
+        font-size: 17px;
+      }
     }
   </style>
 </head>
@@ -491,6 +768,7 @@
             <span class="pill yellow">P/L · % · DD · Lots</span>
           </div>
         </div>
+
         <div class="weekdays">
           <div class="weekday">CN</div>
           <div class="weekday">T2</div>
@@ -500,7 +778,36 @@
           <div class="weekday">T6</div>
           <div class="weekday">T7</div>
         </div>
+
         <div id="calendar" class="calendar" style="margin-top:10px;"></div>
+      </div>
+
+      <div class="panel table-wrap span-12">
+        <div class="card-title">Lịch sử gần nhất</div>
+        <table>
+          <thead>
+            <tr>
+              <th>Ngày</th>
+              <th>BOT</th>
+              <th>Symbol</th>
+              <th>ID</th>
+              <th>Name</th>
+              <th>Tổng vốn</th>
+              <th>Sau trade</th>
+              <th>Lợi nhuận</th>
+              <th>% hôm nay</th>
+              <th>Đã chốt</th>
+              <th>Đang chạy</th>
+              <th>Orders</th>
+              <th>Lots</th>
+              <th>DD</th>
+              <th>EDD</th>
+              <th>Trend</th>
+              <th>Cập nhật</th>
+            </tr>
+          </thead>
+          <tbody id="rowsBody"></tbody>
+        </table>
       </div>
     </section>
 
@@ -542,12 +849,15 @@
         const cb = '__jsonp_' + Date.now() + '_' + Math.random().toString(36).slice(2);
         const script = document.createElement('script');
         const url = new URL(SCRIPT_URL);
+
         Object.entries(params).forEach(([k, v]) => {
           if (v !== undefined && v !== null && String(v) !== '') url.searchParams.set(k, v);
         });
+
         url.searchParams.set('callback', cb);
 
         let done = false;
+
         const cleanup = () => {
           if (script.parentNode) script.parentNode.removeChild(script);
           try { delete window[cb]; } catch (_) { window[cb] = undefined; }
@@ -715,6 +1025,7 @@
           const profitCls = Number(row.totalprofit) >= 0 ? 'green' : 'red';
           const pctCls = Number(row.todaypct) >= 0 ? 'green' : 'red';
           const ddCls = Number(row.dd) > 0 ? 'red' : 'yellow';
+
           cell.className = 'day compact-data';
           cell.title = `Profit: ${formatSigned(row.totalprofit)} | %: ${formatPct(row.todaypct)} | Lots: ${formatNumber(row.lots || 0)} | DD: ${formatNumber(row.dd || 0)}% | Orders: ${row.orders || 0} | Trend: ${row.trend || '-'}`;
           cell.innerHTML = `
@@ -729,6 +1040,7 @@
             </div>
           `;
         }
+
         els.calendar.appendChild(cell);
       }
     }
@@ -736,6 +1048,7 @@
     function renderRows(items = []) {
       currentRows = items;
       els.rowsBody.innerHTML = '';
+
       if (!items.length) {
         const tr = document.createElement('tr');
         tr.innerHTML = `<td colspan="17" class="muted">Chưa có dòng dữ liệu nào.</td>`;
@@ -781,6 +1094,7 @@
     async function fetchSummary() {
       if (!activeKey || fetchBusy) return;
       fetchBusy = true;
+
       try {
         const data = await jsonp({ mode: 'summary', key: activeKey });
         renderSummary(data);
@@ -794,9 +1108,11 @@
     async function fetchMonth(force = false) {
       if (!activeKey) return;
       const { year, month } = getMonthValue();
+
       if (!force && currentMonthPayload && Number(currentMonthPayload.year) === year && Number(currentMonthPayload.month) === month) {
         // vẫn refresh định kỳ bên ngoài
       }
+
       try {
         const data = await jsonp({ mode: 'month', key: activeKey, y: year, m: month });
         renderCalendar(data);
@@ -807,6 +1123,7 @@
 
     async function fetchRows() {
       if (!activeKey) return;
+
       try {
         const data = await jsonp({ mode: 'rows', key: activeKey, limit: 30 });
         renderRows(Array.isArray(data.items) ? data.items : []);
@@ -820,10 +1137,12 @@
       fetchSummary();
       fetchMonth(true);
       fetchRows();
+
       summaryTimer = setInterval(() => {
         fetchSummary();
         fetchRows();
       }, REFRESH_MS);
+
       monthTimer = setInterval(() => {
         fetchMonth();
       }, MONTH_REFRESH_MS);
@@ -840,6 +1159,7 @@
       const v = String(value || '').trim();
       activeKey = v;
       localStorage.setItem(STORAGE_KEY, v);
+
       if (!v) {
         stopRealtime();
         els.dashboard.style.display = 'none';
@@ -847,6 +1167,7 @@
         setStatus('Đang chờ dữ liệu...', 'waiting');
         return;
       }
+
       setStatus('Đang tải dữ liệu...', 'waiting');
       startRealtime();
     }
@@ -888,20 +1209,19 @@
     setupEvents();
     initFromStorage();
   </script>
-  <script>
-// chặn ctrl + scroll
-document.addEventListener('wheel', function(e) {
-  if (e.ctrlKey) e.preventDefault();
-}, { passive: false });
 
-// chặn ctrl + + - 0
-document.addEventListener('keydown', function(e) {
-  if (
-    (e.ctrlKey && ['+', '-', '0'].includes(e.key))
-  ) {
-    e.preventDefault();
-  }
-});
-</script>
+  <script>
+    // chặn ctrl + scroll
+    document.addEventListener('wheel', function(e) {
+      if (e.ctrlKey) e.preventDefault();
+    }, { passive: false });
+
+    // chặn ctrl + + - 0
+    document.addEventListener('keydown', function(e) {
+      if (e.ctrlKey && ['+', '-', '0'].includes(e.key)) {
+        e.preventDefault();
+      }
+    });
+  </script>
 </body>
 </html>
