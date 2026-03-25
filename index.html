@@ -1,1 +1,876 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>JustinCua Trade Dashboard</title>
+  <style>
+    :root {
+      --bg: #0b1020;
+      --panel: rgba(18, 24, 45, 0.92);
+      --panel-2: rgba(24, 31, 58, 0.92);
+      --border: rgba(255,255,255,0.08);
+      --text: #eef3ff;
+      --muted: #9ca8c7;
+      --green: #1dd38a;
+      --red: #ff5d73;
+      --yellow: #f5c451;
+      --blue: #56a8ff;
+      --purple: #aa7cff;
+      --shadow: 0 18px 48px rgba(0,0,0,0.32);
+      --radius: 18px;
+    }
 
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Inter, Arial, Helvetica, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(65,114,255,0.18), transparent 32%),
+        radial-gradient(circle at top right, rgba(170,124,255,0.16), transparent 30%),
+        linear-gradient(180deg, #0a0f1d 0%, #0b1020 100%);
+      min-height: 100vh;
+    }
+
+    .wrap {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    .topbar {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr 0.8fr 0.8fr;
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+    }
+
+    .hero {
+      padding: 18px 20px;
+      min-height: 92px;
+    }
+
+    .hero h1 {
+      margin: 0 0 6px;
+      font-size: 24px;
+      line-height: 1.2;
+    }
+
+    .sub {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .search-box, .meta-box {
+      padding: 16px 18px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 8px;
+      min-height: 92px;
+    }
+
+    .label {
+      color: var(--muted);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .search-input, .month-input {
+      width: 100%;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.04);
+      color: var(--text);
+      padding: 12px 14px;
+      border-radius: 12px;
+      font-size: 15px;
+      outline: none;
+    }
+
+    .search-input:focus, .month-input:focus {
+      border-color: rgba(86,168,255,0.65);
+      box-shadow: 0 0 0 3px rgba(86,168,255,0.12);
+    }
+
+    .status-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--yellow);
+      box-shadow: 0 0 12px rgba(245,196,81,0.55);
+    }
+
+    .dot.live { background: var(--green); box-shadow: 0 0 12px rgba(29,211,138,0.55); }
+    .dot.error { background: var(--red); box-shadow: 0 0 12px rgba(255,93,115,0.55); }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 16px;
+    }
+
+    .card {
+      padding: 18px;
+      min-height: 148px;
+    }
+
+    .span-3 { grid-column: span 3; }
+    .span-4 { grid-column: span 4; }
+    .span-5 { grid-column: span 5; }
+    .span-6 { grid-column: span 6; }
+    .span-7 { grid-column: span 7; }
+    .span-8 { grid-column: span 8; }
+    .span-12 { grid-column: span 12; }
+
+    .card-title {
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      margin-bottom: 12px;
+    }
+
+    .big {
+      font-size: 30px;
+      font-weight: 800;
+      line-height: 1.1;
+      margin-bottom: 6px;
+    }
+
+    .big.small { font-size: 24px; }
+    .green { color: var(--green); }
+    .red { color: var(--red); }
+    .yellow { color: var(--yellow); }
+    .blue { color: var(--blue); }
+    .muted { color: var(--muted); }
+
+    .kv {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      font-size: 14px;
+    }
+
+    .kv:last-child { border-bottom: 0; }
+    .kv .k { color: var(--muted); }
+    .kv .v { text-align: right; font-weight: 700; }
+
+    .metrics-2 {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 14px;
+    }
+
+    .mini {
+      background: var(--panel-2);
+      border: 1px solid rgba(255,255,255,0.05);
+      border-radius: 14px;
+      padding: 14px;
+    }
+
+    .mini .t {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .mini .n {
+      font-size: 22px;
+      font-weight: 800;
+    }
+
+    .calendar-wrap {
+      padding: 18px;
+    }
+
+    .calendar-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+
+    .calendar-head h2 {
+      font-size: 18px;
+      margin: 0;
+    }
+
+    .weekdays, .calendar {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 10px;
+    }
+
+    .weekday {
+      text-align: center;
+      color: var(--muted);
+      font-size: 12px;
+      padding: 8px 0;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .day {
+      min-height: 112px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 14px;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .day.empty {
+      background: rgba(255,255,255,0.015);
+      border-style: dashed;
+      opacity: 0.45;
+    }
+
+    .day .num {
+      font-size: 14px;
+      font-weight: 800;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.06);
+      font-size: 12px;
+      width: fit-content;
+    }
+
+    .pill.green { color: var(--green); background: rgba(29,211,138,0.08); }
+    .pill.red { color: var(--red); background: rgba(255,93,115,0.08); }
+    .pill.yellow { color: var(--yellow); background: rgba(245,196,81,0.08); }
+    .pill.blue { color: var(--blue); background: rgba(86,168,255,0.08); }
+
+    .day .small {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.35;
+    }
+
+    .table-wrap { padding: 18px; overflow: auto; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 920px;
+    }
+
+    th, td {
+      padding: 12px 10px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      font-size: 14px;
+      text-align: left;
+      white-space: nowrap;
+    }
+
+    th {
+      color: var(--muted);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      position: sticky;
+      top: 0;
+      background: rgba(11,16,32,0.98);
+    }
+
+    .empty-state {
+      display: flex;
+      min-height: 220px;
+      align-items: center;
+      justify-content: center;
+      color: var(--muted);
+      text-align: center;
+      padding: 24px;
+      line-height: 1.6;
+    }
+
+    @media (max-width: 1180px) {
+      .topbar { grid-template-columns: 1fr 1fr; }
+      .span-3, .span-4, .span-5, .span-6, .span-7, .span-8 { grid-column: span 6; }
+      .calendar, .weekdays { gap: 8px; }
+      .day { min-height: 100px; }
+    }
+
+    @media (max-width: 720px) {
+      .wrap { padding: 14px; }
+      .topbar { grid-template-columns: 1fr; }
+      .grid { gap: 12px; }
+      .span-3, .span-4, .span-5, .span-6, .span-7, .span-8, .span-12 { grid-column: span 12; }
+      .metrics-2 { grid-template-columns: 1fr; }
+      .calendar, .weekdays { grid-template-columns: repeat(7, minmax(86px, 1fr)); overflow-x: auto; }
+      .big { font-size: 26px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="topbar">
+      <div class="panel hero">
+        <h1>JustinCua Realtime Dashboard</h1>
+        <div class="sub">Tự cập nhật mỗi 1 giây · Tìm theo ID hoặc tên BOT · Đồng bộ trực tiếp từ Google Apps Script</div>
+      </div>
+
+      <div class="panel search-box">
+        <div class="label">Tìm ID hoặc BOT</div>
+        <input id="searchInput" class="search-input" type="text" placeholder="Ví dụ: 123456 hoặc CUA_2K" autocomplete="off" />
+      </div>
+
+      <div class="panel meta-box">
+        <div class="label">Tháng hiển thị</div>
+        <input id="monthInput" class="month-input" type="month" />
+      </div>
+
+      <div class="panel meta-box">
+        <div class="label">Trạng thái</div>
+        <div class="status-row"><span id="statusDot" class="dot"></span><span id="statusText">Đang chờ dữ liệu...</span></div>
+        <div class="status-row">Lần cập nhật cuối: <strong id="lastUpdate">--:--:--</strong></div>
+      </div>
+    </section>
+
+    <section id="dashboard" class="grid" style="display:none;">
+      <div class="panel card span-3">
+        <div class="card-title">Tổng lợi nhuận sau trade</div>
+        <div id="totalProfit" class="big">0.00</div>
+        <div class="muted">Giá trị tổng hợp theo bản ghi hôm nay</div>
+      </div>
+
+      <div class="panel card span-3">
+        <div class="card-title">Tổng % kiếm hôm nay</div>
+        <div id="todayPct" class="big small">0.00%</div>
+        <div class="muted">Dựa trên vốn bắt đầu trade trong ngày</div>
+      </div>
+
+      <div class="panel card span-3">
+        <div class="card-title">Vốn sau khi trade</div>
+        <div id="afterCapital" class="big small">0.00</div>
+        <div class="muted">Equity hiện tại được đẩy từ EA</div>
+      </div>
+
+      <div class="panel card span-3">
+        <div class="card-title">Drawdown hôm nay</div>
+        <div id="ddNow" class="big small">0.00%</div>
+        <div class="muted">DD lớn nhất trong ngày / EDD</div>
+      </div>
+
+      <div class="panel card span-4">
+        <div class="card-title">Thông tin tài khoản</div>
+        <div class="kv"><div class="k">ID tài khoản</div><div id="infoId" class="v">-</div></div>
+        <div class="kv"><div class="k">Tên tài khoản</div><div id="infoName" class="v">-</div></div>
+        <div class="kv"><div class="k">BOT</div><div id="infoBot" class="v">-</div></div>
+        <div class="kv"><div class="k">Symbol</div><div id="infoSymbol" class="v">-</div></div>
+        <div class="kv"><div class="k">Ngày dữ liệu</div><div id="infoDate" class="v">-</div></div>
+      </div>
+
+      <div class="panel card span-4">
+        <div class="card-title">Vốn & lợi nhuận chi tiết</div>
+        <div class="kv"><div class="k">Tổng vốn</div><div id="capTotal" class="v">0.00</div></div>
+        <div class="kv"><div class="k">Vốn bắt đầu trade</div><div id="capStart" class="v">0.00</div></div>
+        <div class="kv"><div class="k">Vốn sau khi trade</div><div id="capAfter" class="v">0.00</div></div>
+        <div class="kv"><div class="k">Lãi vốn thực</div><div id="capRealProfit" class="v">0.00</div></div>
+        <div class="kv"><div class="k">% vốn thực</div><div id="capRealPct" class="v">0.00%</div></div>
+      </div>
+
+      <div class="panel card span-4">
+        <div class="card-title">Giao dịch hôm nay</div>
+        <div class="kv"><div class="k">Đã chốt</div><div id="tradeClosed" class="v">0.00</div></div>
+        <div class="kv"><div class="k">Đang chạy</div><div id="tradeFloating" class="v">0.00</div></div>
+        <div class="kv"><div class="k">BUY / SELL</div><div id="tradeSides" class="v">0 / 0</div></div>
+        <div class="kv"><div class="k">Orders / Lots</div><div id="tradeOrdersLots" class="v">0 / 0.00</div></div>
+        <div class="kv"><div class="k">Score / Trend</div><div id="tradeScoreTrend" class="v">0 / -</div></div>
+      </div>
+
+      <div class="panel card span-6">
+        <div class="card-title">Tổng quan realtime</div>
+        <div class="metrics-2">
+          <div class="mini">
+            <div class="t">Tổng lợi nhuận</div>
+            <div id="miniProfit" class="n">0.00</div>
+          </div>
+          <div class="mini">
+            <div class="t">% hôm nay</div>
+            <div id="miniPct" class="n">0.00%</div>
+          </div>
+          <div class="mini">
+            <div class="t">DD</div>
+            <div id="miniDD" class="n">0.00%</div>
+          </div>
+          <div class="mini">
+            <div class="t">EDD</div>
+            <div id="miniEDD" class="n">0.00</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel card span-6">
+        <div class="card-title">Kết nối dữ liệu</div>
+        <div class="kv"><div class="k">Key đang theo dõi</div><div id="metaKey" class="v">-</div></div>
+        <div class="kv"><div class="k">Nguồn dữ liệu</div><div class="v">Google Apps Script</div></div>
+        <div class="kv"><div class="k">Refresh</div><div class="v">1 giây</div></div>
+        <div class="kv"><div class="k">Cập nhật lần cuối</div><div id="metaUpdatedAt" class="v">-</div></div>
+        <div class="kv"><div class="k">Trạng thái hiện tại</div><div id="metaState" class="v">Đang chờ</div></div>
+      </div>
+
+      <div class="panel calendar-wrap span-12">
+        <div class="calendar-head">
+          <div>
+            <div class="card-title" style="margin-bottom:4px;">Lịch tháng</div>
+            <h2 id="calendarTitle">Lịch giao dịch</h2>
+          </div>
+          <div class="status-row">
+            <span class="pill blue">Chi tiết theo ngày</span>
+            <span class="pill yellow">Profit / % / DD / Lots</span>
+          </div>
+        </div>
+        <div class="weekdays">
+          <div class="weekday">CN</div>
+          <div class="weekday">T2</div>
+          <div class="weekday">T3</div>
+          <div class="weekday">T4</div>
+          <div class="weekday">T5</div>
+          <div class="weekday">T6</div>
+          <div class="weekday">T7</div>
+        </div>
+        <div id="calendar" class="calendar" style="margin-top:10px;"></div>
+      </div>
+
+      <div class="panel table-wrap span-12">
+        <div class="card-title">Lịch sử gần nhất</div>
+        <table>
+          <thead>
+            <tr>
+              <th>Ngày</th>
+              <th>BOT</th>
+              <th>Symbol</th>
+              <th>ID</th>
+              <th>Name</th>
+              <th>Tổng vốn</th>
+              <th>Sau trade</th>
+              <th>Lợi nhuận</th>
+              <th>% hôm nay</th>
+              <th>Đã chốt</th>
+              <th>Đang chạy</th>
+              <th>Orders</th>
+              <th>Lots</th>
+              <th>DD</th>
+              <th>EDD</th>
+              <th>Trend</th>
+              <th>Cập nhật</th>
+            </tr>
+          </thead>
+          <tbody id="rowsBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="emptyState" class="panel empty-state">
+      Nhập <strong style="margin:0 6px;">ID</strong> hoặc <strong style="margin:0 6px;">tên BOT</strong> để bắt đầu theo dõi realtime.<br>
+      Ví dụ: <strong style="margin-left:6px;">123456</strong> hoặc <strong style="margin-left:6px;">CUA_2K</strong>
+    </section>
+  </div>
+
+  <script>
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz1xDRBSNmZYugPImZWGjbElXr5kOTPxEcvLdhmAgDo1RMlBvu_PDNxiZMKz66mASI/exec';
+    const REFRESH_MS = 1000;
+    const MONTH_REFRESH_MS = 5000;
+    const STORAGE_KEY = 'justincua_dashboard_key';
+
+    const els = {
+      searchInput: document.getElementById('searchInput'),
+      monthInput: document.getElementById('monthInput'),
+      statusDot: document.getElementById('statusDot'),
+      statusText: document.getElementById('statusText'),
+      lastUpdate: document.getElementById('lastUpdate'),
+      dashboard: document.getElementById('dashboard'),
+      emptyState: document.getElementById('emptyState'),
+      calendar: document.getElementById('calendar'),
+      calendarTitle: document.getElementById('calendarTitle'),
+      rowsBody: document.getElementById('rowsBody')
+    };
+
+    let activeKey = '';
+    let summaryTimer = null;
+    let monthTimer = null;
+    let typingTimer = null;
+    let currentMonthPayload = null;
+    let currentRows = [];
+    let fetchBusy = false;
+
+    function jsonp(params = {}, timeout = 12000) {
+      return new Promise((resolve, reject) => {
+        const cb = '__jsonp_' + Date.now() + '_' + Math.random().toString(36).slice(2);
+        const script = document.createElement('script');
+        const url = new URL(SCRIPT_URL);
+        Object.entries(params).forEach(([k, v]) => {
+          if (v !== undefined && v !== null && String(v) !== '') url.searchParams.set(k, v);
+        });
+        url.searchParams.set('callback', cb);
+
+        let done = false;
+        const cleanup = () => {
+          if (script.parentNode) script.parentNode.removeChild(script);
+          try { delete window[cb]; } catch (_) { window[cb] = undefined; }
+        };
+
+        const timer = setTimeout(() => {
+          if (done) return;
+          done = true;
+          cleanup();
+          reject(new Error('JSONP timeout'));
+        }, timeout);
+
+        window[cb] = (data) => {
+          if (done) return;
+          done = true;
+          clearTimeout(timer);
+          cleanup();
+          resolve(data);
+        };
+
+        script.onerror = () => {
+          if (done) return;
+          done = true;
+          clearTimeout(timer);
+          cleanup();
+          reject(new Error('JSONP load error'));
+        };
+
+        script.src = url.toString();
+        document.body.appendChild(script);
+      });
+    }
+
+    function formatNumber(value, digits = 2) {
+      const n = Number(value || 0);
+      return n.toLocaleString('en-US', {
+        minimumFractionDigits: digits,
+        maximumFractionDigits: digits
+      });
+    }
+
+    function formatSigned(value, digits = 2) {
+      const n = Number(value || 0);
+      const s = formatNumber(Math.abs(n), digits);
+      return (n > 0 ? '+' : n < 0 ? '-' : '') + s;
+    }
+
+    function formatPct(value, digits = 2) {
+      const n = Number(value || 0);
+      const s = formatNumber(Math.abs(n), digits) + '%';
+      return (n > 0 ? '+' : n < 0 ? '-' : '') + s;
+    }
+
+    function clsByValue(value) {
+      const n = Number(value || 0);
+      if (n > 0) return 'green';
+      if (n < 0) return 'red';
+      return 'yellow';
+    }
+
+    function setStatus(text, state = 'waiting') {
+      els.statusText.textContent = text;
+      els.statusDot.className = 'dot';
+      if (state === 'live') els.statusDot.classList.add('live');
+      if (state === 'error') els.statusDot.classList.add('error');
+      const metaState = document.getElementById('metaState');
+      if (metaState) metaState.textContent = text;
+    }
+
+    function setLastUpdateNow() {
+      const now = new Date();
+      els.lastUpdate.textContent = now.toLocaleTimeString('vi-VN');
+    }
+
+    function updateText(id, text, className = '') {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.textContent = text;
+      el.className = el.className.replace(/\b(green|red|yellow|blue)\b/g, '').trim();
+      if (className) el.classList.add(className);
+    }
+
+    function renderSummary(data) {
+      if (!data || !data.found) {
+        els.dashboard.style.display = 'none';
+        els.emptyState.style.display = 'flex';
+        setStatus('Không tìm thấy dữ liệu cho key này', 'error');
+        return;
+      }
+
+      els.dashboard.style.display = 'grid';
+      els.emptyState.style.display = 'none';
+
+      updateText('totalProfit', formatSigned(data.totalprofit), clsByValue(data.totalprofit));
+      updateText('todayPct', formatPct(data.todaypct), clsByValue(data.todaypct));
+      updateText('afterCapital', formatNumber(data.aftercapital), 'blue');
+      updateText('ddNow', formatNumber(data.dd) + '% | ' + formatSigned(data.edd), data.dd > 0 ? 'red' : 'yellow');
+
+      updateText('infoId', data.id || '-');
+      updateText('infoName', data.name || '-');
+      updateText('infoBot', data.bot || '-');
+      updateText('infoSymbol', data.symbol || '-');
+      updateText('infoDate', data.date || '-');
+
+      updateText('capTotal', formatNumber(data.totalcapital));
+      updateText('capStart', formatNumber(data.startcapital));
+      updateText('capAfter', formatNumber(data.aftercapital));
+      updateText('capRealProfit', formatSigned(data.realprofit), clsByValue(data.realprofit));
+      updateText('capRealPct', formatPct(data.realpct), clsByValue(data.realpct));
+
+      updateText('tradeClosed', formatSigned(data.closedpnl), clsByValue(data.closedpnl));
+      updateText('tradeFloating', formatSigned(data.floatingpnl), clsByValue(data.floatingpnl));
+      updateText('tradeSides', `${data.buy || 0} / ${data.sell || 0}`);
+      updateText('tradeOrdersLots', `${data.orders || 0} / ${formatNumber(data.lots || 0)}`);
+      updateText('tradeScoreTrend', `${data.score || 0} / ${data.trend || '-'}`);
+
+      updateText('miniProfit', formatSigned(data.totalprofit), clsByValue(data.totalprofit));
+      updateText('miniPct', formatPct(data.todaypct), clsByValue(data.todaypct));
+      updateText('miniDD', formatNumber(data.dd) + '%', data.dd > 0 ? 'red' : 'yellow');
+      updateText('miniEDD', formatSigned(data.edd), clsByValue(-Math.abs(Number(data.edd || 0))));
+
+      updateText('metaKey', activeKey || '-');
+      updateText('metaUpdatedAt', data.updatedAt || '-');
+
+      setStatus('Đang kết nối realtime', 'live');
+      setLastUpdateNow();
+    }
+
+    function buildCalendarMap(items = []) {
+      const map = new Map();
+      for (const item of items) map.set(item.day, item);
+      return map;
+    }
+
+    function renderCalendar(payload) {
+      currentMonthPayload = payload || { items: [] };
+      const items = Array.isArray(currentMonthPayload.items) ? currentMonthPayload.items : [];
+      const year = Number(currentMonthPayload.year || new Date().getFullYear());
+      const month = Number(currentMonthPayload.month || (new Date().getMonth() + 1));
+      const first = new Date(year, month - 1, 1);
+      const lastDate = new Date(year, month, 0).getDate();
+      const startDay = first.getDay();
+      const map = buildCalendarMap(items);
+
+      els.calendarTitle.textContent = `Lịch giao dịch ${String(month).padStart(2, '0')}/${year}`;
+      els.calendar.innerHTML = '';
+
+      for (let i = 0; i < startDay; i++) {
+        const empty = document.createElement('div');
+        empty.className = 'day empty';
+        els.calendar.appendChild(empty);
+      }
+
+      for (let d = 1; d <= lastDate; d++) {
+        const cell = document.createElement('div');
+        const row = map.get(d);
+        cell.className = 'day';
+
+        if (!row) {
+          cell.innerHTML = `
+            <div class="num">${d}</div>
+            <div class="small">Không có dữ liệu</div>
+          `;
+        } else {
+          const profitCls = Number(row.totalprofit) >= 0 ? 'green' : 'red';
+          const ddCls = Number(row.dd) > 0 ? 'red' : 'yellow';
+          cell.innerHTML = `
+            <div class="num">${d}</div>
+            <div class="pill ${profitCls}">Lợi nhuận ${formatSigned(row.totalprofit)}</div>
+            <div class="pill ${Number(row.todaypct) >= 0 ? 'green' : 'red'}">${formatPct(row.todaypct)}</div>
+            <div class="small">Lots: ${formatNumber(row.lots || 0)}</div>
+            <div class="small">DD: <span class="${ddCls}">${formatNumber(row.dd || 0)}%</span></div>
+            <div class="small">Orders: ${row.orders || 0} · Trend: ${row.trend || '-'}</div>
+          `;
+        }
+        els.calendar.appendChild(cell);
+      }
+    }
+
+    function renderRows(items = []) {
+      currentRows = items;
+      els.rowsBody.innerHTML = '';
+      if (!items.length) {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td colspan="17" class="muted">Chưa có dòng dữ liệu nào.</td>`;
+        els.rowsBody.appendChild(tr);
+        return;
+      }
+
+      for (const row of items) {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${row['Ngày'] || '-'}</td>
+          <td>${row['Bot'] || '-'}</td>
+          <td>${row['Symbol'] || '-'}</td>
+          <td>${row['ID'] || '-'}</td>
+          <td>${row['Name'] || '-'}</td>
+          <td class="${clsByValue(row['TổngVốn'])}">${formatNumber(row['TổngVốn'])}</td>
+          <td>${formatNumber(row['VốnSauKhiTrade'])}</td>
+          <td class="${clsByValue(row['TổngLợiNhuậnSauTrade'])}">${formatSigned(row['TổngLợiNhuậnSauTrade'])}</td>
+          <td class="${clsByValue(row['%KiếmHômNay'])}">${formatPct(row['%KiếmHômNay'])}</td>
+          <td class="${clsByValue(row['ĐãChốt'])}">${formatSigned(row['ĐãChốt'])}</td>
+          <td class="${clsByValue(row['ĐangChạy'])}">${formatSigned(row['ĐangChạy'])}</td>
+          <td>${row['Orders'] || 0}</td>
+          <td>${formatNumber(row['Lots'] || 0)}</td>
+          <td class="${Number(row['DD'] || 0) > 0 ? 'red' : 'yellow'}">${formatNumber(row['DD'] || 0)}%</td>
+          <td class="${clsByValue(-Math.abs(Number(row['EDD'] || 0)))}">${formatSigned(row['EDD'])}</td>
+          <td>${row['Trend'] || '-'}</td>
+          <td>${row['CậpNhật'] || '-'}</td>
+        `;
+        els.rowsBody.appendChild(tr);
+      }
+    }
+
+    function getMonthValue() {
+      const raw = els.monthInput.value;
+      if (!raw) {
+        const now = new Date();
+        return { year: now.getFullYear(), month: now.getMonth() + 1 };
+      }
+      const [year, month] = raw.split('-').map(Number);
+      return { year, month };
+    }
+
+    async function fetchSummary() {
+      if (!activeKey || fetchBusy) return;
+      fetchBusy = true;
+      try {
+        const data = await jsonp({ mode: 'summary', key: activeKey });
+        renderSummary(data);
+      } catch (err) {
+        setStatus('Lỗi tải summary: ' + err.message, 'error');
+      } finally {
+        fetchBusy = false;
+      }
+    }
+
+    async function fetchMonth(force = false) {
+      if (!activeKey) return;
+      const { year, month } = getMonthValue();
+      if (!force && currentMonthPayload && Number(currentMonthPayload.year) === year && Number(currentMonthPayload.month) === month) {
+        // vẫn refresh định kỳ bên ngoài
+      }
+      try {
+        const data = await jsonp({ mode: 'month', key: activeKey, y: year, m: month });
+        renderCalendar(data);
+      } catch (err) {
+        setStatus('Lỗi tải lịch tháng: ' + err.message, 'error');
+      }
+    }
+
+    async function fetchRows() {
+      if (!activeKey) return;
+      try {
+        const data = await jsonp({ mode: 'rows', key: activeKey, limit: 30 });
+        renderRows(Array.isArray(data.items) ? data.items : []);
+      } catch (err) {
+        setStatus('Lỗi tải bảng dữ liệu: ' + err.message, 'error');
+      }
+    }
+
+    function startRealtime() {
+      stopRealtime();
+      fetchSummary();
+      fetchMonth(true);
+      fetchRows();
+      summaryTimer = setInterval(() => {
+        fetchSummary();
+        fetchRows();
+      }, REFRESH_MS);
+      monthTimer = setInterval(() => {
+        fetchMonth();
+      }, MONTH_REFRESH_MS);
+    }
+
+    function stopRealtime() {
+      if (summaryTimer) clearInterval(summaryTimer);
+      if (monthTimer) clearInterval(monthTimer);
+      summaryTimer = null;
+      monthTimer = null;
+    }
+
+    function applySearchValue(value) {
+      const v = String(value || '').trim();
+      activeKey = v;
+      localStorage.setItem(STORAGE_KEY, v);
+      if (!v) {
+        stopRealtime();
+        els.dashboard.style.display = 'none';
+        els.emptyState.style.display = 'flex';
+        setStatus('Đang chờ dữ liệu...', 'waiting');
+        return;
+      }
+      setStatus('Đang tải dữ liệu...', 'waiting');
+      startRealtime();
+    }
+
+    function setupEvents() {
+      els.searchInput.addEventListener('input', (e) => {
+        clearTimeout(typingTimer);
+        typingTimer = setTimeout(() => applySearchValue(e.target.value), 500);
+      });
+
+      els.searchInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          clearTimeout(typingTimer);
+          applySearchValue(e.target.value);
+        }
+      });
+
+      els.monthInput.addEventListener('change', () => {
+        if (activeKey) fetchMonth(true);
+      });
+    }
+
+    function initMonthInput() {
+      const now = new Date();
+      const yyyy = now.getFullYear();
+      const mm = String(now.getMonth() + 1).padStart(2, '0');
+      els.monthInput.value = `${yyyy}-${mm}`;
+    }
+
+    function initFromStorage() {
+      const saved = localStorage.getItem(STORAGE_KEY) || '';
+      if (saved) {
+        els.searchInput.value = saved;
+        applySearchValue(saved);
+      }
+    }
+
+    initMonthInput();
+    setupEvents();
+    initFromStorage();
+  </script>
+</body>
+</html>
