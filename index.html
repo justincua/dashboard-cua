@@ -34,16 +34,16 @@
     }
 
     .wrap {
-      max-width: 1440px;
+      max-width: 1280px;
       margin: 0 auto;
-      padding: 20px;
+      padding: 14px;
     }
 
     .topbar {
       display: grid;
-      grid-template-columns: 1.2fr 0.8fr 0.8fr 0.8fr;
-      gap: 14px;
-      margin-bottom: 18px;
+      grid-template-columns: 1.25fr 0.85fr 0.7fr 0.7fr;
+      gap: 10px;
+      margin-bottom: 12px;
     }
 
     .panel {
@@ -55,28 +55,28 @@
     }
 
     .hero {
-      padding: 18px 20px;
-      min-height: 92px;
+      padding: 14px 16px;
+      min-height: 78px;
     }
 
     .hero h1 {
-      margin: 0 0 6px;
-      font-size: 24px;
-      line-height: 1.2;
+      margin: 0 0 4px;
+      font-size: 21px;
+      line-height: 1.15;
     }
 
     .sub {
       color: var(--muted);
-      font-size: 13px;
+      font-size: 12px;
     }
 
     .search-box, .meta-box {
-      padding: 16px 18px;
+      padding: 12px 14px;
       display: flex;
       flex-direction: column;
       justify-content: center;
-      gap: 8px;
-      min-height: 92px;
+      gap: 6px;
+      min-height: 78px;
     }
 
     .label {
@@ -129,8 +129,8 @@
     }
 
     .card {
-      padding: 18px;
-      min-height: 148px;
+      padding: 14px;
+      min-height: 126px;
     }
 
     .span-3 { grid-column: span 3; }
@@ -203,47 +203,48 @@
     }
 
     .calendar-wrap {
-      padding: 18px;
+      padding: 14px;
     }
 
     .calendar-head {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      gap: 12px;
-      margin-bottom: 14px;
+      gap: 8px;
+      margin-bottom: 10px;
       flex-wrap: wrap;
     }
 
     .calendar-head h2 {
-      font-size: 18px;
+      font-size: 16px;
       margin: 0;
     }
 
     .weekdays, .calendar {
       display: grid;
       grid-template-columns: repeat(7, 1fr);
-      gap: 10px;
+      gap: 6px;
     }
 
     .weekday {
       text-align: center;
       color: var(--muted);
-      font-size: 12px;
-      padding: 8px 0;
+      font-size: 11px;
+      padding: 4px 0;
       text-transform: uppercase;
-      letter-spacing: 0.08em;
+      letter-spacing: 0.06em;
     }
 
     .day {
-      min-height: 112px;
+      min-height: 76px;
       background: rgba(255,255,255,0.03);
       border: 1px solid rgba(255,255,255,0.06);
-      border-radius: 14px;
-      padding: 10px;
+      border-radius: 12px;
+      padding: 8px;
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      gap: 3px;
+      overflow: hidden;
     }
 
     .day.empty {
@@ -252,20 +253,51 @@
       opacity: 0.45;
     }
 
+    .day.compact-empty {
+      justify-content: space-between;
+    }
+
+    .day.compact-empty .small {
+      font-size: 10px;
+      opacity: 0.65;
+    }
+
+    .day.compact-data .meta-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 4px;
+      font-size: 10px;
+      color: var(--muted);
+      margin-top: auto;
+    }
+
+    .day.compact-data .value-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      min-height: 20px;
+    }
+
     .day .num {
-      font-size: 14px;
+      font-size: 13px;
       font-weight: 800;
+      line-height: 1;
     }
 
     .pill {
       display: inline-flex;
       align-items: center;
-      gap: 6px;
-      padding: 6px 10px;
+      gap: 4px;
+      padding: 3px 7px;
       border-radius: 999px;
       background: rgba(255,255,255,0.06);
-      font-size: 12px;
+      font-size: 10px;
       width: fit-content;
+      max-width: 100%;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .pill.green { color: var(--green); background: rgba(29,211,138,0.08); }
@@ -274,9 +306,12 @@
     .pill.blue { color: var(--blue); background: rgba(86,168,255,0.08); }
 
     .day .small {
-      font-size: 12px;
+      font-size: 10px;
       color: var(--muted);
-      line-height: 1.35;
+      line-height: 1.2;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .table-wrap { padding: 18px; overflow: auto; }
@@ -319,18 +354,21 @@
     @media (max-width: 1180px) {
       .topbar { grid-template-columns: 1fr 1fr; }
       .span-3, .span-4, .span-5, .span-6, .span-7, .span-8 { grid-column: span 6; }
-      .calendar, .weekdays { gap: 8px; }
-      .day { min-height: 100px; }
+      .calendar, .weekdays { gap: 5px; }
+      .day { min-height: 70px; padding: 7px; }
     }
 
     @media (max-width: 720px) {
-      .wrap { padding: 14px; }
+      .wrap { padding: 10px; }
       .topbar { grid-template-columns: 1fr; }
-      .grid { gap: 12px; }
+      .grid { gap: 10px; }
       .span-3, .span-4, .span-5, .span-6, .span-7, .span-8, .span-12 { grid-column: span 12; }
       .metrics-2 { grid-template-columns: 1fr; }
-      .calendar, .weekdays { grid-template-columns: repeat(7, minmax(86px, 1fr)); overflow-x: auto; }
-      .big { font-size: 26px; }
+      .calendar, .weekdays { grid-template-columns: repeat(7, minmax(68px, 1fr)); gap: 4px; overflow-x: auto; }
+      .day { min-height: 66px; padding: 6px; border-radius: 10px; }
+      .day .small { font-size: 9px; }
+      .pill { font-size: 9px; padding: 2px 6px; }
+      .big { font-size: 24px; }
     }
   </style>
 </head>
@@ -338,8 +376,8 @@
   <div class="wrap">
     <section class="topbar">
       <div class="panel hero">
-        <h1>JustinCua Realtime By Vương</h1>
-        <div class="sub">Tự cập nhật mỗi 1 giây · Tìm theo ID hoặc tên BOT · Đồng bộ trực tiếp từ BOT CUA</div>
+        <h1>JustinCua Realtime Dashboard</h1>
+        <div class="sub">Tự cập nhật mỗi 1 giây · Tìm theo ID hoặc tên BOT · Đồng bộ trực tiếp từ Google Apps Script</div>
       </div>
 
       <div class="panel search-box">
@@ -449,8 +487,8 @@
             <h2 id="calendarTitle">Lịch giao dịch</h2>
           </div>
           <div class="status-row">
-            <span class="pill blue">Chi tiết theo ngày</span>
-            <span class="pill yellow">Profit / % / DD / Lots</span>
+            <span class="pill blue">Theo ngày</span>
+            <span class="pill yellow">P/L · % · DD · Lots</span>
           </div>
         </div>
         <div class="weekdays">
@@ -694,23 +732,29 @@
       for (let d = 1; d <= lastDate; d++) {
         const cell = document.createElement('div');
         const row = map.get(d);
-        cell.className = 'day';
 
         if (!row) {
+          cell.className = 'day compact-empty';
           cell.innerHTML = `
             <div class="num">${d}</div>
-            <div class="small">Không có dữ liệu</div>
+            <div class="small">—</div>
           `;
         } else {
           const profitCls = Number(row.totalprofit) >= 0 ? 'green' : 'red';
+          const pctCls = Number(row.todaypct) >= 0 ? 'green' : 'red';
           const ddCls = Number(row.dd) > 0 ? 'red' : 'yellow';
+          cell.className = 'day compact-data';
+          cell.title = `Profit: ${formatSigned(row.totalprofit)} | %: ${formatPct(row.todaypct)} | Lots: ${formatNumber(row.lots || 0)} | DD: ${formatNumber(row.dd || 0)}% | Orders: ${row.orders || 0} | Trend: ${row.trend || '-'}`;
           cell.innerHTML = `
             <div class="num">${d}</div>
-            <div class="pill ${profitCls}">Lợi nhuận ${formatSigned(row.totalprofit)}</div>
-            <div class="pill ${Number(row.todaypct) >= 0 ? 'green' : 'red'}">${formatPct(row.todaypct)}</div>
-            <div class="small">Lots: ${formatNumber(row.lots || 0)}</div>
-            <div class="small">DD: <span class="${ddCls}">${formatNumber(row.dd || 0)}%</span></div>
-            <div class="small">Orders: ${row.orders || 0} · Trend: ${row.trend || '-'}</div>
+            <div class="value-row">
+              <div class="pill ${profitCls}">${formatSigned(row.totalprofit)}</div>
+              <div class="pill ${pctCls}">${formatPct(row.todaypct)}</div>
+            </div>
+            <div class="meta-row">
+              <span>L ${formatNumber(row.lots || 0)}</span>
+              <span class="${ddCls}">DD ${formatNumber(row.dd || 0)}%</span>
+            </div>
           `;
         }
         els.calendar.appendChild(cell);
