@@ -207,11 +207,13 @@
     }
 
     .kv:last-child { border-bottom: 0; }
+
     .kv .k {
       color: var(--muted);
       min-width: 0;
       word-break: break-word;
     }
+
     .kv .v {
       text-align: right;
       font-weight: 700;
@@ -278,6 +280,14 @@
       word-break: break-word;
     }
 
+    .bot-banner-sub {
+      margin-top: 6px;
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.4;
+      word-break: break-word;
+    }
+
     .bot-pill {
       display: inline-flex;
       align-items: center;
@@ -299,6 +309,11 @@
     .bot-pill.paused {
       color: var(--red);
       background: rgba(255,93,115,0.10);
+    }
+
+    .bot-pill.checking {
+      color: var(--yellow);
+      background: rgba(245,196,81,0.10);
     }
 
     .calendar-wrap {
@@ -367,24 +382,6 @@
       opacity: 0.65;
     }
 
-    .day.compact-data .meta-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 4px;
-      font-size: 10px;
-      color: var(--muted);
-      margin-top: auto;
-      min-width: 0;
-    }
-
-    .day.compact-data .meta-row span {
-      min-width: 0;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
     .day.compact-data .value-row {
       display: flex;
       flex-wrap: wrap;
@@ -419,10 +416,6 @@
     .pill.red { color: var(--red); background: rgba(255,93,115,0.08); }
     .pill.yellow { color: var(--yellow); background: rgba(245,196,81,0.08); }
     .pill.blue { color: var(--blue); background: rgba(86,168,255,0.08); }
-    .pill.running { color: var(--green); background: rgba(29,211,138,0.08); }
-    .pill.closed { color: var(--blue); background: rgba(86,168,255,0.08); }
-    .pill.waiting { color: var(--yellow); background: rgba(245,196,81,0.08); }
-    .pill.paused { color: var(--red); background: rgba(255,93,115,0.08); }
 
     .day .small {
       font-size: 10px;
@@ -431,42 +424,6 @@
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-    }
-
-    .table-wrap {
-      padding: 18px;
-      overflow-x: auto;
-      overflow-y: hidden;
-      -webkit-overflow-scrolling: touch;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      min-width: 1080px;
-    }
-
-    th, td {
-      padding: 12px 10px;
-      border-bottom: 1px solid rgba(255,255,255,0.06);
-      font-size: 14px;
-      text-align: left;
-      white-space: nowrap;
-      vertical-align: middle;
-    }
-
-    th {
-      color: var(--muted);
-      font-size: 12px;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      position: sticky;
-      top: 0;
-      background: rgba(11,16,32,0.98);
-    }
-
-    .trade-status-cell {
-      font-weight: 700;
     }
 
     .empty-state {
@@ -482,12 +439,15 @@
 
     @media (max-width: 1180px) {
       .topbar { grid-template-columns: 1fr 1fr; }
+
       .span-3,
       .span-4,
       .span-5,
       .span-6,
       .span-7,
-      .span-8 { grid-column: span 6; }
+      .span-8 {
+        grid-column: span 6;
+      }
 
       .calendar,
       .weekdays { gap: 5px; }
@@ -499,18 +459,14 @@
     }
 
     @media (max-width: 720px) {
-      .wrap {
-        padding: 8px;
-      }
+      .wrap { padding: 8px; }
 
       .topbar {
         grid-template-columns: 1fr;
         gap: 8px;
       }
 
-      .grid {
-        gap: 10px;
-      }
+      .grid { gap: 10px; }
 
       .span-3,
       .span-4,
@@ -526,20 +482,15 @@
       .search-box,
       .meta-box,
       .card,
-      .calendar-wrap,
-      .table-wrap {
+      .calendar-wrap {
         padding: 12px;
       }
 
-      .hero h1 {
-        font-size: 18px;
-      }
+      .hero h1 { font-size: 18px; }
 
       .sub,
       .label,
-      .status-row {
-        font-size: 11px;
-      }
+      .status-row { font-size: 11px; }
 
       .search-input,
       .month-input {
@@ -547,13 +498,8 @@
         padding: 11px 12px;
       }
 
-      .big {
-        font-size: 23px;
-      }
-
-      .big.small {
-        font-size: 20px;
-      }
+      .big { font-size: 23px; }
+      .big.small { font-size: 20px; }
 
       .kv {
         grid-template-columns: minmax(0, 1fr) auto;
@@ -566,26 +512,18 @@
         gap: 10px;
       }
 
-      .mini .n {
-        font-size: 19px;
-      }
+      .mini .n { font-size: 19px; }
 
       .bot-banner {
         flex-direction: column;
         align-items: flex-start;
       }
 
-      .bot-banner-text {
-        font-size: 16px;
-      }
+      .bot-banner-text { font-size: 16px; }
 
-      .calendar-head {
-        gap: 6px;
-      }
+      .calendar-head { gap: 6px; }
 
-      .calendar-head h2 {
-        font-size: 14px;
-      }
+      .calendar-head h2 { font-size: 14px; }
 
       .weekdays,
       .calendar {
@@ -607,9 +545,7 @@
         gap: 2px;
       }
 
-      .day .num {
-        font-size: 11px;
-      }
+      .day .num { font-size: 11px; }
 
       .pill {
         font-size: 7px;
@@ -617,40 +553,22 @@
         gap: 2px;
       }
 
-      .day .small {
-        font-size: 7px;
-      }
+      .day .small { font-size: 7px; }
 
       .day.compact-data .value-row {
         gap: 2px;
         min-height: auto;
       }
-
-      .day.compact-data .meta-row {
-        font-size: 7px;
-        gap: 3px;
-      }
-
-      .table-wrap {
-        padding: 12px;
-      }
-
-      table {
-        min-width: 920px;
-      }
     }
 
     @media (max-width: 420px) {
-      .wrap {
-        padding: 6px;
-      }
+      .wrap { padding: 6px; }
 
       .hero,
       .search-box,
       .meta-box,
       .card,
-      .calendar-wrap,
-      .table-wrap {
+      .calendar-wrap {
         padding: 10px;
       }
 
@@ -659,26 +577,15 @@
         margin-bottom: 8px;
       }
 
-      .big {
-        font-size: 21px;
-      }
+      .big { font-size: 21px; }
+      .big.small { font-size: 18px; }
 
-      .big.small {
-        font-size: 18px;
-      }
-
-      .calendar-head h2 {
-        font-size: 13px;
-      }
+      .calendar-head h2 { font-size: 13px; }
 
       .weekdays,
-      .calendar {
-        gap: 2px;
-      }
+      .calendar { gap: 2px; }
 
-      .weekday {
-        font-size: 8px;
-      }
+      .weekday { font-size: 8px; }
 
       .day {
         min-height: 54px;
@@ -686,9 +593,7 @@
         border-radius: 8px;
       }
 
-      .day .num {
-        font-size: 10px;
-      }
+      .day .num { font-size: 10px; }
 
       .day.compact-data .value-row {
         flex-direction: column;
@@ -702,22 +607,14 @@
         max-width: 100%;
       }
 
-      .day.compact-data .meta-row {
-        display: none;
-      }
-
       .day.compact-empty .small,
       .day .small {
         font-size: 6px;
       }
 
-      .kv {
-        font-size: 12px;
-      }
+      .kv { font-size: 12px; }
 
-      .mini .n {
-        font-size: 17px;
-      }
+      .mini .n { font-size: 17px; }
     }
   </style>
 </head>
@@ -751,9 +648,10 @@
         <div class="bot-banner">
           <div class="bot-banner-left">
             <div class="bot-banner-title">Trạng thái bot</div>
-            <div id="botBannerText" class="bot-banner-text">Bot đã tạm ngưng giao dịch</div>
+            <div id="botBannerText" class="bot-banner-text yellow">Kiểm tra bot đang giao dịch hay không...</div>
+            <div id="botBannerSubtext" class="bot-banner-sub">Đang chờ heartbeat từ phần CậpNhật</div>
           </div>
-          <div id="botBannerPill" class="bot-pill paused">Tạm ngưng</div>
+          <div id="botBannerPill" class="bot-pill checking">Đang kiểm tra</div>
         </div>
       </div>
 
@@ -806,7 +704,7 @@
         <div class="kv"><div class="k">BUY / SELL</div><div id="tradeSides" class="v">0 / 0</div></div>
         <div class="kv"><div class="k">Orders / Lots</div><div id="tradeOrdersLots" class="v">0 / 0.00</div></div>
         <div class="kv"><div class="k">Score / Trend</div><div id="tradeScoreTrend" class="v">0 / -</div></div>
-        <div class="kv"><div class="k">Trạng thái bot</div><div id="tradeBotState" class="v">Tạm ngưng</div></div>
+        <div class="kv"><div class="k">Trạng thái bot</div><div id="tradeBotState" class="v yellow">Đang kiểm tra</div></div>
       </div>
 
       <div class="panel card span-6">
@@ -836,9 +734,10 @@
         <div class="kv"><div class="k">Key đang theo dõi</div><div id="metaKey" class="v">-</div></div>
         <div class="kv"><div class="k">Nguồn dữ liệu</div><div class="v">JUSTINCUA_BOT</div></div>
         <div class="kv"><div class="k">Refresh</div><div class="v">1 giây</div></div>
+        <div class="kv"><div class="k">Heartbeat timeout</div><div class="v">10 giây</div></div>
         <div class="kv"><div class="k">Cập nhật lần cuối</div><div id="metaUpdatedAt" class="v">-</div></div>
         <div class="kv"><div class="k">Trạng thái hiện tại</div><div id="metaState" class="v">Đang chờ</div></div>
-        <div class="kv"><div class="k">Bot</div><div id="metaBotStatus" class="v">Tạm ngưng</div></div>
+        <div class="kv"><div class="k">Bot</div><div id="metaBotStatus" class="v yellow">Đang kiểm tra</div></div>
       </div>
 
       <div class="panel calendar-wrap span-12">
@@ -865,36 +764,6 @@
 
         <div id="calendar" class="calendar" style="margin-top:10px;"></div>
       </div>
-
-      <div class="panel table-wrap span-12">
-        <div class="card-title">Lịch sử lệnh trade</div>
-        <table>
-          <thead>
-            <tr>
-              <th>Ngày</th>
-              <th>BOT</th>
-              <th>Symbol</th>
-              <th>ID</th>
-              <th>Name</th>
-              <th>Trạng thái bot</th>
-              <th>Trạng thái lệnh</th>
-              <th>Tổng vốn</th>
-              <th>Sau trade</th>
-              <th>Lợi nhuận</th>
-              <th>% hôm nay</th>
-              <th>Đã chốt</th>
-              <th>Đang chạy</th>
-              <th>Orders</th>
-              <th>Lots</th>
-              <th>DD</th>
-              <th>EDD</th>
-              <th>Trend</th>
-              <th>Cập nhật</th>
-            </tr>
-          </thead>
-          <tbody id="rowsBody"></tbody>
-        </table>
-      </div>
     </section>
 
     <section id="emptyState" class="panel empty-state">
@@ -907,6 +776,7 @@
     const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz1xDRBSNmZYugPImZWGjbElXr5kOTPxEcvLdhmAgDo1RMlBvu_PDNxiZMKz66mASI/exec';
     const REFRESH_MS = 1000;
     const MONTH_REFRESH_MS = 5000;
+    const BOT_IDLE_TIMEOUT_MS = 10000;
     const STORAGE_KEY = 'justincua_dashboard_key';
 
     const els = {
@@ -918,8 +788,7 @@
       dashboard: document.getElementById('dashboard'),
       emptyState: document.getElementById('emptyState'),
       calendar: document.getElementById('calendar'),
-      calendarTitle: document.getElementById('calendarTitle'),
-      rowsBody: document.getElementById('rowsBody')
+      calendarTitle: document.getElementById('calendarTitle')
     };
 
     let activeKey = '';
@@ -927,8 +796,10 @@
     let monthTimer = null;
     let typingTimer = null;
     let currentMonthPayload = null;
-    let currentRows = [];
     let fetchBusy = false;
+
+    let lastHeartbeatValue = '';
+    let lastHeartbeatChangeAt = 0;
 
     function jsonp(params = {}, timeout = 12000) {
       return new Promise((resolve, reject) => {
@@ -1026,64 +897,82 @@
       if (className) el.classList.add(className);
     }
 
-    function toNumber(value) {
-      const n = Number(value);
-      return Number.isFinite(n) ? n : 0;
+    function getUpdatedAtValue(data) {
+      return String(
+        data?.updatedAt ??
+        data?.capNhat ??
+        data?.CapNhat ??
+        data?.['CậpNhật'] ??
+        ''
+      ).trim();
     }
 
-    function isBotRunning(data) {
-      if (!data) return false;
-      const orders = toNumber(data.orders);
-      const buy = toNumber(data.buy);
-      const sell = toNumber(data.sell);
-      const floating = toNumber(data.floatingpnl);
-      return orders > 0 || buy > 0 || sell > 0 || Math.abs(floating) > 0.000001;
+    function resetHeartbeatState() {
+      lastHeartbeatValue = '';
+      lastHeartbeatChangeAt = 0;
     }
 
     function getBotStatusInfo(data) {
-      const running = isBotRunning(data);
-      return {
-        running,
-        text: running ? 'Bot đang giao dịch' : 'Bot đã tạm ngưng giao dịch',
-        shortText: running ? 'Đang giao dịch' : 'Tạm ngưng',
-        className: running ? 'green' : 'red',
-        pillClass: running ? 'running' : 'paused'
-      };
-    }
+      const updateValue = getUpdatedAtValue(data);
+      const now = Date.now();
 
-    function getRowValue(row, keys = [], fallback = '') {
-      for (const key of keys) {
-        if (row && row[key] !== undefined && row[key] !== null && row[key] !== '') return row[key];
-      }
-      return fallback;
-    }
-
-    function getTradeStatusInfoFromRow(row) {
-      const orders = toNumber(getRowValue(row, ['Orders', 'orders'], 0));
-      const floating = toNumber(getRowValue(row, ['ĐangChạy', 'DangChay', 'DangChayPNL', 'floatingpnl'], 0));
-      const buy = toNumber(getRowValue(row, ['Buy', 'buy'], 0));
-      const sell = toNumber(getRowValue(row, ['Sell', 'sell'], 0));
-
-      if (orders > 0 || buy > 0 || sell > 0 || Math.abs(floating) > 0.000001) {
+      if (!updateValue) {
         return {
-          text: 'Đang chờ đóng lệnh',
-          className: 'waiting',
-          botText: 'Bot đang giao dịch',
-          botClassName: 'running'
+          state: 'checking',
+          text: 'Kiểm tra bot đang giao dịch hay không...',
+          shortText: 'Đang kiểm tra',
+          className: 'yellow',
+          pillClass: 'checking',
+          note: 'Chưa nhận được time CậpNhật từ bot'
+        };
+      }
+
+      if (updateValue !== lastHeartbeatValue) {
+        lastHeartbeatValue = updateValue;
+        lastHeartbeatChangeAt = now;
+
+        return {
+          state: 'running',
+          text: 'Bot đang giao dịch',
+          shortText: 'Đang giao dịch',
+          className: 'green',
+          pillClass: 'running',
+          note: 'Time CậpNhật mới nhất: ' + updateValue
+        };
+      }
+
+      if (!lastHeartbeatChangeAt) {
+        lastHeartbeatChangeAt = now;
+      }
+
+      const silentMs = now - lastHeartbeatChangeAt;
+      const silentSec = Math.floor(silentMs / 1000);
+
+      if (silentMs >= BOT_IDLE_TIMEOUT_MS) {
+        return {
+          state: 'paused',
+          text: 'Bot đang ngừng giao dịch',
+          shortText: 'Ngừng giao dịch',
+          className: 'red',
+          pillClass: 'paused',
+          note: 'Time CậpNhật đứng yên ' + silentSec + ' giây'
         };
       }
 
       return {
-        text: 'Đã đóng lệnh',
-        className: 'closed',
-        botText: 'Bot đã tạm ngưng giao dịch',
-        botClassName: 'paused'
+        state: 'checking',
+        text: 'Kiểm tra bot đang giao dịch hay không...',
+        shortText: 'Đang kiểm tra',
+        className: 'yellow',
+        pillClass: 'checking',
+        note: 'Time CậpNhật chưa nhảy ' + silentSec + '/10 giây'
       };
     }
 
     function updateBotStatusUI(data) {
       const info = getBotStatusInfo(data);
       const bannerText = document.getElementById('botBannerText');
+      const bannerSubtext = document.getElementById('botBannerSubtext');
       const bannerPill = document.getElementById('botBannerPill');
       const tradeBotState = document.getElementById('tradeBotState');
       const metaBotStatus = document.getElementById('metaBotStatus');
@@ -1091,6 +980,10 @@
       if (bannerText) {
         bannerText.textContent = info.text;
         bannerText.className = 'bot-banner-text ' + info.className;
+      }
+
+      if (bannerSubtext) {
+        bannerSubtext.textContent = info.note;
       }
 
       if (bannerPill) {
@@ -1123,7 +1016,7 @@
       updateText('totalProfit', formatSigned(data.totalprofit), clsByValue(data.totalprofit));
       updateText('todayPct', formatPct(data.todaypct), clsByValue(data.todaypct));
       updateText('afterCapital', formatNumber(data.aftercapital), 'blue');
-      updateText('ddNow', formatNumber(data.dd) + '% | ' + formatSigned(data.edd), data.dd > 0 ? 'red' : 'yellow');
+      updateText('ddNow', formatNumber(data.dd) + '% | ' + formatSigned(data.edd), Number(data.dd || 0) > 0 ? 'red' : 'yellow');
 
       updateText('infoId', data.id || '-');
       updateText('infoName', data.name || '-');
@@ -1145,11 +1038,11 @@
 
       updateText('miniProfit', formatSigned(data.totalprofit), clsByValue(data.totalprofit));
       updateText('miniPct', formatPct(data.todaypct), clsByValue(data.todaypct));
-      updateText('miniDD', formatNumber(data.dd) + '%', data.dd > 0 ? 'red' : 'yellow');
+      updateText('miniDD', formatNumber(data.dd) + '%', Number(data.dd || 0) > 0 ? 'red' : 'yellow');
       updateText('miniEDD', formatSigned(data.edd), clsByValue(-Math.abs(Number(data.edd || 0))));
 
       updateText('metaKey', activeKey || '-');
-      updateText('metaUpdatedAt', data.updatedAt || '-');
+      updateText('metaUpdatedAt', getUpdatedAtValue(data) || '-');
 
       updateBotStatusUI(data);
       setStatus('Đang kết nối realtime', 'live');
@@ -1194,86 +1087,28 @@
         } else {
           const profitCls = Number(row.totalprofit) >= 0 ? 'green' : 'red';
           const pctCls = Number(row.todaypct) >= 0 ? 'green' : 'red';
-          const tradeStatus = getTradeStatusInfoFromRow({
-            Orders: row.orders,
-            ĐangChạy: row.floatingpnl || row.currentpnl || 0,
-            Buy: row.buy || 0,
-            Sell: row.sell || 0
-          });
+          const ddCls = Number(row.dd || 0) > 0 ? 'red' : 'yellow';
 
           cell.className = 'day compact-data';
-          cell.title = `Profit: ${formatSigned(row.totalprofit)} | %: ${formatPct(row.todaypct)} | Lots: ${formatNumber(row.lots || 0)} | DD: ${formatNumber(row.dd || 0)}% | Orders: ${row.orders || 0} | Trend: ${row.trend || '-'} | ${tradeStatus.text}`;
+          cell.title =
+            `Profit: ${formatSigned(row.totalprofit)} | ` +
+            `%: ${formatPct(row.todaypct)} | ` +
+            `Lots: ${formatNumber(row.lots || 0)} | ` +
+            `DD: ${formatNumber(row.dd || 0)}% | ` +
+            `Orders: ${row.orders || 0} | ` +
+            `Trend: ${row.trend || '-'}`;
+
           cell.innerHTML = `
             <div class="num">${d}</div>
             <div class="value-row">
               <div class="pill ${profitCls}">${formatSigned(row.totalprofit)}</div>
               <div class="pill ${pctCls}">${formatPct(row.todaypct)}</div>
-              <div class="pill ${tradeStatus.className}">${tradeStatus.text}</div>
+              <div class="pill ${ddCls}">DD ${formatNumber(row.dd || 0)}%</div>
             </div>
           `;
         }
 
         els.calendar.appendChild(cell);
-      }
-    }
-
-    function renderRows(items = []) {
-      currentRows = items;
-      els.rowsBody.innerHTML = '';
-
-      if (!items.length) {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `<td colspan="19" class="muted">Chưa có dòng dữ liệu nào.</td>`;
-        els.rowsBody.appendChild(tr);
-        return;
-      }
-
-      for (const row of items) {
-        const tradeStatus = getTradeStatusInfoFromRow(row);
-        const botPill = `<span class="pill ${tradeStatus.botClassName}">${tradeStatus.botText}</span>`;
-        const tradePill = `<span class="pill ${tradeStatus.className}">${tradeStatus.text}</span>`;
-
-        const ngay = getRowValue(row, ['Ngày', 'Date'], '-');
-        const bot = getRowValue(row, ['Bot', 'BOT', 'bot'], '-');
-        const symbol = getRowValue(row, ['Symbol', 'symbol'], '-');
-        const id = getRowValue(row, ['ID', 'Id', 'id'], '-');
-        const name = getRowValue(row, ['Name', 'name'], '-');
-        const tongVon = getRowValue(row, ['TổngVốn', 'TongVon', 'totalcapital'], 0);
-        const vonSau = getRowValue(row, ['VốnSauKhiTrade', 'VonSauKhiTrade', 'aftercapital'], 0);
-        const loiNhuan = getRowValue(row, ['TổngLợiNhuậnSauTrade', 'TongLoiNhuanSauTrade', 'totalprofit'], 0);
-        const pct = getRowValue(row, ['%KiếmHômNay', 'KiếmHômNay', 'todaypct'], 0);
-        const daChot = getRowValue(row, ['ĐãChốt', 'DaChot', 'closedpnl'], 0);
-        const dangChay = getRowValue(row, ['ĐangChạy', 'DangChay', 'DangChayPNL', 'floatingpnl'], 0);
-        const orders = getRowValue(row, ['Orders', 'orders'], 0);
-        const lots = getRowValue(row, ['Lots', 'lots'], 0);
-        const dd = getRowValue(row, ['DD', 'dd'], 0);
-        const edd = getRowValue(row, ['EDD', 'edd'], 0);
-        const trend = getRowValue(row, ['Trend', 'trend'], '-');
-        const capNhat = getRowValue(row, ['CậpNhật', 'CapNhat', 'updatedAt'], '-');
-
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td>${ngay}</td>
-          <td>${bot}</td>
-          <td>${symbol}</td>
-          <td>${id}</td>
-          <td>${name}</td>
-          <td class="trade-status-cell">${botPill}</td>
-          <td class="trade-status-cell">${tradePill}</td>
-          <td class="${clsByValue(tongVon)}">${formatNumber(tongVon)}</td>
-          <td>${formatNumber(vonSau)}</td>
-          <td class="${clsByValue(loiNhuan)}">${formatSigned(loiNhuan)}</td>
-          <td class="${clsByValue(pct)}">${formatPct(pct)}</td>
-          <td class="${clsByValue(daChot)}">${formatSigned(daChot)}</td>
-          <td class="${clsByValue(dangChay)}">${formatSigned(dangChay)}</td>
-          <td>${orders || 0}</td>
-          <td>${formatNumber(lots || 0)}</td>
-          <td class="${Number(dd || 0) > 0 ? 'red' : 'yellow'}">${formatNumber(dd || 0)}%</td>
-          <td class="${clsByValue(-Math.abs(Number(edd || 0)))}">${formatSigned(edd)}</td>
-          <td>${trend}</td>
-          <td>${capNhat}</td>
-        `;
-        els.rowsBody.appendChild(tr);
       }
     }
 
@@ -1305,9 +1140,6 @@
       if (!activeKey) return;
       const { year, month } = getMonthValue();
 
-      if (!force && currentMonthPayload && Number(currentMonthPayload.year) === year && Number(currentMonthPayload.month) === month) {
-      }
-
       try {
         const data = await jsonp({ mode: 'month', key: activeKey, y: year, m: month });
         renderCalendar(data);
@@ -1316,26 +1148,13 @@
       }
     }
 
-    async function fetchRows() {
-      if (!activeKey) return;
-
-      try {
-        const data = await jsonp({ mode: 'rows', key: activeKey, limit: 30 });
-        renderRows(Array.isArray(data.items) ? data.items : []);
-      } catch (err) {
-        setStatus('Lỗi tải bảng dữ liệu: ' + err.message, 'error');
-      }
-    }
-
     function startRealtime() {
       stopRealtime();
       fetchSummary();
       fetchMonth(true);
-      fetchRows();
 
       summaryTimer = setInterval(() => {
         fetchSummary();
-        fetchRows();
       }, REFRESH_MS);
 
       monthTimer = setInterval(() => {
@@ -1354,6 +1173,7 @@
       const v = String(value || '').trim();
       activeKey = v;
       localStorage.setItem(STORAGE_KEY, v);
+      resetHeartbeatState();
 
       if (!v) {
         stopRealtime();
