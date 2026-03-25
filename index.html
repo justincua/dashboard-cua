@@ -3,618 +3,303 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-  <title>JustinCua Trade Dashboard</title>
+  <title>JustinCua Dashboard</title>
   <style>
-    :root {
-      --bg: #0b1020;
-      --panel: rgba(18, 24, 45, 0.92);
-      --panel-2: rgba(24, 31, 58, 0.92);
-      --border: rgba(255,255,255,0.08);
-      --text: #eef3ff;
-      --muted: #9ca8c7;
-      --green: #1dd38a;
-      --red: #ff5d73;
-      --yellow: #f5c451;
-      --blue: #56a8ff;
-      --purple: #aa7cff;
-      --shadow: 0 18px 48px rgba(0,0,0,0.32);
-      --radius: 18px;
+    :root{
+      --bg:#0a1020;
+      --panel:#121a2e;
+      --panel2:#18233d;
+      --line:rgba(255,255,255,.08);
+      --text:#eef3ff;
+      --muted:#94a0bf;
+      --green:#14d67b;
+      --red:#ff5d73;
+      --yellow:#f4c550;
+      --blue:#58a8ff;
+      --radius:18px;
+      --shadow:0 16px 40px rgba(0,0,0,.28);
     }
 
-    * { box-sizing: border-box; }
-
-    html, body {
-      max-width: 100%;
-      overflow-x: hidden;
-    }
-
-    body {
-      margin: 0;
-      font-family: Inter, Arial, Helvetica, sans-serif;
-      color: var(--text);
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0;max-width:100%;overflow-x:hidden}
+    body{
+      font-family:Inter,Arial,sans-serif;
+      color:var(--text);
       background:
-        radial-gradient(circle at top left, rgba(65,114,255,0.18), transparent 32%),
-        radial-gradient(circle at top right, rgba(170,124,255,0.16), transparent 30%),
-        linear-gradient(180deg, #0a0f1d 0%, #0b1020 100%);
-      min-height: 100vh;
+        radial-gradient(circle at top left, rgba(88,168,255,.16), transparent 30%),
+        radial-gradient(circle at top right, rgba(170,124,255,.14), transparent 28%),
+        linear-gradient(180deg,#09101d 0%,#0b1120 100%);
+      min-height:100vh;
     }
 
-    .wrap {
-      max-width: 1280px;
-      margin: 0 auto;
-      padding: 14px;
-      overflow-x: hidden;
+    .wrap{max-width:1280px;margin:0 auto;padding:12px}
+    .topbar{
+      display:grid;
+      grid-template-columns:1.15fr .85fr .75fr .75fr;
+      gap:10px;
+      margin-bottom:12px;
     }
 
-    .topbar {
-      display: grid;
-      grid-template-columns: 1.25fr 0.85fr 0.7fr 0.7fr;
-      gap: 10px;
-      margin-bottom: 12px;
+    .panel{
+      background:rgba(18,26,46,.95);
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      overflow:hidden;
+      min-width:0;
     }
 
-    .panel {
-      background: var(--panel);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      backdrop-filter: blur(10px);
-      overflow: hidden;
-      min-width: 0;
+    .hero,.box,.card,.calendar-wrap{padding:14px}
+    .hero h1{margin:0 0 6px;font-size:22px}
+    .sub{font-size:12px;color:var(--muted);line-height:1.5}
+    .label{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px}
+
+    .search-input,.month-input{
+      width:100%;
+      border:1px solid rgba(255,255,255,.08);
+      background:rgba(255,255,255,.04);
+      color:var(--text);
+      padding:12px 14px;
+      border-radius:12px;
+      font-size:15px;
+      outline:none;
     }
 
-    .hero {
-      padding: 14px 16px;
-      min-height: 78px;
+    .search-input:focus,.month-input:focus{
+      border-color:rgba(88,168,255,.6);
+      box-shadow:0 0 0 3px rgba(88,168,255,.12);
     }
 
-    .hero h1 {
-      margin: 0 0 4px;
-      font-size: 21px;
-      line-height: 1.15;
-      word-break: break-word;
+    .status-row{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      flex-wrap:wrap;
+      font-size:13px;
+      color:var(--muted);
     }
 
-    .sub {
-      color: var(--muted);
-      font-size: 12px;
-      line-height: 1.5;
+    .dot{
+      width:10px;height:10px;border-radius:50%;
+      background:var(--yellow);
+      box-shadow:0 0 10px rgba(244,197,80,.55);
     }
 
-    .search-box,
-    .meta-box {
-      padding: 12px 14px;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      gap: 6px;
-      min-height: 78px;
-      min-width: 0;
+    .dot.live{background:var(--green);box-shadow:0 0 10px rgba(20,214,123,.55)}
+    .dot.error{background:var(--red);box-shadow:0 0 10px rgba(255,93,115,.55)}
+
+    .grid{
+      display:grid;
+      grid-template-columns:repeat(12,minmax(0,1fr));
+      gap:12px;
     }
 
-    .label {
-      color: var(--muted);
-      font-size: 12px;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
+    .span-3{grid-column:span 3}
+    .span-4{grid-column:span 4}
+    .span-6{grid-column:span 6}
+    .span-8{grid-column:span 8}
+    .span-12{grid-column:span 12}
+
+    .card-title{
+      font-size:12px;
+      color:var(--muted);
+      text-transform:uppercase;
+      letter-spacing:.08em;
+      margin-bottom:10px;
     }
 
-    .search-input,
-    .month-input {
-      width: 100%;
-      border: 1px solid rgba(255,255,255,0.08);
-      background: rgba(255,255,255,0.04);
-      color: var(--text);
-      padding: 12px 14px;
-      border-radius: 12px;
-      font-size: 15px;
-      outline: none;
-      min-width: 0;
+    .big{
+      font-size:29px;
+      font-weight:800;
+      line-height:1.1;
+      margin-bottom:6px;
+      word-break:break-word;
     }
 
-    .search-input:focus,
-    .month-input:focus {
-      border-color: rgba(86,168,255,0.65);
-      box-shadow: 0 0 0 3px rgba(86,168,255,0.12);
+    .big.small{font-size:23px}
+    .muted{color:var(--muted)}
+    .green{color:var(--green)}
+    .red{color:var(--red)}
+    .yellow{color:var(--yellow)}
+    .blue{color:var(--blue)}
+
+    .kv{
+      display:grid;
+      grid-template-columns:minmax(0,1fr) auto;
+      gap:10px;
+      padding:8px 0;
+      border-bottom:1px solid rgba(255,255,255,.05);
+      font-size:14px;
+    }
+    .kv:last-child{border-bottom:0}
+    .k{color:var(--muted);word-break:break-word}
+    .v{text-align:right;font-weight:700;word-break:break-word}
+
+    .status-banner{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      padding:14px;
+      border-radius:14px;
+      background:rgba(255,255,255,.03);
+      border:1px solid rgba(255,255,255,.06);
     }
 
-    .status-row {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      flex-wrap: wrap;
-      font-size: 13px;
-      color: var(--muted);
-      min-width: 0;
+    .status-banner-text{
+      font-size:18px;
+      font-weight:800;
+      line-height:1.2;
+      word-break:break-word;
     }
 
-    .status-row strong {
-      min-width: 0;
-      word-break: break-word;
+    .status-banner-sub{
+      margin-top:6px;
+      font-size:12px;
+      color:var(--muted);
+      line-height:1.5;
+      word-break:break-word;
     }
 
-    .dot {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      background: var(--yellow);
-      box-shadow: 0 0 12px rgba(245,196,81,0.55);
-      flex: 0 0 auto;
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:6px;
+      padding:8px 12px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:700;
+      border:1px solid rgba(255,255,255,.06);
+      white-space:nowrap;
     }
 
-    .dot.live {
-      background: var(--green);
-      box-shadow: 0 0 12px rgba(29,211,138,0.55);
+    .pill.running{color:var(--green);background:rgba(20,214,123,.1)}
+    .pill.paused{color:var(--red);background:rgba(255,93,115,.1)}
+    .pill.waiting{color:var(--yellow);background:rgba(244,197,80,.1)}
+
+    .metrics-2{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:12px;
     }
 
-    .dot.error {
-      background: var(--red);
-      box-shadow: 0 0 12px rgba(255,93,115,0.55);
+    .mini{
+      background:var(--panel2);
+      border:1px solid rgba(255,255,255,.05);
+      border-radius:14px;
+      padding:14px;
     }
 
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(12, minmax(0, 1fr));
-      gap: 16px;
+    .mini .t{
+      font-size:12px;
+      color:var(--muted);
+      text-transform:uppercase;
+      letter-spacing:.08em;
+      margin-bottom:6px;
     }
 
-    .card {
-      padding: 14px;
-      min-height: 126px;
-      min-width: 0;
+    .mini .n{
+      font-size:22px;
+      font-weight:800;
+      word-break:break-word;
     }
 
-    .span-3 { grid-column: span 3; }
-    .span-4 { grid-column: span 4; }
-    .span-5 { grid-column: span 5; }
-    .span-6 { grid-column: span 6; }
-    .span-7 { grid-column: span 7; }
-    .span-8 { grid-column: span 8; }
-    .span-12 { grid-column: span 12; }
-
-    .card-title {
-      font-size: 13px;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: var(--muted);
-      margin-bottom: 12px;
+    .calendar-head{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:8px;
+      margin-bottom:10px;
+      flex-wrap:wrap;
     }
 
-    .big {
-      font-size: 30px;
-      font-weight: 800;
-      line-height: 1.1;
-      margin-bottom: 6px;
-      word-break: break-word;
+    .calendar-head h2{margin:0;font-size:16px}
+    .weekdays,.calendar{
+      display:grid;
+      grid-template-columns:repeat(7,minmax(0,1fr));
+      gap:6px;
     }
 
-    .big.small { font-size: 24px; }
-
-    .green { color: var(--green); }
-    .red { color: var(--red); }
-    .yellow { color: var(--yellow); }
-    .blue { color: var(--blue); }
-    .muted { color: var(--muted); }
-
-    .kv {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) auto;
-      gap: 10px;
-      padding: 8px 0;
-      border-bottom: 1px solid rgba(255,255,255,0.05);
-      font-size: 14px;
-      min-width: 0;
+    .weekday{
+      text-align:center;
+      color:var(--muted);
+      font-size:11px;
+      text-transform:uppercase;
+      letter-spacing:.06em;
+      padding:2px 0;
     }
 
-    .kv:last-child { border-bottom: 0; }
-
-    .kv .k {
-      color: var(--muted);
-      min-width: 0;
-      word-break: break-word;
+    .day{
+      min-height:80px;
+      background:rgba(255,255,255,.03);
+      border:1px solid rgba(255,255,255,.06);
+      border-radius:12px;
+      padding:8px;
+      display:flex;
+      flex-direction:column;
+      gap:4px;
+      overflow:hidden;
     }
 
-    .kv .v {
-      text-align: right;
-      font-weight: 700;
-      min-width: 0;
-      word-break: break-word;
+    .day.empty{
+      background:rgba(255,255,255,.015);
+      border-style:dashed;
+      opacity:.45;
     }
 
-    .metrics-2 {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 14px;
+    .num{font-size:13px;font-weight:800}
+    .small{font-size:10px;color:var(--muted);line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+    .calendar-pill{
+      display:inline-flex;
+      width:fit-content;
+      max-width:100%;
+      padding:3px 7px;
+      border-radius:999px;
+      font-size:10px;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
     }
 
-    .mini {
-      background: var(--panel-2);
-      border: 1px solid rgba(255,255,255,0.05);
-      border-radius: 14px;
-      padding: 14px;
-      min-width: 0;
+    .calendar-pill.green{color:var(--green);background:rgba(20,214,123,.09)}
+    .calendar-pill.red{color:var(--red);background:rgba(255,93,115,.09)}
+    .calendar-pill.yellow{color:var(--yellow);background:rgba(244,197,80,.09)}
+
+    .empty-state{
+      display:flex;
+      min-height:220px;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+      color:var(--muted);
+      padding:24px;
+      line-height:1.6;
     }
 
-    .mini .t {
-      font-size: 12px;
-      color: var(--muted);
-      margin-bottom: 6px;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
+    @media (max-width: 1100px){
+      .topbar{grid-template-columns:1fr 1fr}
+      .span-3,.span-4,.span-6,.span-8{grid-column:span 6}
     }
 
-    .mini .n {
-      font-size: 22px;
-      font-weight: 800;
-      word-break: break-word;
-    }
-
-    .bot-banner {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      padding: 12px 14px;
-      border-radius: 14px;
-      border: 1px solid rgba(255,255,255,0.06);
-      background: rgba(255,255,255,0.03);
-      min-width: 0;
-    }
-
-    .bot-banner-left {
-      min-width: 0;
-    }
-
-    .bot-banner-title {
-      font-size: 12px;
-      color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      margin-bottom: 6px;
-    }
-
-    .bot-banner-text {
-      font-size: 18px;
-      font-weight: 800;
-      line-height: 1.2;
-      word-break: break-word;
-    }
-
-    .bot-banner-sub {
-      margin-top: 6px;
-      font-size: 12px;
-      color: var(--muted);
-      line-height: 1.4;
-      word-break: break-word;
-    }
-
-    .bot-pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 8px 12px;
-      border-radius: 999px;
-      font-size: 12px;
-      font-weight: 700;
-      border: 1px solid rgba(255,255,255,0.06);
-      white-space: nowrap;
-      max-width: 100%;
-    }
-
-    .bot-pill.running {
-      color: var(--green);
-      background: rgba(29,211,138,0.10);
-    }
-
-    .bot-pill.paused {
-      color: var(--red);
-      background: rgba(255,93,115,0.10);
-    }
-
-    .bot-pill.checking {
-      color: var(--yellow);
-      background: rgba(245,196,81,0.10);
-    }
-
-    .calendar-wrap {
-      padding: 14px;
-      overflow: hidden;
-    }
-
-    .calendar-head {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 10px;
-      flex-wrap: wrap;
-    }
-
-    .calendar-head h2 {
-      font-size: 16px;
-      margin: 0;
-      line-height: 1.3;
-    }
-
-    .weekdays,
-    .calendar {
-      display: grid;
-      grid-template-columns: repeat(7, minmax(0, 1fr));
-      gap: 6px;
-      width: 100%;
-      min-width: 0;
-    }
-
-    .weekday {
-      text-align: center;
-      color: var(--muted);
-      font-size: 11px;
-      padding: 4px 0;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-    }
-
-    .day {
-      min-height: 76px;
-      background: rgba(255,255,255,0.03);
-      border: 1px solid rgba(255,255,255,0.06);
-      border-radius: 12px;
-      padding: 8px;
-      display: flex;
-      flex-direction: column;
-      gap: 3px;
-      overflow: hidden;
-      min-width: 0;
-    }
-
-    .day.empty {
-      background: rgba(255,255,255,0.015);
-      border-style: dashed;
-      opacity: 0.45;
-    }
-
-    .day.compact-empty {
-      justify-content: space-between;
-    }
-
-    .day.compact-empty .small {
-      font-size: 10px;
-      opacity: 0.65;
-    }
-
-    .day.compact-data .value-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 4px;
-      min-height: 20px;
-      min-width: 0;
-    }
-
-    .day .num {
-      font-size: 13px;
-      font-weight: 800;
-      line-height: 1;
-      flex: 0 0 auto;
-    }
-
-    .pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      padding: 3px 7px;
-      border-radius: 999px;
-      background: rgba(255,255,255,0.06);
-      font-size: 10px;
-      width: fit-content;
-      max-width: 100%;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .pill.green { color: var(--green); background: rgba(29,211,138,0.08); }
-    .pill.red { color: var(--red); background: rgba(255,93,115,0.08); }
-    .pill.yellow { color: var(--yellow); background: rgba(245,196,81,0.08); }
-    .pill.blue { color: var(--blue); background: rgba(86,168,255,0.08); }
-
-    .day .small {
-      font-size: 10px;
-      color: var(--muted);
-      line-height: 1.2;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .empty-state {
-      display: flex;
-      min-height: 220px;
-      align-items: center;
-      justify-content: center;
-      color: var(--muted);
-      text-align: center;
-      padding: 24px;
-      line-height: 1.6;
-    }
-
-    @media (max-width: 1180px) {
-      .topbar { grid-template-columns: 1fr 1fr; }
-
-      .span-3,
-      .span-4,
-      .span-5,
-      .span-6,
-      .span-7,
-      .span-8 {
-        grid-column: span 6;
-      }
-
-      .calendar,
-      .weekdays { gap: 5px; }
-
-      .day {
-        min-height: 70px;
-        padding: 7px;
-      }
-    }
-
-    @media (max-width: 720px) {
-      .wrap { padding: 8px; }
-
-      .topbar {
-        grid-template-columns: 1fr;
-        gap: 8px;
-      }
-
-      .grid { gap: 10px; }
-
-      .span-3,
-      .span-4,
-      .span-5,
-      .span-6,
-      .span-7,
-      .span-8,
-      .span-12 {
-        grid-column: span 12;
-      }
-
-      .hero,
-      .search-box,
-      .meta-box,
-      .card,
-      .calendar-wrap {
-        padding: 12px;
-      }
-
-      .hero h1 { font-size: 18px; }
-
-      .sub,
-      .label,
-      .status-row { font-size: 11px; }
-
-      .search-input,
-      .month-input {
-        font-size: 14px;
-        padding: 11px 12px;
-      }
-
-      .big { font-size: 23px; }
-      .big.small { font-size: 20px; }
-
-      .kv {
-        grid-template-columns: minmax(0, 1fr) auto;
-        gap: 8px;
-        font-size: 13px;
-      }
-
-      .metrics-2 {
-        grid-template-columns: 1fr;
-        gap: 10px;
-      }
-
-      .mini .n { font-size: 19px; }
-
-      .bot-banner {
-        flex-direction: column;
-        align-items: flex-start;
-      }
-
-      .bot-banner-text { font-size: 16px; }
-
-      .calendar-head { gap: 6px; }
-
-      .calendar-head h2 { font-size: 14px; }
-
-      .weekdays,
-      .calendar {
-        grid-template-columns: repeat(7, minmax(0, 1fr));
-        gap: 3px;
-        overflow: visible;
-      }
-
-      .weekday {
-        font-size: 9px;
-        padding: 2px 0;
-        letter-spacing: 0.04em;
-      }
-
-      .day {
-        min-height: 58px;
-        padding: 4px;
-        border-radius: 9px;
-        gap: 2px;
-      }
-
-      .day .num { font-size: 11px; }
-
-      .pill {
-        font-size: 7px;
-        padding: 1px 4px;
-        gap: 2px;
-      }
-
-      .day .small { font-size: 7px; }
-
-      .day.compact-data .value-row {
-        gap: 2px;
-        min-height: auto;
-      }
-    }
-
-    @media (max-width: 420px) {
-      .wrap { padding: 6px; }
-
-      .hero,
-      .search-box,
-      .meta-box,
-      .card,
-      .calendar-wrap {
-        padding: 10px;
-      }
-
-      .card-title {
-        font-size: 11px;
-        margin-bottom: 8px;
-      }
-
-      .big { font-size: 21px; }
-      .big.small { font-size: 18px; }
-
-      .calendar-head h2 { font-size: 13px; }
-
-      .weekdays,
-      .calendar { gap: 2px; }
-
-      .weekday { font-size: 8px; }
-
-      .day {
-        min-height: 54px;
-        padding: 3px;
-        border-radius: 8px;
-      }
-
-      .day .num { font-size: 10px; }
-
-      .day.compact-data .value-row {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 1px;
-      }
-
-      .pill {
-        font-size: 6px;
-        padding: 1px 3px;
-        max-width: 100%;
-      }
-
-      .day.compact-empty .small,
-      .day .small {
-        font-size: 6px;
-      }
-
-      .kv { font-size: 12px; }
-
-      .mini .n { font-size: 17px; }
+    @media (max-width: 720px){
+      .wrap{padding:8px}
+      .topbar{grid-template-columns:1fr;gap:8px}
+      .grid{gap:10px}
+      .span-3,.span-4,.span-6,.span-8,.span-12{grid-column:span 12}
+      .hero,.box,.card,.calendar-wrap{padding:12px}
+      .hero h1{font-size:18px}
+      .big{font-size:23px}
+      .big.small{font-size:19px}
+      .metrics-2{grid-template-columns:1fr}
+      .status-banner{flex-direction:column;align-items:flex-start}
+      .weekdays,.calendar{gap:3px}
+      .weekday{font-size:9px}
+      .day{min-height:58px;padding:4px;border-radius:9px;gap:2px}
+      .num{font-size:11px}
+      .calendar-pill{font-size:7px;padding:1px 4px}
+      .small{font-size:7px}
     }
   </style>
 </head>
@@ -622,61 +307,61 @@
   <div class="wrap">
     <section class="topbar">
       <div class="panel hero">
-        <h1>Vương Realtime Dashboard</h1>
-        <div class="sub">Tự cập nhật mỗi 1 giây · Tìm theo ID hoặc tên BOT · Đồng bộ trực tiếp từ BOT gửi về</div>
+        <h1>JustinCua Realtime Dashboard</h1>
+        <div class="sub">Tìm theo ID hoặc tên BOT · Realtime 1 giây · Trạng thái bot đọc trực tiếp từ EA gửi lên Sheet</div>
       </div>
 
-      <div class="panel search-box">
+      <div class="panel box">
         <div class="label">Tìm ID hoặc BOT</div>
-        <input id="searchInput" class="search-input" type="text" placeholder="Ví dụ: 123456 hoặc CUA_2K" autocomplete="off" />
+        <input id="searchInput" class="search-input" type="text" placeholder="Ví dụ: 123456 hoặc cua_Demo" autocomplete="off">
       </div>
 
-      <div class="panel meta-box">
+      <div class="panel box">
         <div class="label">Tháng hiển thị</div>
-        <input id="monthInput" class="month-input" type="month" />
+        <input id="monthInput" class="month-input" type="month">
       </div>
 
-      <div class="panel meta-box">
+      <div class="panel box">
         <div class="label">Trạng thái kết nối</div>
         <div class="status-row"><span id="statusDot" class="dot"></span><span id="statusText">Đang chờ dữ liệu...</span></div>
-        <div class="status-row">Lần cập nhật cuối: <strong id="lastUpdate">--:--:--</strong></div>
+        <div class="status-row">Lần tải cuối: <strong id="lastUpdate">--:--:--</strong></div>
       </div>
     </section>
 
     <section id="dashboard" class="grid" style="display:none;">
       <div class="panel card span-12">
-        <div class="bot-banner">
-          <div class="bot-banner-left">
-            <div class="bot-banner-title">Trạng thái bot</div>
-            <div id="botBannerText" class="bot-banner-text yellow">Kiểm tra bot đang giao dịch hay không...</div>
-            <div id="botBannerSubtext" class="bot-banner-sub">Đang chờ heartbeat từ phần CậpNhật</div>
+        <div class="status-banner">
+          <div>
+            <div class="card-title">Trạng thái bot</div>
+            <div id="botStatusText" class="status-banner-text yellow">Đang chờ trạng thái từ EA...</div>
+            <div id="botStatusSub" class="status-banner-sub">Khi EA gửi status/statusvi/statusreason lên sheet, phần này sẽ đổi theo trạng thái thật.</div>
           </div>
-          <div id="botBannerPill" class="bot-pill checking">Đang kiểm tra</div>
+          <div id="botStatusPill" class="pill waiting">Chờ dữ liệu</div>
         </div>
       </div>
 
       <div class="panel card span-3">
         <div class="card-title">Tổng lợi nhuận sau trade</div>
         <div id="totalProfit" class="big">0.00</div>
-        <div class="muted">Giá trị tổng hợp theo bản ghi hôm nay</div>
+        <div class="muted">Giá trị tổng hợp hôm nay</div>
       </div>
 
       <div class="panel card span-3">
         <div class="card-title">Tổng % kiếm hôm nay</div>
         <div id="todayPct" class="big small">0.00%</div>
-        <div class="muted">Dựa trên vốn bắt đầu trade trong ngày</div>
+        <div class="muted">Theo vốn bắt đầu trade</div>
       </div>
 
       <div class="panel card span-3">
         <div class="card-title">Vốn sau khi trade</div>
         <div id="afterCapital" class="big small">0.00</div>
-        <div class="muted">Equity hiện tại được đẩy từ EA</div>
+        <div class="muted">Equity hiện tại</div>
       </div>
 
       <div class="panel card span-3">
-        <div class="card-title">Drawdown hôm nay</div>
+        <div class="card-title">DD hôm nay</div>
         <div id="ddNow" class="big small">0.00%</div>
-        <div class="muted">DD lớn nhất trong ngày / EDD</div>
+        <div class="muted">DD lớn nhất / EDD</div>
       </div>
 
       <div class="panel card span-4">
@@ -689,7 +374,7 @@
       </div>
 
       <div class="panel card span-4">
-        <div class="card-title">Vốn & lợi nhuận chi tiết</div>
+        <div class="card-title">Vốn & lợi nhuận</div>
         <div class="kv"><div class="k">Tổng vốn</div><div id="capTotal" class="v">0.00</div></div>
         <div class="kv"><div class="k">Vốn bắt đầu trade</div><div id="capStart" class="v">0.00</div></div>
         <div class="kv"><div class="k">Vốn sau khi trade</div><div id="capAfter" class="v">0.00</div></div>
@@ -698,20 +383,29 @@
       </div>
 
       <div class="panel card span-4">
+        <div class="card-title">Trạng thái bot từ EA</div>
+        <div class="kv"><div class="k">Status</div><div id="metaStatus" class="v">-</div></div>
+        <div class="kv"><div class="k">Status VI</div><div id="metaStatusVi" class="v">-</div></div>
+        <div class="kv"><div class="k">Lý do</div><div id="metaStatusReason" class="v">-</div></div>
+        <div class="kv"><div class="k">AutoTrade</div><div id="metaAutoTrade" class="v">-</div></div>
+        <div class="kv"><div class="k">TimeMode</div><div id="metaTimeMode" class="v">-</div></div>
+        <div class="kv"><div class="k">EA Update</div><div id="metaEAUpdate" class="v">-</div></div>
+      </div>
+
+      <div class="panel card span-6">
         <div class="card-title">Giao dịch hôm nay</div>
         <div class="kv"><div class="k">Đã chốt</div><div id="tradeClosed" class="v">0.00</div></div>
         <div class="kv"><div class="k">Đang chạy</div><div id="tradeFloating" class="v">0.00</div></div>
         <div class="kv"><div class="k">BUY / SELL</div><div id="tradeSides" class="v">0 / 0</div></div>
         <div class="kv"><div class="k">Orders / Lots</div><div id="tradeOrdersLots" class="v">0 / 0.00</div></div>
         <div class="kv"><div class="k">Score / Trend</div><div id="tradeScoreTrend" class="v">0 / -</div></div>
-        <div class="kv"><div class="k">Trạng thái bot</div><div id="tradeBotState" class="v yellow">Đang kiểm tra</div></div>
       </div>
 
       <div class="panel card span-6">
-        <div class="card-title">Tổng quan realtime</div>
+        <div class="card-title">Tổng quan nhanh</div>
         <div class="metrics-2">
           <div class="mini">
-            <div class="t">Tổng lợi nhuận</div>
+            <div class="t">Lợi nhuận</div>
             <div id="miniProfit" class="n">0.00</div>
           </div>
           <div class="mini">
@@ -729,26 +423,11 @@
         </div>
       </div>
 
-      <div class="panel card span-6">
-        <div class="card-title">Kết nối dữ liệu</div>
-        <div class="kv"><div class="k">Key đang theo dõi</div><div id="metaKey" class="v">-</div></div>
-        <div class="kv"><div class="k">Nguồn dữ liệu</div><div class="v">JUSTINCUA_BOT</div></div>
-        <div class="kv"><div class="k">Refresh</div><div class="v">1 giây</div></div>
-        <div class="kv"><div class="k">Heartbeat timeout</div><div class="v">10 giây</div></div>
-        <div class="kv"><div class="k">Cập nhật lần cuối</div><div id="metaUpdatedAt" class="v">-</div></div>
-        <div class="kv"><div class="k">Trạng thái hiện tại</div><div id="metaState" class="v">Đang chờ</div></div>
-        <div class="kv"><div class="k">Bot</div><div id="metaBotStatus" class="v yellow">Đang kiểm tra</div></div>
-      </div>
-
       <div class="panel calendar-wrap span-12">
         <div class="calendar-head">
           <div>
-            <div class="card-title" style="margin-bottom:4px;">Lịch tháng</div>
+            <div class="card-title" style="margin-bottom:4px">Lịch tháng</div>
             <h2 id="calendarTitle">Lịch giao dịch</h2>
-          </div>
-          <div class="status-row">
-            <span class="pill blue">Theo ngày</span>
-            <span class="pill yellow">P/L · % · DD · Lots</span>
           </div>
         </div>
 
@@ -762,21 +441,19 @@
           <div class="weekday">T7</div>
         </div>
 
-        <div id="calendar" class="calendar" style="margin-top:10px;"></div>
+        <div id="calendar" class="calendar" style="margin-top:10px"></div>
       </div>
     </section>
 
     <section id="emptyState" class="panel empty-state">
-      Nhập <strong style="margin:0 6px;">ID</strong> hoặc <strong style="margin:0 6px;">tên BOT</strong> để bắt đầu theo dõi realtime.<br>
-      Ví dụ: <strong style="margin-left:6px;">123456</strong> hoặc <strong style="margin-left:6px;">CUA_2K</strong>
+      Nhập <strong style="margin:0 6px">ID</strong> hoặc <strong style="margin:0 6px">tên BOT</strong> để bắt đầu xem dữ liệu realtime.
     </section>
   </div>
 
   <script>
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz1xDRBSNmZYugPImZWGjbElXr5kOTPxEcvLdhmAgDo1RMlBvu_PDNxiZMKz66mASI/exec';
+    const SCRIPT_URL = 'DÁN_URL_WEB_APP_APPS_SCRIPT_MỚI_VÀO_ĐÂY';
     const REFRESH_MS = 1000;
     const MONTH_REFRESH_MS = 5000;
-    const BOT_IDLE_TIMEOUT_MS = 10000;
     const STORAGE_KEY = 'justincua_dashboard_key';
 
     const els = {
@@ -795,11 +472,7 @@
     let summaryTimer = null;
     let monthTimer = null;
     let typingTimer = null;
-    let currentMonthPayload = null;
     let fetchBusy = false;
-
-    let lastHeartbeatValue = '';
-    let lastHeartbeatChangeAt = 0;
 
     function jsonp(params = {}, timeout = 12000) {
       return new Promise((resolve, reject) => {
@@ -808,7 +481,9 @@
         const url = new URL(SCRIPT_URL);
 
         Object.entries(params).forEach(([k, v]) => {
-          if (v !== undefined && v !== null && String(v) !== '') url.searchParams.set(k, v);
+          if (v !== undefined && v !== null && String(v) !== '') {
+            url.searchParams.set(k, v);
+          }
         });
 
         url.searchParams.set('callback', cb);
@@ -875,18 +550,12 @@
       return 'yellow';
     }
 
-    function setStatus(text, state = 'waiting') {
+    function setConnection(text, state = 'waiting') {
       els.statusText.textContent = text;
       els.statusDot.className = 'dot';
       if (state === 'live') els.statusDot.classList.add('live');
       if (state === 'error') els.statusDot.classList.add('error');
-      const metaState = document.getElementById('metaState');
-      if (metaState) metaState.textContent = text;
-    }
-
-    function setLastUpdateNow() {
-      const now = new Date();
-      els.lastUpdate.textContent = now.toLocaleTimeString('vi-VN');
+      els.lastUpdate.textContent = new Date().toLocaleTimeString('vi-VN');
     }
 
     function updateText(id, text, className = '') {
@@ -897,126 +566,63 @@
       if (className) el.classList.add(className);
     }
 
-    function getUpdatedAtValue(data) {
-      return String(
-        data?.updatedAt ??
-        data?.capNhat ??
-        data?.CapNhat ??
-        data?.['CậpNhật'] ??
-        ''
-      ).trim();
-    }
+    function getStatusInfo(data) {
+      const status = String(data?.status || '').trim().toUpperCase();
+      const statusvi = String(data?.statusvi || '').trim();
+      const reason = String(data?.statusreason || '').trim();
 
-    function resetHeartbeatState() {
-      lastHeartbeatValue = '';
-      lastHeartbeatChangeAt = 0;
-    }
-
-    function getBotStatusInfo(data) {
-      const updateValue = getUpdatedAtValue(data);
-      const now = Date.now();
-
-      if (!updateValue) {
+      if (status === 'RUNNING') {
         return {
-          state: 'checking',
-          text: 'Kiểm tra bot đang giao dịch hay không...',
-          shortText: 'Đang kiểm tra',
-          className: 'yellow',
-          pillClass: 'checking',
-          note: 'Chưa nhận được time CậpNhật từ bot'
-        };
-      }
-
-      if (updateValue !== lastHeartbeatValue) {
-        lastHeartbeatValue = updateValue;
-        lastHeartbeatChangeAt = now;
-
-        return {
-          state: 'running',
-          text: 'Bot đang giao dịch',
+          text: statusvi || 'Bot đang giao dịch',
           shortText: 'Đang giao dịch',
           className: 'green',
           pillClass: 'running',
-          note: 'Time CậpNhật mới nhất: ' + updateValue
+          reason: reason || 'EA đang báo bot hoạt động'
         };
       }
 
-      if (!lastHeartbeatChangeAt) {
-        lastHeartbeatChangeAt = now;
-      }
-
-      const silentMs = now - lastHeartbeatChangeAt;
-      const silentSec = Math.floor(silentMs / 1000);
-
-      if (silentMs >= BOT_IDLE_TIMEOUT_MS) {
+      if (status === 'PAUSED') {
         return {
-          state: 'paused',
-          text: 'Bot đang ngừng giao dịch',
-          shortText: 'Ngừng giao dịch',
+          text: statusvi || 'Bot đang tạm ngưng',
+          shortText: 'Tạm ngưng',
           className: 'red',
           pillClass: 'paused',
-          note: 'Time CậpNhật đứng yên ' + silentSec + ' giây'
+          reason: reason || 'EA đang báo bot tạm dừng'
         };
       }
 
       return {
-        state: 'checking',
-        text: 'Kiểm tra bot đang giao dịch hay không...',
-        shortText: 'Đang kiểm tra',
+        text: 'Đang chờ trạng thái từ EA...',
+        shortText: 'Chờ dữ liệu',
         className: 'yellow',
-        pillClass: 'checking',
-        note: 'Time CậpNhật chưa nhảy ' + silentSec + '/10 giây'
+        pillClass: 'waiting',
+        reason: reason || 'EA chưa gửi đủ status/statusvi/statusreason'
       };
-    }
-
-    function updateBotStatusUI(data) {
-      const info = getBotStatusInfo(data);
-      const bannerText = document.getElementById('botBannerText');
-      const bannerSubtext = document.getElementById('botBannerSubtext');
-      const bannerPill = document.getElementById('botBannerPill');
-      const tradeBotState = document.getElementById('tradeBotState');
-      const metaBotStatus = document.getElementById('metaBotStatus');
-
-      if (bannerText) {
-        bannerText.textContent = info.text;
-        bannerText.className = 'bot-banner-text ' + info.className;
-      }
-
-      if (bannerSubtext) {
-        bannerSubtext.textContent = info.note;
-      }
-
-      if (bannerPill) {
-        bannerPill.textContent = info.shortText;
-        bannerPill.className = 'bot-pill ' + info.pillClass;
-      }
-
-      if (tradeBotState) {
-        tradeBotState.textContent = info.shortText;
-        tradeBotState.className = 'v ' + info.className;
-      }
-
-      if (metaBotStatus) {
-        metaBotStatus.textContent = info.text;
-        metaBotStatus.className = 'v ' + info.className;
-      }
     }
 
     function renderSummary(data) {
       if (!data || !data.found) {
         els.dashboard.style.display = 'none';
         els.emptyState.style.display = 'flex';
-        setStatus('Không tìm thấy dữ liệu cho key này', 'error');
+        setConnection('Không tìm thấy dữ liệu', 'error');
         return;
       }
 
       els.dashboard.style.display = 'grid';
       els.emptyState.style.display = 'none';
 
+      const statusInfo = getStatusInfo(data);
+
+      updateText('botStatusText', statusInfo.text, statusInfo.className);
+      document.getElementById('botStatusSub').textContent = statusInfo.reason;
+      const pill = document.getElementById('botStatusPill');
+      pill.textContent = statusInfo.shortText;
+      pill.className = 'pill ' + statusInfo.pillClass;
+
       updateText('totalProfit', formatSigned(data.totalprofit), clsByValue(data.totalprofit));
       updateText('todayPct', formatPct(data.todaypct), clsByValue(data.todaypct));
       updateText('afterCapital', formatNumber(data.aftercapital), 'blue');
-      updateText('ddNow', formatNumber(data.dd) + '% | ' + formatSigned(data.edd), Number(data.dd || 0) > 0 ? 'red' : 'yellow');
+      updateText('ddNow', `${formatNumber(data.dd)}% | ${formatSigned(data.edd)}`, Number(data.dd || 0) > 0 ? 'red' : 'yellow');
 
       updateText('infoId', data.id || '-');
       updateText('infoName', data.name || '-');
@@ -1030,6 +636,13 @@
       updateText('capRealProfit', formatSigned(data.realprofit), clsByValue(data.realprofit));
       updateText('capRealPct', formatPct(data.realpct), clsByValue(data.realpct));
 
+      updateText('metaStatus', data.status || '-');
+      updateText('metaStatusVi', data.statusvi || '-');
+      updateText('metaStatusReason', data.statusreason || '-');
+      updateText('metaAutoTrade', data.autotrade || '-');
+      updateText('metaTimeMode', data.timemode || '-');
+      updateText('metaEAUpdate', data.eaupdate || data.updatedAt || '-');
+
       updateText('tradeClosed', formatSigned(data.closedpnl), clsByValue(data.closedpnl));
       updateText('tradeFloating', formatSigned(data.floatingpnl), clsByValue(data.floatingpnl));
       updateText('tradeSides', `${data.buy || 0} / ${data.sell || 0}`);
@@ -1038,32 +651,23 @@
 
       updateText('miniProfit', formatSigned(data.totalprofit), clsByValue(data.totalprofit));
       updateText('miniPct', formatPct(data.todaypct), clsByValue(data.todaypct));
-      updateText('miniDD', formatNumber(data.dd) + '%', Number(data.dd || 0) > 0 ? 'red' : 'yellow');
-      updateText('miniEDD', formatSigned(data.edd), clsByValue(-Math.abs(Number(data.edd || 0))));
+      updateText('miniDD', `${formatNumber(data.dd)}%`, Number(data.dd || 0) > 0 ? 'red' : 'yellow');
+      updateText('miniEDD', formatSigned(data.edd), Number(data.edd || 0) < 0 ? 'red' : 'yellow');
 
-      updateText('metaKey', activeKey || '-');
-      updateText('metaUpdatedAt', getUpdatedAtValue(data) || '-');
-
-      updateBotStatusUI(data);
-      setStatus('Đang kết nối realtime', 'live');
-      setLastUpdateNow();
-    }
-
-    function buildCalendarMap(items = []) {
-      const map = new Map();
-      for (const item of items) map.set(item.day, item);
-      return map;
+      setConnection('Đang kết nối realtime', 'live');
     }
 
     function renderCalendar(payload) {
-      currentMonthPayload = payload || { items: [] };
-      const items = Array.isArray(currentMonthPayload.items) ? currentMonthPayload.items : [];
-      const year = Number(currentMonthPayload.year || new Date().getFullYear());
-      const month = Number(currentMonthPayload.month || (new Date().getMonth() + 1));
+      const items = Array.isArray(payload?.items) ? payload.items : [];
+      const year = Number(payload?.year || new Date().getFullYear());
+      const month = Number(payload?.month || (new Date().getMonth() + 1));
+
       const first = new Date(year, month - 1, 1);
       const lastDate = new Date(year, month, 0).getDate();
       const startDay = first.getDay();
-      const map = buildCalendarMap(items);
+
+      const map = new Map();
+      items.forEach(item => map.set(Number(item.day), item));
 
       els.calendarTitle.textContent = `Lịch giao dịch ${String(month).padStart(2, '0')}/${year}`;
       els.calendar.innerHTML = '';
@@ -1075,36 +679,35 @@
       }
 
       for (let d = 1; d <= lastDate; d++) {
-        const cell = document.createElement('div');
         const row = map.get(d);
+        const cell = document.createElement('div');
 
         if (!row) {
-          cell.className = 'day compact-empty';
-          cell.innerHTML = `
-            <div class="num">${d}</div>
-            <div class="small">—</div>
-          `;
+          cell.className = 'day';
+          cell.innerHTML = `<div class="num">${d}</div><div class="small">—</div>`;
         } else {
-          const profitCls = Number(row.totalprofit) >= 0 ? 'green' : 'red';
+          const pnlCls = Number(row.totalprofit) >= 0 ? 'green' : 'red';
           const pctCls = Number(row.todaypct) >= 0 ? 'green' : 'red';
-          const ddCls = Number(row.dd || 0) > 0 ? 'red' : 'yellow';
+          const statusText = String(row.statusvi || '').trim() || '-';
+          const statusCls = String(row.status || '').toUpperCase() === 'RUNNING'
+            ? 'green'
+            : String(row.status || '').toUpperCase() === 'PAUSED'
+              ? 'red'
+              : 'yellow';
 
-          cell.className = 'day compact-data';
+          cell.className = 'day';
           cell.title =
-            `Profit: ${formatSigned(row.totalprofit)} | ` +
+            `P/L: ${formatSigned(row.totalprofit)} | ` +
             `%: ${formatPct(row.todaypct)} | ` +
             `Lots: ${formatNumber(row.lots || 0)} | ` +
             `DD: ${formatNumber(row.dd || 0)}% | ` +
-            `Orders: ${row.orders || 0} | ` +
-            `Trend: ${row.trend || '-'}`;
+            `Status: ${statusText}`;
 
           cell.innerHTML = `
             <div class="num">${d}</div>
-            <div class="value-row">
-              <div class="pill ${profitCls}">${formatSigned(row.totalprofit)}</div>
-              <div class="pill ${pctCls}">${formatPct(row.todaypct)}</div>
-              <div class="pill ${ddCls}">DD ${formatNumber(row.dd || 0)}%</div>
-            </div>
+            <div class="calendar-pill ${pnlCls}">${formatSigned(row.totalprofit)}</div>
+            <div class="calendar-pill ${pctCls}">${formatPct(row.todaypct)}</div>
+            <div class="calendar-pill ${statusCls}">${statusText}</div>
           `;
         }
 
@@ -1130,13 +733,13 @@
         const data = await jsonp({ mode: 'summary', key: activeKey });
         renderSummary(data);
       } catch (err) {
-        setStatus('Lỗi tải summary: ' + err.message, 'error');
+        setConnection('Lỗi tải dữ liệu: ' + err.message, 'error');
       } finally {
         fetchBusy = false;
       }
     }
 
-    async function fetchMonth(force = false) {
+    async function fetchMonth() {
       if (!activeKey) return;
       const { year, month } = getMonthValue();
 
@@ -1144,22 +747,8 @@
         const data = await jsonp({ mode: 'month', key: activeKey, y: year, m: month });
         renderCalendar(data);
       } catch (err) {
-        setStatus('Lỗi tải lịch tháng: ' + err.message, 'error');
+        setConnection('Lỗi tải lịch tháng: ' + err.message, 'error');
       }
-    }
-
-    function startRealtime() {
-      stopRealtime();
-      fetchSummary();
-      fetchMonth(true);
-
-      summaryTimer = setInterval(() => {
-        fetchSummary();
-      }, REFRESH_MS);
-
-      monthTimer = setInterval(() => {
-        fetchMonth();
-      }, MONTH_REFRESH_MS);
     }
 
     function stopRealtime() {
@@ -1169,39 +758,45 @@
       monthTimer = null;
     }
 
-    function applySearchValue(value) {
-      const v = String(value || '').trim();
-      activeKey = v;
-      localStorage.setItem(STORAGE_KEY, v);
-      resetHeartbeatState();
+    function startRealtime() {
+      stopRealtime();
+      fetchSummary();
+      fetchMonth();
+      summaryTimer = setInterval(fetchSummary, REFRESH_MS);
+      monthTimer = setInterval(fetchMonth, MONTH_REFRESH_MS);
+    }
 
-      if (!v) {
+    function applySearch(value) {
+      activeKey = String(value || '').trim();
+      localStorage.setItem(STORAGE_KEY, activeKey);
+
+      if (!activeKey) {
         stopRealtime();
         els.dashboard.style.display = 'none';
         els.emptyState.style.display = 'flex';
-        setStatus('Đang chờ dữ liệu...', 'waiting');
+        setConnection('Đang chờ dữ liệu...', 'waiting');
         return;
       }
 
-      setStatus('Đang tải dữ liệu...', 'waiting');
+      setConnection('Đang tải dữ liệu...', 'waiting');
       startRealtime();
     }
 
     function setupEvents() {
       els.searchInput.addEventListener('input', (e) => {
         clearTimeout(typingTimer);
-        typingTimer = setTimeout(() => applySearchValue(e.target.value), 500);
+        typingTimer = setTimeout(() => applySearch(e.target.value), 400);
       });
 
       els.searchInput.addEventListener('keydown', (e) => {
         if (e.key === 'Enter') {
           clearTimeout(typingTimer);
-          applySearchValue(e.target.value);
+          applySearch(e.target.value);
         }
       });
 
       els.monthInput.addEventListener('change', () => {
-        if (activeKey) fetchMonth(true);
+        if (activeKey) fetchMonth();
       });
     }
 
@@ -1212,28 +807,26 @@
       els.monthInput.value = `${yyyy}-${mm}`;
     }
 
-    function initFromStorage() {
+    function initSavedKey() {
       const saved = localStorage.getItem(STORAGE_KEY) || '';
       if (saved) {
         els.searchInput.value = saved;
-        applySearchValue(saved);
+        applySearch(saved);
       }
     }
 
     initMonthInput();
     setupEvents();
-    initFromStorage();
+    initSavedKey();
   </script>
 
   <script>
-    document.addEventListener('wheel', function(e) {
+    document.addEventListener('wheel', function(e){
       if (e.ctrlKey) e.preventDefault();
-    }, { passive: false });
+    }, { passive:false });
 
-    document.addEventListener('keydown', function(e) {
-      if (e.ctrlKey && ['+', '-', '0'].includes(e.key)) {
-        e.preventDefault();
-      }
+    document.addEventListener('keydown', function(e){
+      if (e.ctrlKey && ['+','-','0'].includes(e.key)) e.preventDefault();
     });
   </script>
 </body>
