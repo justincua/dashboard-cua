@@ -247,6 +247,60 @@
       word-break: break-word;
     }
 
+    .bot-banner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 12px 14px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,0.06);
+      background: rgba(255,255,255,0.03);
+      min-width: 0;
+    }
+
+    .bot-banner-left {
+      min-width: 0;
+    }
+
+    .bot-banner-title {
+      font-size: 12px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 6px;
+    }
+
+    .bot-banner-text {
+      font-size: 18px;
+      font-weight: 800;
+      line-height: 1.2;
+      word-break: break-word;
+    }
+
+    .bot-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      border: 1px solid rgba(255,255,255,0.06);
+      white-space: nowrap;
+      max-width: 100%;
+    }
+
+    .bot-pill.running {
+      color: var(--green);
+      background: rgba(29,211,138,0.10);
+    }
+
+    .bot-pill.paused {
+      color: var(--red);
+      background: rgba(255,93,115,0.10);
+    }
+
     .calendar-wrap {
       padding: 14px;
       overflow: hidden;
@@ -365,6 +419,10 @@
     .pill.red { color: var(--red); background: rgba(255,93,115,0.08); }
     .pill.yellow { color: var(--yellow); background: rgba(245,196,81,0.08); }
     .pill.blue { color: var(--blue); background: rgba(86,168,255,0.08); }
+    .pill.running { color: var(--green); background: rgba(29,211,138,0.08); }
+    .pill.closed { color: var(--blue); background: rgba(86,168,255,0.08); }
+    .pill.waiting { color: var(--yellow); background: rgba(245,196,81,0.08); }
+    .pill.paused { color: var(--red); background: rgba(255,93,115,0.08); }
 
     .day .small {
       font-size: 10px;
@@ -385,7 +443,7 @@
     table {
       width: 100%;
       border-collapse: collapse;
-      min-width: 920px;
+      min-width: 1080px;
     }
 
     th, td {
@@ -394,6 +452,7 @@
       font-size: 14px;
       text-align: left;
       white-space: nowrap;
+      vertical-align: middle;
     }
 
     th {
@@ -404,6 +463,10 @@
       position: sticky;
       top: 0;
       background: rgba(11,16,32,0.98);
+    }
+
+    .trade-status-cell {
+      font-weight: 700;
     }
 
     .empty-state {
@@ -507,6 +570,15 @@
         font-size: 19px;
       }
 
+      .bot-banner {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .bot-banner-text {
+        font-size: 16px;
+      }
+
       .calendar-head {
         gap: 6px;
       }
@@ -564,7 +636,7 @@
       }
 
       table {
-        min-width: 760px;
+        min-width: 920px;
       }
     }
 
@@ -668,13 +740,23 @@
       </div>
 
       <div class="panel meta-box">
-        <div class="label">Trạng thái</div>
+        <div class="label">Trạng thái kết nối</div>
         <div class="status-row"><span id="statusDot" class="dot"></span><span id="statusText">Đang chờ dữ liệu...</span></div>
         <div class="status-row">Lần cập nhật cuối: <strong id="lastUpdate">--:--:--</strong></div>
       </div>
     </section>
 
     <section id="dashboard" class="grid" style="display:none;">
+      <div class="panel card span-12">
+        <div class="bot-banner">
+          <div class="bot-banner-left">
+            <div class="bot-banner-title">Trạng thái bot</div>
+            <div id="botBannerText" class="bot-banner-text">Bot đã tạm ngưng giao dịch</div>
+          </div>
+          <div id="botBannerPill" class="bot-pill paused">Tạm ngưng</div>
+        </div>
+      </div>
+
       <div class="panel card span-3">
         <div class="card-title">Tổng lợi nhuận sau trade</div>
         <div id="totalProfit" class="big">0.00</div>
@@ -724,6 +806,7 @@
         <div class="kv"><div class="k">BUY / SELL</div><div id="tradeSides" class="v">0 / 0</div></div>
         <div class="kv"><div class="k">Orders / Lots</div><div id="tradeOrdersLots" class="v">0 / 0.00</div></div>
         <div class="kv"><div class="k">Score / Trend</div><div id="tradeScoreTrend" class="v">0 / -</div></div>
+        <div class="kv"><div class="k">Trạng thái bot</div><div id="tradeBotState" class="v">Tạm ngưng</div></div>
       </div>
 
       <div class="panel card span-6">
@@ -755,6 +838,7 @@
         <div class="kv"><div class="k">Refresh</div><div class="v">1 giây</div></div>
         <div class="kv"><div class="k">Cập nhật lần cuối</div><div id="metaUpdatedAt" class="v">-</div></div>
         <div class="kv"><div class="k">Trạng thái hiện tại</div><div id="metaState" class="v">Đang chờ</div></div>
+        <div class="kv"><div class="k">Bot</div><div id="metaBotStatus" class="v">Tạm ngưng</div></div>
       </div>
 
       <div class="panel calendar-wrap span-12">
@@ -783,7 +867,7 @@
       </div>
 
       <div class="panel table-wrap span-12">
-        <div class="card-title">Lịch sử gần nhất</div>
+        <div class="card-title">Lịch sử lệnh trade</div>
         <table>
           <thead>
             <tr>
@@ -792,6 +876,8 @@
               <th>Symbol</th>
               <th>ID</th>
               <th>Name</th>
+              <th>Trạng thái bot</th>
+              <th>Trạng thái lệnh</th>
               <th>Tổng vốn</th>
               <th>Sau trade</th>
               <th>Lợi nhuận</th>
@@ -940,6 +1026,89 @@
       if (className) el.classList.add(className);
     }
 
+    function toNumber(value) {
+      const n = Number(value);
+      return Number.isFinite(n) ? n : 0;
+    }
+
+    function isBotRunning(data) {
+      if (!data) return false;
+      const orders = toNumber(data.orders);
+      const buy = toNumber(data.buy);
+      const sell = toNumber(data.sell);
+      const floating = toNumber(data.floatingpnl);
+      return orders > 0 || buy > 0 || sell > 0 || Math.abs(floating) > 0.000001;
+    }
+
+    function getBotStatusInfo(data) {
+      const running = isBotRunning(data);
+      return {
+        running,
+        text: running ? 'Bot đang giao dịch' : 'Bot đã tạm ngưng giao dịch',
+        shortText: running ? 'Đang giao dịch' : 'Tạm ngưng',
+        className: running ? 'green' : 'red',
+        pillClass: running ? 'running' : 'paused'
+      };
+    }
+
+    function getRowValue(row, keys = [], fallback = '') {
+      for (const key of keys) {
+        if (row && row[key] !== undefined && row[key] !== null && row[key] !== '') return row[key];
+      }
+      return fallback;
+    }
+
+    function getTradeStatusInfoFromRow(row) {
+      const orders = toNumber(getRowValue(row, ['Orders', 'orders'], 0));
+      const floating = toNumber(getRowValue(row, ['ĐangChạy', 'DangChay', 'DangChayPNL', 'floatingpnl'], 0));
+      const buy = toNumber(getRowValue(row, ['Buy', 'buy'], 0));
+      const sell = toNumber(getRowValue(row, ['Sell', 'sell'], 0));
+
+      if (orders > 0 || buy > 0 || sell > 0 || Math.abs(floating) > 0.000001) {
+        return {
+          text: 'Đang chờ đóng lệnh',
+          className: 'waiting',
+          botText: 'Bot đang giao dịch',
+          botClassName: 'running'
+        };
+      }
+
+      return {
+        text: 'Đã đóng lệnh',
+        className: 'closed',
+        botText: 'Bot đã tạm ngưng giao dịch',
+        botClassName: 'paused'
+      };
+    }
+
+    function updateBotStatusUI(data) {
+      const info = getBotStatusInfo(data);
+      const bannerText = document.getElementById('botBannerText');
+      const bannerPill = document.getElementById('botBannerPill');
+      const tradeBotState = document.getElementById('tradeBotState');
+      const metaBotStatus = document.getElementById('metaBotStatus');
+
+      if (bannerText) {
+        bannerText.textContent = info.text;
+        bannerText.className = 'bot-banner-text ' + info.className;
+      }
+
+      if (bannerPill) {
+        bannerPill.textContent = info.shortText;
+        bannerPill.className = 'bot-pill ' + info.pillClass;
+      }
+
+      if (tradeBotState) {
+        tradeBotState.textContent = info.shortText;
+        tradeBotState.className = 'v ' + info.className;
+      }
+
+      if (metaBotStatus) {
+        metaBotStatus.textContent = info.text;
+        metaBotStatus.className = 'v ' + info.className;
+      }
+    }
+
     function renderSummary(data) {
       if (!data || !data.found) {
         els.dashboard.style.display = 'none';
@@ -982,6 +1151,7 @@
       updateText('metaKey', activeKey || '-');
       updateText('metaUpdatedAt', data.updatedAt || '-');
 
+      updateBotStatusUI(data);
       setStatus('Đang kết nối realtime', 'live');
       setLastUpdateNow();
     }
@@ -1024,17 +1194,22 @@
         } else {
           const profitCls = Number(row.totalprofit) >= 0 ? 'green' : 'red';
           const pctCls = Number(row.todaypct) >= 0 ? 'green' : 'red';
-          const ddCls = Number(row.dd) > 0 ? 'red' : 'yellow';
+          const tradeStatus = getTradeStatusInfoFromRow({
+            Orders: row.orders,
+            ĐangChạy: row.floatingpnl || row.currentpnl || 0,
+            Buy: row.buy || 0,
+            Sell: row.sell || 0
+          });
 
           cell.className = 'day compact-data';
-          cell.title = `Profit: ${formatSigned(row.totalprofit)} | %: ${formatPct(row.todaypct)} | Lots: ${formatNumber(row.lots || 0)} | DD: ${formatNumber(row.dd || 0)}% | Orders: ${row.orders || 0} | Trend: ${row.trend || '-'}`;
+          cell.title = `Profit: ${formatSigned(row.totalprofit)} | %: ${formatPct(row.todaypct)} | Lots: ${formatNumber(row.lots || 0)} | DD: ${formatNumber(row.dd || 0)}% | Orders: ${row.orders || 0} | Trend: ${row.trend || '-'} | ${tradeStatus.text}`;
           cell.innerHTML = `
             <div class="num">${d}</div>
             <div class="value-row">
               <div class="pill ${profitCls}">${formatSigned(row.totalprofit)}</div>
               <div class="pill ${pctCls}">${formatPct(row.todaypct)}</div>
+              <div class="pill ${tradeStatus.className}">${tradeStatus.text}</div>
             </div>
-
           `;
         }
 
@@ -1048,31 +1223,55 @@
 
       if (!items.length) {
         const tr = document.createElement('tr');
-        tr.innerHTML = `<td colspan="17" class="muted">Chưa có dòng dữ liệu nào.</td>`;
+        tr.innerHTML = `<td colspan="19" class="muted">Chưa có dòng dữ liệu nào.</td>`;
         els.rowsBody.appendChild(tr);
         return;
       }
 
       for (const row of items) {
+        const tradeStatus = getTradeStatusInfoFromRow(row);
+        const botPill = `<span class="pill ${tradeStatus.botClassName}">${tradeStatus.botText}</span>`;
+        const tradePill = `<span class="pill ${tradeStatus.className}">${tradeStatus.text}</span>`;
+
+        const ngay = getRowValue(row, ['Ngày', 'Date'], '-');
+        const bot = getRowValue(row, ['Bot', 'BOT', 'bot'], '-');
+        const symbol = getRowValue(row, ['Symbol', 'symbol'], '-');
+        const id = getRowValue(row, ['ID', 'Id', 'id'], '-');
+        const name = getRowValue(row, ['Name', 'name'], '-');
+        const tongVon = getRowValue(row, ['TổngVốn', 'TongVon', 'totalcapital'], 0);
+        const vonSau = getRowValue(row, ['VốnSauKhiTrade', 'VonSauKhiTrade', 'aftercapital'], 0);
+        const loiNhuan = getRowValue(row, ['TổngLợiNhuậnSauTrade', 'TongLoiNhuanSauTrade', 'totalprofit'], 0);
+        const pct = getRowValue(row, ['%KiếmHômNay', 'KiếmHômNay', 'todaypct'], 0);
+        const daChot = getRowValue(row, ['ĐãChốt', 'DaChot', 'closedpnl'], 0);
+        const dangChay = getRowValue(row, ['ĐangChạy', 'DangChay', 'DangChayPNL', 'floatingpnl'], 0);
+        const orders = getRowValue(row, ['Orders', 'orders'], 0);
+        const lots = getRowValue(row, ['Lots', 'lots'], 0);
+        const dd = getRowValue(row, ['DD', 'dd'], 0);
+        const edd = getRowValue(row, ['EDD', 'edd'], 0);
+        const trend = getRowValue(row, ['Trend', 'trend'], '-');
+        const capNhat = getRowValue(row, ['CậpNhật', 'CapNhat', 'updatedAt'], '-');
+
         const tr = document.createElement('tr');
         tr.innerHTML = `
-          <td>${row['Ngày'] || '-'}</td>
-          <td>${row['Bot'] || '-'}</td>
-          <td>${row['Symbol'] || '-'}</td>
-          <td>${row['ID'] || '-'}</td>
-          <td>${row['Name'] || '-'}</td>
-          <td class="${clsByValue(row['TổngVốn'])}">${formatNumber(row['TổngVốn'])}</td>
-          <td>${formatNumber(row['VốnSauKhiTrade'])}</td>
-          <td class="${clsByValue(row['TổngLợiNhuậnSauTrade'])}">${formatSigned(row['TổngLợiNhuậnSauTrade'])}</td>
-          <td class="${clsByValue(row['%KiếmHômNay'])}">${formatPct(row['%KiếmHômNay'])}</td>
-          <td class="${clsByValue(row['ĐãChốt'])}">${formatSigned(row['ĐãChốt'])}</td>
-          <td class="${clsByValue(row['ĐangChạy'])}">${formatSigned(row['ĐangChạy'])}</td>
-          <td>${row['Orders'] || 0}</td>
-          <td>${formatNumber(row['Lots'] || 0)}</td>
-          <td class="${Number(row['DD'] || 0) > 0 ? 'red' : 'yellow'}">${formatNumber(row['DD'] || 0)}%</td>
-          <td class="${clsByValue(-Math.abs(Number(row['EDD'] || 0)))}">${formatSigned(row['EDD'])}</td>
-          <td>${row['Trend'] || '-'}</td>
-          <td>${row['CậpNhật'] || '-'}</td>
+          <td>${ngay}</td>
+          <td>${bot}</td>
+          <td>${symbol}</td>
+          <td>${id}</td>
+          <td>${name}</td>
+          <td class="trade-status-cell">${botPill}</td>
+          <td class="trade-status-cell">${tradePill}</td>
+          <td class="${clsByValue(tongVon)}">${formatNumber(tongVon)}</td>
+          <td>${formatNumber(vonSau)}</td>
+          <td class="${clsByValue(loiNhuan)}">${formatSigned(loiNhuan)}</td>
+          <td class="${clsByValue(pct)}">${formatPct(pct)}</td>
+          <td class="${clsByValue(daChot)}">${formatSigned(daChot)}</td>
+          <td class="${clsByValue(dangChay)}">${formatSigned(dangChay)}</td>
+          <td>${orders || 0}</td>
+          <td>${formatNumber(lots || 0)}</td>
+          <td class="${Number(dd || 0) > 0 ? 'red' : 'yellow'}">${formatNumber(dd || 0)}%</td>
+          <td class="${clsByValue(-Math.abs(Number(edd || 0)))}">${formatSigned(edd)}</td>
+          <td>${trend}</td>
+          <td>${capNhat}</td>
         `;
         els.rowsBody.appendChild(tr);
       }
@@ -1107,7 +1306,6 @@
       const { year, month } = getMonthValue();
 
       if (!force && currentMonthPayload && Number(currentMonthPayload.year) === year && Number(currentMonthPayload.month) === month) {
-        // vẫn refresh định kỳ bên ngoài
       }
 
       try {
@@ -1208,12 +1406,10 @@
   </script>
 
   <script>
-    // chặn ctrl + scroll
     document.addEventListener('wheel', function(e) {
       if (e.ctrlKey) e.preventDefault();
     }, { passive: false });
 
-    // chặn ctrl + + - 0
     document.addEventListener('keydown', function(e) {
       if (e.ctrlKey && ['+', '-', '0'].includes(e.key)) {
         e.preventDefault();
