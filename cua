@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Zero Delay Remote Panel</title>
+<style>
+body{font-family:Arial,sans-serif;background:#0b1220;color:#eef;margin:0;padding:16px} .wrap{max-width:1200px;margin:auto}
+.card{background:#121a2e;border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:14px;margin-bottom:12px}
+input,button,select{width:100%;padding:12px;border-radius:10px;border:1px solid rgba(255,255,255,.12);background:#0f1730;color:#fff}
+button{cursor:pointer;font-weight:700} .row{display:grid;grid-template-columns:1.2fr .8fr .8fr .8fr;gap:10px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px} .btns{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.table{width:100%;border-collapse:collapse} .table td,.table th{padding:8px;border-bottom:1px solid rgba(255,255,255,.08);text-align:left;font-size:14px}
+.small{font-size:12px;color:#9fb0d0} .ok{color:#18d37d}.bad{color:#ff667d}.warn{color:#ffcc55}
+@media(max-width:900px){.row,.grid,.btns{grid-template-columns:1fr}}
+</style>
+</head>
+<body><div class="wrap">
+<div class="card"><h2 style="margin:0 0 10px">ZERO DELAY REMOTE PANEL</h2>
+<div class="row">
+<input id="bridge" value="http://127.0.0.1:8787" placeholder="Bridge URL">
+<input id="token" type="password" placeholder="PANEL_TOKEN">
+<input id="query" placeholder="ID hoặc bot hoặc symbol">
+<button onclick="connect()">KẾT NỐI</button>
+</div></div>
+<div class="grid">
+<div class="card">
+<div id="status" class="small">Chưa kết nối</div>
+<table class="table" id="tbl"><thead><tr><th>Bot</th><th>ID</th><th>Symbol</th><th>Lãi vốn thực</th><th>%</th><th>DD</th><th>Trạng thái</th></tr></thead><tbody></tbody></table>
+</div>
+<div class="card">
+<div class="small" id="selected">Chưa chọn bot</div>
+<div class="btns" style="margin-top:10px">
+<button onclick="sendCmd('close_all')">ĐÓNG HẾT</button>
+<button onclick="sendCmd('close_loss_first')">ĐÓNG LỆNH ÂM</button>
+<button onclick="sendCmd('close_buy')">ĐÓNG BUY</button>
+<button onclick="sendCmd('close_sell')">ĐÓNG SELL</button>
+<button onclick="sendCmd('time_on')">BẬT THEO GIỜ</button>
+<button onclick="sendCmd('mode_247')">CHẠY 24/7</button>
+</div>
+<div class="row" style="grid-template-columns:repeat(5,1fr);margin-top:10px">
+<input id="lot1" placeholder="Lot1"><input id="lot2" placeholder="Lot2"><input id="lot3" placeholder="Lot3"><input id="lot4" placeholder="Lot4"><input id="lot5" placeholder="Lot5">
+</div>
+<button style="margin-top:10px" onclick="sendCmd('set_lots')">ÁP LOTS</button>
+<div class="small" id="log" style="margin-top:10px"></div>
+</div></div>
+</div>
+<script>
+let es=null, items=[], selected=null;
+function qs(id){return document.getElementById(id)}
+function fmt(n){return Number(n||0).toFixed(2)}
+function bridge(){return qs('bridge').value.trim().replace(/\/$/,'')}
+function token(){return encodeURIComponent(qs('token').value.trim())}
+function connect(){
+  if(es) es.close();
+  const url = `${bridge()}/stream?token=${token()}`;
+  es = new EventSource(url);
+  qs('status').textContent='Đang kết nối stream...';
+  es.onmessage = (ev)=>{
+    const data = JSON.parse(ev.data); items = data.items||[]; render(); qs('status').innerHTML=`<span class="ok">Đang realtime</span> | ${data.server_time}`;
+  };
+  es.onerror = ()=>{ qs('status').innerHTML='<span class="bad">Mất stream</span>'; };
+}
+function filtered(){
+  const q=(qs('query').value||'').trim().toLowerCase();
+  return items.filter(x=>!q || [x.bot,x.id,x.symbol].join(' ').toLowerCase().includes(q));
+}
+function render(){
+  const tbody=qs('tbl').querySelector('tbody');
+  tbody.innerHTML='';
+  filtered().forEach(x=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td>${x.bot}</td><td>${x.id}</td><td>${x.symbol}</td><td class="${x.realProfit>=0?'ok':'bad'}">${fmt(x.realProfit)}</td><td class="${x.realPct>=0?'ok':'bad'}">${fmt(x.realPct)}%</td><td>${fmt(x.dd)}%</td><td>${x.status||'-'}</td>`;
+    tr.onclick=()=>{ selected=x; qs('selected').textContent=`Đang chọn: ${x.bot} | ${x.id} | ${x.symbol}`; };
+    tbody.appendChild(tr);
+  });
+}
+qs('query').addEventListener('input', render);
+async function sendCmd(cmd){
+  if(!selected){ qs('log').textContent='Chưa chọn bot'; return; }
+  const p=new URLSearchParams({ token: qs('token').value.trim(), id:selected.id, bot:selected.bot, symbol:selected.symbol, cmd,
+    lot1:qs('lot1').value.trim(), lot2:qs('lot2').value.trim(), lot3:qs('lot3').value.trim(), lot4:qs('lot4').value.trim(), lot5:qs('lot5').value.trim() });
+  const r=await fetch(`${bridge()}/panel/send?${p.toString()}`); const j=await r.json();
+  qs('log').textContent = j.ok ? `Đã gửi ${cmd} | nonce ${j.queued.nonce}` : (j.error||'Lỗi');
+}
+</script>
+</body></html>
