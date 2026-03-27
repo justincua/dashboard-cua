@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <title>PRO Remote EA Control</title>
+  <style>
+    :root{
+      --bg:#0b1020;--bg2:#111936;--card:#141f3d;--line:#243154;--text:#eff3ff;--muted:#97a4c7;
+      --green:#16c784;--red:#ff5b6e;--gold:#f6c453;--blue:#5aa8ff;
+    }
+    *{box-sizing:border-box} html,body{margin:0;padding:0;background:linear-gradient(180deg,var(--bg),#0f1730);color:var(--text);font-family:Arial,Helvetica,sans-serif}
+    .wrap{max-width:1180px;margin:0 auto;padding:14px}
+    .bar,.grid,.card,.table{border:1px solid var(--line);background:rgba(20,31,61,.95);backdrop-filter:blur(6px);border-radius:18px}
+    .bar{padding:12px;display:grid;grid-template-columns:1.6fr .8fr .8fr .8fr;gap:10px;position:sticky;top:0;z-index:20}
+    .title{font-size:22px;font-weight:800;color:var(--gold);margin:0 0 8px}
+    .muted{color:var(--muted)}
+    .input,.btn,select{width:100%;height:42px;border-radius:12px;border:1px solid var(--line);background:#0d1530;color:var(--text);padding:0 12px;font-size:14px}
+    .btn{cursor:pointer;font-weight:800}
+    .btn:hover{filter:brightness(1.08)}
+    .btn-red{background:linear-gradient(180deg,#ff6a7a,#d43c54)}
+    .btn-blue{background:linear-gradient(180deg,#58abff,#2e7fe0)}
+    .btn-green{background:linear-gradient(180deg,#20d491,#0ca56d)}
+    .btn-gold{background:linear-gradient(180deg,#ffd26b,#dca52e);color:#1a1407}
+    .grid{margin-top:12px;padding:12px;display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+    .card{padding:14px}
+    .kpi{font-size:12px;color:var(--muted);margin-bottom:6px}
+    .num{font-size:28px;font-weight:800}
+    .green{color:var(--green)} .red{color:var(--red)} .gold{color:var(--gold)} .blue{color:var(--blue)}
+    .section{margin-top:12px;display:grid;grid-template-columns:1.2fr .8fr;gap:12px}
+    .panel{padding:12px}
+    .panel h3{margin:0 0 10px;font-size:18px}
+    .bot-list{display:grid;gap:10px;max-height:560px;overflow:auto}
+    .bot{border:1px solid var(--line);border-radius:16px;padding:12px;background:#0f1733;cursor:pointer}
+    .bot.active{outline:2px solid var(--gold)}
+    .bot-top{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:8px}
+    .bot-name{font-size:18px;font-weight:800}
+    .tag{display:inline-block;padding:4px 8px;border-radius:999px;font-size:12px;border:1px solid var(--line);color:var(--text);background:#101b37}
+    .bot-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;font-size:13px;color:var(--muted)}
+    .remote-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+    .remote-row{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+    .table{margin-top:12px;padding:12px;overflow:auto}
+    table{width:100%;border-collapse:collapse;min-width:840px}
+    th,td{padding:10px 8px;border-bottom:1px solid var(--line);text-align:left;font-size:13px}
+    th{color:var(--muted);font-weight:700}
+    .rank{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-weight:800;background:#1c2a50}
+    .statusline{display:flex;gap:12px;flex-wrap:wrap;font-size:13px;color:var(--muted)}
+    .note{margin-top:8px;font-size:12px;color:var(--muted)}
+    @media (max-width:920px){
+      .bar{grid-template-columns:1fr;position:static}
+      .grid{grid-template-columns:repeat(2,1fr)}
+      .section{grid-template-columns:1fr}
+      .remote-row{grid-template-columns:repeat(2,1fr)}
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="title">PRO REMOTE EA CONTROL</div>
+    <div class="bar">
+      <input id="api" class="input" placeholder="Dán URL Google Apps Script Web App vào đây" />
+      <input id="q" class="input" placeholder="Tìm theo ID hoặc Bot" />
+      <select id="refresh" class="input">
+        <option value="2000">Refresh 2 giây</option>
+        <option value="1000">Refresh 1 giây</option>
+        <option value="5000">Refresh 5 giây</option>
+      </select>
+      <button id="btnLoad" class="btn btn-blue">TẢI DỮ LIỆU</button>
+    </div>
+
+    <div class="grid">
+      <div class="card"><div class="kpi">Bot đang hiển thị</div><div class="num" id="kpiBots">0</div></div>
+      <div class="card"><div class="kpi">Tổng lãi vốn thực</div><div class="num green" id="kpiRealProfit">0</div></div>
+      <div class="card"><div class="kpi">Tổng % vốn thực</div><div class="num gold" id="kpiRealPct">0%</div></div>
+      <div class="card"><div class="kpi">Cập nhật server</div><div class="num blue" style="font-size:18px" id="kpiTime">--</div></div>
+    </div>
+
+    <div class="section">
+      <div class="panel card">
+        <h3>Danh sách bot</h3>
+        <div class="bot-list" id="botList"></div>
+      </div>
+
+      <div class="panel card">
+        <h3>Điều khiển bot đang chọn</h3>
+        <div id="selectedInfo" class="statusline"><span>Chưa chọn bot</span></div>
+        <div style="height:10px"></div>
+        <div class="remote-grid">
+          <button class="btn btn-red" data-cmd="close_all">ĐÓNG HẾT</button>
+          <button class="btn btn-red" data-cmd="close_loss_first">ĐÓNG LỆNH ÂM</button>
+          <button class="btn btn-gold" data-cmd="close_buy">ĐÓNG BUY</button>
+          <button class="btn btn-gold" data-cmd="close_sell">ĐÓNG SELL</button>
+          <button class="btn btn-green" data-cmd="time_on">BẬT THEO GIỜ</button>
+          <button class="btn btn-blue" data-cmd="mode_247">CHẠY 24/7</button>
+        </div>
+        <div style="height:10px"></div>
+        <div class="remote-row">
+          <input id="lot1" class="input" placeholder="Lot1" />
+          <input id="lot2" class="input" placeholder="Lot2" />
+          <input id="lot3" class="input" placeholder="Lot3" />
+          <input id="lot4" class="input" placeholder="Lot4" />
+          <input id="lot5" class="input" placeholder="Lot5" />
+        </div>
+        <div style="height:10px"></div>
+        <div class="remote-grid">
+          <select id="timemode" class="input">
+            <option value="">Không đổi TimeMode</option>
+            <option value="time">Trade theo giờ</option>
+            <option value="24/7">Trade 24/7</option>
+          </select>
+          <button id="btnApplyLots" class="btn btn-green">ÁP LOTS / SET LOTS</button>
+        </div>
+        <div class="note" id="sendResult">Chưa gửi lệnh.</div>
+      </div>
+    </div>
+
+    <div class="table">
+      <h3 style="margin:0 0 10px">TOP % BOT LÃI</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>#</th><th>Bot</th><th>ID</th><th>Symbol</th><th>Lãi vốn thực</th><th>% vốn thực</th><th>Hôm nay %</th><th>DD</th><th>Trạng thái</th>
+          </tr>
+        </thead>
+        <tbody id="topBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    const state = { api:'', items:[], top:[], selectedKey:'', timer:null };
+
+    function fmt(n,d=2){ n=Number(n||0); return isNaN(n)?'0':n.toLocaleString('en-US',{maximumFractionDigits:d,minimumFractionDigits:d}); }
+    function qs(id){ return document.getElementById(id); }
+    function escapeHtml(s){ return String(s??'').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+
+    function jsonp(url){
+      return new Promise((resolve,reject)=>{
+        const cb='cb_'+Date.now()+'_'+Math.floor(Math.random()*99999);
+        window[cb]=(data)=>{ cleanup(); resolve(data); };
+        const sc=document.createElement('script');
+        sc.src=url+(url.includes('?')?'&':'?')+'callback='+cb;
+        sc.onerror=()=>{ cleanup(); reject(new Error('JSONP load error')); };
+        function cleanup(){ try{ delete window[cb]; }catch(e){} if(sc.parentNode) sc.parentNode.removeChild(sc); }
+        document.body.appendChild(sc);
+      });
+    }
+
+    async function loadData(){
+      const api=qs('api').value.trim();
+      const q=qs('q').value.trim();
+      if(!api){ alert('Nhập URL Google Apps Script trước'); return; }
+      state.api=api;
+      try{
+        const data=await jsonp(api+'?mode=dashboard&limit=50&q='+encodeURIComponent(q));
+        if(!data || !data.ok) throw new Error((data&&data.error)||'Load fail');
+        state.items=data.items||[];
+        state.top=data.top||[];
+        render(data.server_time||'--');
+      }catch(err){
+        qs('sendResult').textContent='Lỗi tải dữ liệu: '+err.message;
+      }
+    }
+
+    function render(serverTime){
+      qs('kpiBots').textContent=String(state.items.length);
+      qs('kpiRealProfit').textContent=fmt(state.items.reduce((a,b)=>a+Number(b.realProfit||0),0));
+      qs('kpiRealPct').textContent=fmt(state.items.reduce((a,b)=>a+Number(b.realPct||0),0))+'%';
+      qs('kpiTime').textContent=serverTime;
+
+      const botList=qs('botList');
+      botList.innerHTML = state.items.map(it=>{
+        const active = it.key===state.selectedKey ? 'active' : '';
+        const pctCls = Number(it.realPct||0) >= 0 ? 'green':'red';
+        return `
+          <div class="bot ${active}" data-key="${escapeHtml(it.key)}">
+            <div class="bot-top">
+              <div>
+                <div class="bot-name">${escapeHtml(it.bot||'-')}</div>
+                <div class="muted">ID ${escapeHtml(it.id||'-')} • ${escapeHtml(it.symbol||'-')}</div>
+              </div>
+              <span class="tag ${pctCls}">${fmt(it.realPct)}%</span>
+            </div>
+            <div class="bot-grid">
+              <div>Lãi vốn thực: <b class="${Number(it.realProfit||0)>=0?'green':'red'}">${fmt(it.realProfit)}</b></div>
+              <div>Hôm nay: <b>${fmt(it.todayPct)}%</b></div>
+              <div>DD: <b>${fmt(it.dd)}%</b></div>
+              <div>Lots: <b>${fmt(it.lots)}</b></div>
+              <div>Trạng thái: <b>${escapeHtml(it.statusVi||it.status||'-')}</b></div>
+              <div>EA Update: <b>${escapeHtml(it.eaUpdate||it.updatedAt||'-')}</b></div>
+            </div>
+          </div>`;
+      }).join('');
+
+      [...botList.querySelectorAll('.bot')].forEach(el=>{
+        el.onclick=()=>selectBot(el.dataset.key);
+      });
+
+      if(!state.selectedKey && state.items[0]) selectBot(state.items[0].key, true); else updateSelectedInfo();
+
+      qs('topBody').innerHTML = (state.top||[]).slice(0,3).map((it,idx)=>`
+        <tr>
+          <td><div class="rank">${idx+1}</div></td>
+          <td>${escapeHtml(it.bot||'-')}</td>
+          <td>${escapeHtml(it.id||'-')}</td>
+          <td>${escapeHtml(it.symbol||'-')}</td>
+          <td class="${Number(it.realProfit||0)>=0?'green':'red'}">${fmt(it.realProfit)}</td>
+          <td class="${Number(it.realPct||0)>=0?'green':'red'}">${fmt(it.realPct)}%</td>
+          <td>${fmt(it.todayPct)}%</td>
+          <td>${fmt(it.dd)}%</td>
+          <td>${escapeHtml(it.statusVi||it.status||'-')}</td>
+        </tr>
+      `).join('');
+    }
+
+    function selectBot(key, silent){
+      state.selectedKey=key;
+      const item=state.items.find(x=>x.key===key);
+      if(item){
+        qs('lot1').value=item.runlot1||'';
+        qs('lot2').value=item.runlot2||'';
+        qs('lot3').value=item.runlot3||'';
+        qs('lot4').value=item.runlot4||'';
+        qs('lot5').value=item.runlot5||'';
+      }
+      updateSelectedInfo();
+      if(!silent) render(qs('kpiTime').textContent||'--');
+    }
+
+    function updateSelectedInfo(){
+      const it=state.items.find(x=>x.key===state.selectedKey);
+      if(!it){ qs('selectedInfo').innerHTML='<span>Chưa chọn bot</span>'; return; }
+      qs('selectedInfo').innerHTML=`
+        <span><b>Bot:</b> ${escapeHtml(it.bot||'-')}</span>
+        <span><b>ID:</b> ${escapeHtml(it.id||'-')}</span>
+        <span><b>Symbol:</b> ${escapeHtml(it.symbol||'-')}</span>
+        <span><b>TimeMode:</b> ${escapeHtml(it.timeMode||'-')}</span>
+        <span><b>Remote:</b> ${escapeHtml(it.remoteStatus||'-')}</span>
+      `;
+    }
+
+    async function sendCommand(cmd){
+      const api=qs('api').value.trim();
+      const it=state.items.find(x=>x.key===state.selectedKey);
+      if(!api){ alert('Nhập URL Google Apps Script trước'); return; }
+      if(!it){ alert('Chọn bot trước'); return; }
+
+      const params = new URLSearchParams({
+        mode:'remote_set',
+        id:String(it.id||''),
+        bot:String(it.bot||''),
+        symbol:String(it.symbol||''),
+        cmd:String(cmd||''),
+        lot1:qs('lot1').value.trim(),
+        lot2:qs('lot2').value.trim(),
+        lot3:qs('lot3').value.trim(),
+        lot4:qs('lot4').value.trim(),
+        lot5:qs('lot5').value.trim(),
+        timemode:qs('timemode').value.trim()
+      });
+
+      try{
+        const data=await jsonp(api+'?'+params.toString());
+        if(!data || !data.ok) throw new Error((data&&data.error)||'Gửi lệnh thất bại');
+        qs('sendResult').textContent=`Đã gửi ${cmd} | nonce ${data.nonce} | ${data.action}`;
+        setTimeout(loadData, 1200);
+      }catch(err){
+        qs('sendResult').textContent='Lỗi gửi lệnh: '+err.message;
+      }
+    }
+
+    qs('btnLoad').onclick=()=>{ loadData(); restartPolling(); };
+    qs('btnApplyLots').onclick=()=>sendCommand('set_lots');
+    document.querySelectorAll('[data-cmd]').forEach(btn=> btn.onclick=()=>sendCommand(btn.dataset.cmd));
+
+    function restartPolling(){
+      if(state.timer) clearInterval(state.timer);
+      state.timer=setInterval(loadData, Number(qs('refresh').value||2000));
+    }
+    qs('refresh').onchange=restartPolling;
+
+    const savedApi=localStorage.getItem('pro_remote_api')||'';
+    if(savedApi) qs('api').value=savedApi;
+    qs('api').addEventListener('change',()=>localStorage.setItem('pro_remote_api',qs('api').value.trim()));
+    qs('api').addEventListener('blur',()=>localStorage.setItem('pro_remote_api',qs('api').value.trim()));
+  </script>
+</body>
+</html>
