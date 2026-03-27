@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-  <title>JustinCua Dashboard 1</title>
+  <title>JustinCua Secure Remote Dashboard</title>
   <style>
     :root{
       --bg:#0a1020;
@@ -19,7 +19,6 @@
       --radius:18px;
       --shadow:0 16px 40px rgba(0,0,0,.28);
     }
-
     *{box-sizing:border-box}
     html,body{margin:0;padding:0;max-width:100%;overflow-x:hidden}
     body{
@@ -31,15 +30,13 @@
         linear-gradient(180deg,#09101d 0%,#0b1120 100%);
       min-height:100vh;
     }
-
     .wrap{max-width:1280px;margin:0 auto;padding:12px}
     .topbar{
       display:grid;
-      grid-template-columns:1.15fr .85fr .75fr .75fr;
+      grid-template-columns:1.2fr .95fr .75fr .9fr;
       gap:10px;
       margin-bottom:12px;
     }
-
     .panel{
       background:rgba(18,26,46,.95);
       border:1px solid var(--line);
@@ -48,13 +45,11 @@
       overflow:hidden;
       min-width:0;
     }
-
     .hero,.box,.card,.calendar-wrap{padding:14px}
     .hero h1{margin:0 0 6px;font-size:22px}
     .sub{font-size:12px;color:var(--muted);line-height:1.5}
     .label{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px}
-
-    .search-input,.month-input{
+    .search-input,.month-input,.token-input,.btn,select{
       width:100%;
       border:1px solid rgba(255,255,255,.08);
       background:rgba(255,255,255,.04);
@@ -63,231 +58,71 @@
       border-radius:12px;
       font-size:15px;
       outline:none;
+      min-height:44px;
     }
-
-    .search-input:focus,.month-input:focus{
+    .search-input:focus,.month-input:focus,.token-input:focus,select:focus{
       border-color:rgba(88,168,255,.6);
       box-shadow:0 0 0 3px rgba(88,168,255,.12);
     }
-
-    .status-row{
-      display:flex;
-      align-items:center;
-      gap:8px;
-      flex-wrap:wrap;
-      font-size:13px;
-      color:var(--muted);
-    }
-
-    .dot{
-      width:10px;height:10px;border-radius:50%;
-      background:var(--yellow);
-      box-shadow:0 0 10px rgba(244,197,80,.55);
-    }
-
+    .btn{cursor:pointer;font-weight:800}
+    .btn:hover{filter:brightness(1.05)}
+    .btn-blue{background:linear-gradient(180deg,#5caeff,#2f80e4)}
+    .btn-green{background:linear-gradient(180deg,#1edb92,#0cab71)}
+    .btn-red{background:linear-gradient(180deg,#ff6b7b,#d84058)}
+    .btn-gold{background:linear-gradient(180deg,#ffd671,#dba52c);color:#1a1407}
+    .status-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:13px;color:var(--muted)}
+    .dot{width:10px;height:10px;border-radius:50%;background:var(--yellow);box-shadow:0 0 10px rgba(244,197,80,.55)}
     .dot.live{background:var(--green);box-shadow:0 0 10px rgba(20,214,123,.55)}
     .dot.error{background:var(--red);box-shadow:0 0 10px rgba(255,93,115,.55)}
-
-    .grid{
-      display:grid;
-      grid-template-columns:repeat(12,minmax(0,1fr));
-      gap:12px;
-    }
-
-    .span-3{grid-column:span 3}
-    .span-4{grid-column:span 4}
-    .span-6{grid-column:span 6}
-    .span-8{grid-column:span 8}
-    .span-12{grid-column:span 12}
-
-    .card-title{
-      font-size:12px;
-      color:var(--muted);
-      text-transform:uppercase;
-      letter-spacing:.08em;
-      margin-bottom:10px;
-    }
-
-    .big{
-      font-size:29px;
-      font-weight:800;
-      line-height:1.1;
-      margin-bottom:6px;
-      word-break:break-word;
-    }
-
+    .grid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:12px}
+    .span-3{grid-column:span 3}.span-4{grid-column:span 4}.span-5{grid-column:span 5}.span-6{grid-column:span 6}.span-7{grid-column:span 7}.span-8{grid-column:span 8}.span-12{grid-column:span 12}
+    .card-title{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px}
+    .big{font-size:29px;font-weight:800;line-height:1.1;margin-bottom:6px;word-break:break-word}
     .big.small{font-size:23px}
-    .muted{color:var(--muted)}
-    .green{color:var(--green)}
-    .red{color:var(--red)}
-    .yellow{color:var(--yellow)}
-    .blue{color:var(--blue)}
-
-    .kv{
-      display:grid;
-      grid-template-columns:minmax(0,1fr) auto;
-      gap:10px;
-      padding:8px 0;
-      border-bottom:1px solid rgba(255,255,255,.05);
-      font-size:14px;
-    }
+    .muted{color:var(--muted)} .green{color:var(--green)} .red{color:var(--red)} .yellow{color:var(--yellow)} .blue{color:var(--blue)}
+    .kv{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:14px}
     .kv:last-child{border-bottom:0}
-    .k{color:var(--muted);word-break:break-word}
-    .v{text-align:right;font-weight:700;word-break:break-word}
-
-    .status-banner{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-      padding:14px;
-      border-radius:14px;
-      background:rgba(255,255,255,.03);
-      border:1px solid rgba(255,255,255,.06);
-    }
-
-    .status-banner-text{
-      font-size:18px;
-      font-weight:800;
-      line-height:1.2;
-      word-break:break-word;
-    }
-
-    .status-banner-sub{
-      margin-top:6px;
-      font-size:12px;
-      color:var(--muted);
-      line-height:1.5;
-      word-break:break-word;
-    }
-
-    .pill{
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      gap:6px;
-      padding:8px 12px;
-      border-radius:999px;
-      font-size:12px;
-      font-weight:700;
-      border:1px solid rgba(255,255,255,.06);
-      white-space:nowrap;
-    }
-
+    .k{color:var(--muted);word-break:break-word}.v{text-align:right;font-weight:700;word-break:break-word}
+    .status-banner{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px;border-radius:14px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06)}
+    .status-banner-text{font-size:18px;font-weight:800;line-height:1.2;word-break:break-word}
+    .status-banner-sub{margin-top:6px;font-size:12px;color:var(--muted);line-height:1.5;word-break:break-word}
+    .pill{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:8px 12px;border-radius:999px;font-size:12px;font-weight:700;border:1px solid rgba(255,255,255,.06);white-space:nowrap}
     .pill.running{color:var(--green);background:rgba(20,214,123,.1)}
     .pill.paused{color:var(--red);background:rgba(255,93,115,.1)}
     .pill.waiting{color:var(--yellow);background:rgba(244,197,80,.1)}
-
-    .metrics-2{
-      display:grid;
-      grid-template-columns:repeat(2,minmax(0,1fr));
-      gap:12px;
-    }
-
-    .mini{
-      background:var(--panel2);
-      border:1px solid rgba(255,255,255,.05);
-      border-radius:14px;
-      padding:14px;
-    }
-
-    .mini .t{
-      font-size:12px;
-      color:var(--muted);
-      text-transform:uppercase;
-      letter-spacing:.08em;
-      margin-bottom:6px;
-    }
-
-    .mini .n{
-      font-size:22px;
-      font-weight:800;
-      word-break:break-word;
-    }
-
-    .calendar-head{
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      gap:8px;
-      margin-bottom:10px;
-      flex-wrap:wrap;
-    }
-
+    .metrics-2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+    .mini{background:var(--panel2);border:1px solid rgba(255,255,255,.05);border-radius:14px;padding:14px}
+    .mini .t{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px}
+    .mini .n{font-size:22px;font-weight:800;word-break:break-word}
+    .calendar-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap}
     .calendar-head h2{margin:0;font-size:16px}
-    .weekdays,.calendar{
-      display:grid;
-      grid-template-columns:repeat(7,minmax(0,1fr));
-      gap:6px;
-    }
-
-    .weekday{
-      text-align:center;
-      color:var(--muted);
-      font-size:11px;
-      text-transform:uppercase;
-      letter-spacing:.06em;
-      padding:2px 0;
-    }
-
-    .day{
-      min-height:80px;
-      background:rgba(255,255,255,.03);
-      border:1px solid rgba(255,255,255,.06);
-      border-radius:12px;
-      padding:8px;
-      display:flex;
-      flex-direction:column;
-      gap:4px;
-      overflow:hidden;
-    }
-
-    .day.empty{
-      background:rgba(255,255,255,.015);
-      border-style:dashed;
-      opacity:.45;
-    }
-
+    .weekdays,.calendar{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px}
+    .weekday{text-align:center;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.06em;padding:2px 0}
+    .day{min-height:80px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:8px;display:flex;flex-direction:column;gap:4px;overflow:hidden}
+    .day.empty{background:rgba(255,255,255,.015);border-style:dashed;opacity:.45}
     .num{font-size:13px;font-weight:800}
     .small{font-size:10px;color:var(--muted);line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-
-    .calendar-pill{
-      display:inline-flex;
-      width:fit-content;
-      max-width:100%;
-      padding:3px 7px;
-      border-radius:999px;
-      font-size:10px;
-      overflow:hidden;
-      text-overflow:ellipsis;
-      white-space:nowrap;
-    }
-
+    .calendar-pill{display:inline-flex;width:fit-content;max-width:100%;padding:3px 7px;border-radius:999px;font-size:10px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
     .calendar-pill.green{color:var(--green);background:rgba(20,214,123,.09)}
     .calendar-pill.red{color:var(--red);background:rgba(255,93,115,.09)}
     .calendar-pill.yellow{color:var(--yellow);background:rgba(244,197,80,.09)}
-
-    .empty-state{
-      display:flex;
-      min-height:220px;
-      align-items:center;
-      justify-content:center;
-      text-align:center;
-      color:var(--muted);
-      padding:24px;
-      line-height:1.6;
-    }
-
+    .empty-state{display:flex;min-height:220px;align-items:center;justify-content:center;text-align:center;color:var(--muted);padding:24px;line-height:1.6}
+    .remote-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+    .remote-row{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
+    .top-table{overflow:auto}
+    table{width:100%;border-collapse:collapse;min-width:780px}
+    th,td{padding:10px 8px;border-bottom:1px solid rgba(255,255,255,.07);text-align:left;font-size:13px}
+    th{color:var(--muted);font-weight:700}
+    .rank{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-weight:800;background:#1c2a50}
     @media (max-width: 1100px){
       .topbar{grid-template-columns:1fr 1fr}
-      .span-3,.span-4,.span-6,.span-8{grid-column:span 6}
+      .span-3,.span-4,.span-5,.span-6,.span-7,.span-8{grid-column:span 6}
     }
-
     @media (max-width: 720px){
       .wrap{padding:8px}
       .topbar{grid-template-columns:1fr;gap:8px}
       .grid{gap:10px}
-      .span-3,.span-4,.span-6,.span-8,.span-12{grid-column:span 12}
+      .span-3,.span-4,.span-5,.span-6,.span-7,.span-8,.span-12{grid-column:span 12}
       .hero,.box,.card,.calendar-wrap{padding:12px}
       .hero h1{font-size:18px}
       .big{font-size:23px}
@@ -300,6 +135,7 @@
       .num{font-size:11px}
       .calendar-pill{font-size:7px;padding:1px 4px}
       .small{font-size:7px}
+      .remote-row,.remote-grid{grid-template-columns:1fr 1fr}
     }
   </style>
 </head>
@@ -307,13 +143,13 @@
   <div class="wrap">
     <section class="topbar">
       <div class="panel hero">
-        <h1>JustinCua Realtime Dashboard</h1>
-        <div class="sub">Tìm theo ID hoặc tên BOT · Realtime 1 giây · Trạng thái bot đọc trực tiếp từ EA gửi lên Sheet</div>
+        <h1>JustinCua Secure Remote Dashboard</h1>
+        <div class="sub">Đã tích hợp sẵn Apps Script URL · Có token bảo vệ panel · Realtime + remote control cùng một trang</div>
       </div>
 
       <div class="panel box">
         <div class="label">Tìm ID hoặc BOT</div>
-        <input id="searchInput" class="search-input" type="text" placeholder="Ví dụ: 123456 hoặc cua_Demo" autocomplete="off">
+        <input id="searchInput" class="search-input" type="text" placeholder="Ví dụ: 123456 hoặc DemoBot1" autocomplete="off">
       </div>
 
       <div class="panel box">
@@ -322,9 +158,34 @@
       </div>
 
       <div class="panel box">
+        <div class="label">Token điều khiển panel</div>
+        <input id="tokenInput" class="token-input" type="password" placeholder="doanminhvuong">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px">
+          <button id="btnSaveToken" class="btn btn-green">LƯU TOKEN</button>
+          <button id="btnClearToken" class="btn btn-red">XÓA TOKEN</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="topbar" style="grid-template-columns:1fr 1fr 1fr 1fr;margin-top:-2px">
+      <div class="panel box">
         <div class="label">Trạng thái kết nối</div>
         <div class="status-row"><span id="statusDot" class="dot"></span><span id="statusText">Đang chờ dữ liệu...</span></div>
         <div class="status-row">Lần tải cuối: <strong id="lastUpdate">--:--:--</strong></div>
+      </div>
+      <div class="panel box">
+        <div class="label">Remote gần nhất</div>
+        <div class="status-row"><strong id="remoteStatusHead">-</strong></div>
+        <div class="status-row"><span id="remoteLastHead">-</span></div>
+      </div>
+      <div class="panel box">
+        <div class="label">URL GAS đã gắn sẵn</div>
+        <div class="sub" id="apiInfo" style="word-break:break-all"></div>
+      </div>
+      <div class="panel box">
+        <div class="label">Khóa bảo vệ</div>
+        <div class="status-row"><strong id="authText">Chưa xác thực</strong></div>
+        <div class="sub">Dashboard và nút remote chỉ chạy khi token đúng</div>
       </div>
     </section>
 
@@ -392,35 +253,67 @@
         <div class="kv"><div class="k">EA Update</div><div id="metaEAUpdate" class="v">-</div></div>
       </div>
 
-      <div class="panel card span-6">
+      <div class="panel card span-7">
+        <div class="card-title">Điều khiển remote</div>
+        <div class="status-row" id="selectedInfo"><span>Chưa chọn bot</span></div>
+        <div style="height:10px"></div>
+        <div class="remote-grid">
+          <!--<button class="btn btn-red" data-cmd="close_all">ĐÓNG HẾT</button>-->
+           <!--<<button class="btn btn-red" data-cmd="close_loss_first">ĐÓNG LỆNH ÂM</button>-->
+           <!--<<button class="btn btn-gold" data-cmd="close_buy">ĐÓNG BUY</button>-->
+           <!--<<button class="btn btn-gold" data-cmd="close_sell">ĐÓNG SELL</button>-->
+          <button class="btn btn-green" data-cmd="time_on">BẬT THEO GIỜ</button>
+          <button class="btn btn-blue" data-cmd="mode_247">CHẠY 24/7</button>
+        </div>
+        <div style="height:10px"></div>
+        <div class="remote-row">
+          <input id="lot1" class="search-input" placeholder="Lot1">
+          <input id="lot2" class="search-input" placeholder="Lot2">
+          <input id="lot3" class="search-input" placeholder="Lot3">
+          <input id="lot4" class="search-input" placeholder="Lot4">
+          <input id="lot5" class="search-input" placeholder="Lot5">
+        </div>
+        <div style="height:10px"></div>
+        <div class="remote-grid">
+          <select id="timemode">
+            <option value="">Không đổi TimeMode</option>
+            <option value="time">Trade theo giờ</option>
+            <option value="24/7">Trade 24/7</option>
+          </select>
+          <button id="btnApplyLots" class="btn btn-green">ÁP LOTS / SET LOTS</button>
+        </div>
+        <div class="sub" style="margin-top:10px" id="sendResult">Chưa gửi lệnh.</div>
+      </div>
+
+      <div class="panel card span-5">
         <div class="card-title">Giao dịch hôm nay</div>
         <div class="kv"><div class="k">Đã chốt</div><div id="tradeClosed" class="v">0.00</div></div>
         <div class="kv"><div class="k">Đang chạy</div><div id="tradeFloating" class="v">0.00</div></div>
         <div class="kv"><div class="k">BUY / SELL</div><div id="tradeSides" class="v">0 / 0</div></div>
         <div class="kv"><div class="k">Orders / Lots</div><div id="tradeOrdersLots" class="v">0 / 0.00</div></div>
         <div class="kv"><div class="k">Score / Trend</div><div id="tradeScoreTrend" class="v">0 / -</div></div>
+        <div class="kv"><div class="k">Remote status</div><div id="tradeRemoteStatus" class="v">-</div></div>
+        <div class="kv"><div class="k">Remote last</div><div id="tradeRemoteLast" class="v">-</div></div>
       </div>
 
       <div class="panel card span-6">
         <div class="card-title">Tổng quan nhanh</div>
         <div class="metrics-2">
-          <div class="mini">
-            <div class="t">Lợi nhuận</div>
-            <div id="miniProfit" class="n">0.00</div>
-          </div>
-          <div class="mini">
-            <div class="t">% hôm nay</div>
-            <div id="miniPct" class="n">0.00%</div>
-          </div>
-          <div class="mini">
-            <div class="t">DD</div>
-            <div id="miniDD" class="n">0.00%</div>
-          </div>
-          <div class="mini">
-            <div class="t">EDD</div>
-            <div id="miniEDD" class="n">0.00</div>
-          </div>
+          <div class="mini"><div class="t">Lợi nhuận</div><div id="miniProfit" class="n">0.00</div></div>
+          <div class="mini"><div class="t">% hôm nay</div><div id="miniPct" class="n">0.00%</div></div>
+          <div class="mini"><div class="t">DD</div><div id="miniDD" class="n">0.00%</div></div>
+          <div class="mini"><div class="t">EDD</div><div id="miniEDD" class="n">0.00</div></div>
         </div>
+      </div>
+
+      <div class="panel card span-6 top-table">
+        <div class="card-title">TOP % BOT LÃI</div>
+        <table>
+          <thead>
+            <tr><th>#</th><th>Bot</th><th>ID</th><th>Symbol</th><th>Lãi vốn thực</th><th>% vốn thực</th><th>Hôm nay %</th><th>DD</th><th>Trạng thái</th></tr>
+          </thead>
+          <tbody id="topBody"></tbody>
+        </table>
       </div>
 
       <div class="panel calendar-wrap span-12">
@@ -432,33 +325,29 @@
         </div>
 
         <div class="weekdays">
-          <div class="weekday">CN</div>
-          <div class="weekday">T2</div>
-          <div class="weekday">T3</div>
-          <div class="weekday">T4</div>
-          <div class="weekday">T5</div>
-          <div class="weekday">T6</div>
-          <div class="weekday">T7</div>
+          <div class="weekday">CN</div><div class="weekday">T2</div><div class="weekday">T3</div><div class="weekday">T4</div><div class="weekday">T5</div><div class="weekday">T6</div><div class="weekday">T7</div>
         </div>
-
         <div id="calendar" class="calendar" style="margin-top:10px"></div>
       </div>
     </section>
 
     <section id="emptyState" class="panel empty-state">
-      Nhập <strong style="margin:0 6px">ID</strong> hoặc <strong style="margin:0 6px">tên BOT</strong> để bắt đầu xem dữ liệu realtime.
+      Nhập <strong style="margin:0 6px">token</strong> và <strong style="margin:0 6px">ID hoặc BOT</strong> để bắt đầu xem dữ liệu realtime.
     </section>
   </div>
 
   <script>
     const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxWvQVLa0P6y6m3DKtvuBUGN4Or-oFTT-e1V-mMcaEwbE4VJFCqKvJTH4zvg7yBjgs_/exec';
-    const REFRESH_MS = 500;
-    const MONTH_REFRESH_MS = 1000;
-    const STORAGE_KEY = 'justincua_dashboard_key';
+    const REFRESH_MS = 1000;
+    const MONTH_REFRESH_MS = 3000;
+    const TOP_REFRESH_MS = 5000;
+    const STORAGE_KEY = 'justincua_secure_dashboard_key';
+    const TOKEN_KEY = 'justincua_secure_dashboard_token';
 
     const els = {
       searchInput: document.getElementById('searchInput'),
       monthInput: document.getElementById('monthInput'),
+      tokenInput: document.getElementById('tokenInput'),
       statusDot: document.getElementById('statusDot'),
       statusText: document.getElementById('statusText'),
       lastUpdate: document.getElementById('lastUpdate'),
@@ -468,11 +357,17 @@
       calendarTitle: document.getElementById('calendarTitle')
     };
 
+    document.getElementById('apiInfo').textContent = SCRIPT_URL;
+
     let activeKey = '';
+    let currentSummary = null;
     let summaryTimer = null;
     let monthTimer = null;
+    let topTimer = null;
     let typingTimer = null;
     let fetchBusy = false;
+
+    function tokenValue(){ return String(els.tokenInput.value || '').trim(); }
 
     function jsonp(params = {}, timeout = 12000) {
       return new Promise((resolve, reject) => {
@@ -489,7 +384,6 @@
         url.searchParams.set('callback', cb);
 
         let done = false;
-
         const cleanup = () => {
           if (script.parentNode) script.parentNode.removeChild(script);
           try { delete window[cb]; } catch (_) { window[cb] = undefined; }
@@ -525,31 +419,24 @@
 
     function formatNumber(value, digits = 2) {
       const n = Number(value || 0);
-      return n.toLocaleString('en-US', {
-        minimumFractionDigits: digits,
-        maximumFractionDigits: digits
-      });
+      return n.toLocaleString('en-US', { minimumFractionDigits: digits, maximumFractionDigits: digits });
     }
-
     function formatSigned(value, digits = 2) {
       const n = Number(value || 0);
       const s = formatNumber(Math.abs(n), digits);
       return (n > 0 ? '+' : n < 0 ? '-' : '') + s;
     }
-
     function formatPct(value, digits = 2) {
       const n = Number(value || 0);
       const s = formatNumber(Math.abs(n), digits) + '%';
       return (n > 0 ? '+' : n < 0 ? '-' : '') + s;
     }
-
     function clsByValue(value) {
       const n = Number(value || 0);
       if (n > 0) return 'green';
       if (n < 0) return 'red';
       return 'yellow';
     }
-
     function setConnection(text, state = 'waiting') {
       els.statusText.textContent = text;
       els.statusDot.className = 'dot';
@@ -557,7 +444,6 @@
       if (state === 'error') els.statusDot.classList.add('error');
       els.lastUpdate.textContent = new Date().toLocaleTimeString('vi-VN');
     }
-
     function updateText(id, text, className = '') {
       const el = document.getElementById(id);
       if (!el) return;
@@ -565,49 +451,62 @@
       el.className = el.className.replace(/\b(green|red|yellow|blue)\b/g, '').trim();
       if (className) el.classList.add(className);
     }
-
     function getStatusInfo(data) {
       const status = String(data?.status || '').trim().toUpperCase();
       const statusvi = String(data?.statusvi || '').trim();
       const reason = String(data?.statusreason || '').trim();
+      if (status === 'RUNNING') return { text: statusvi || 'Bot đang giao dịch', shortText: 'Đang giao dịch', className: 'green', pillClass: 'running', reason: reason || 'EA đang báo bot hoạt động' };
+      if (status === 'PAUSED') return { text: statusvi || 'Bot đang tạm ngưng', shortText: 'Tạm ngưng', className: 'red', pillClass: 'paused', reason: reason || 'EA đang báo bot tạm dừng' };
+      return { text: 'Đang chờ trạng thái từ EA...', shortText: 'Chờ dữ liệu', className: 'yellow', pillClass: 'waiting', reason: reason || 'EA chưa gửi đủ status/statusvi/statusreason' };
+    }
 
-      if (status === 'RUNNING') {
-        return {
-          text: statusvi || 'Bot đang giao dịch',
-          shortText: 'Đang giao dịch',
-          className: 'green',
-          pillClass: 'running',
-          reason: reason || 'EA đang báo bot hoạt động'
-        };
+    async function checkAuth() {
+      const token = tokenValue();
+      if (!token) {
+        document.getElementById('authText').textContent = 'Chưa có token';
+        return false;
       }
+      try {
+        const data = await jsonp({ mode: 'auth_ping', token });
+        if (data && data.ok) {
+          document.getElementById('authText').textContent = 'Token hợp lệ';
+          return true;
+        }
+      } catch (_) {}
+      document.getElementById('authText').textContent = 'Token sai';
+      return false;
+    }
 
-      if (status === 'PAUSED') {
-        return {
-          text: statusvi || 'Bot đang tạm ngưng',
-          shortText: 'Tạm ngưng',
-          className: 'red',
-          pillClass: 'paused',
-          reason: reason || 'EA đang báo bot tạm dừng'
-        };
+    function fillRemoteLots(data){
+      ['1','2','3','4','5'].forEach(i => {
+        const v = data['runlot' + i];
+        if (v !== undefined && v !== null && String(v) !== '') document.getElementById('lot'+i).value = v;
+      });
+    }
+
+    function updateSelectedInfo(data){
+      if (!data) {
+        document.getElementById('selectedInfo').innerHTML = '<span>Chưa chọn bot</span>';
+        return;
       }
-
-      return {
-        text: 'Đang chờ trạng thái từ EA...',
-        shortText: 'Chờ dữ liệu',
-        className: 'yellow',
-        pillClass: 'waiting',
-        reason: reason || 'EA chưa gửi đủ status/statusvi/statusreason'
-      };
+      document.getElementById('selectedInfo').innerHTML =
+        `<span><b>Bot:</b> ${data.bot || '-'}</span>
+         <span><b>ID:</b> ${data.id || '-'}</span>
+         <span><b>Symbol:</b> ${data.symbol || '-'}</span>
+         <span><b>TimeMode:</b> ${data.timemode || '-'}</span>
+         <span><b>Remote:</b> ${data.remotestatus || '-'}</span>`;
     }
 
     function renderSummary(data) {
+      currentSummary = null;
       if (!data || !data.found) {
         els.dashboard.style.display = 'none';
         els.emptyState.style.display = 'flex';
-        setConnection('Không tìm thấy dữ liệu', 'error');
+        setConnection(data && data.error ? ('Lỗi: ' + data.error) : 'Không tìm thấy dữ liệu', 'error');
         return;
       }
 
+      currentSummary = data;
       els.dashboard.style.display = 'grid';
       els.emptyState.style.display = 'none';
 
@@ -648,13 +547,36 @@
       updateText('tradeSides', `${data.buy || 0} / ${data.sell || 0}`);
       updateText('tradeOrdersLots', `${data.orders || 0} / ${formatNumber(data.lots || 0)}`);
       updateText('tradeScoreTrend', `${data.score || 0} / ${data.trend || '-'}`);
+      updateText('tradeRemoteStatus', data.remotestatus || '-');
+      updateText('tradeRemoteLast', data.remotelast || '-');
 
       updateText('miniProfit', formatSigned(data.totalprofit), clsByValue(data.totalprofit));
       updateText('miniPct', formatPct(data.todaypct), clsByValue(data.todaypct));
       updateText('miniDD', `${formatNumber(data.dd)}%`, Number(data.dd || 0) > 0 ? 'red' : 'yellow');
       updateText('miniEDD', formatSigned(data.edd), Number(data.edd || 0) < 0 ? 'red' : 'yellow');
 
+      document.getElementById('remoteStatusHead').textContent = data.remotestatus || '-';
+      document.getElementById('remoteLastHead').textContent = data.remotelast || '-';
+      fillRemoteLots(data);
+      updateSelectedInfo(data);
       setConnection('Đang kết nối realtime', 'live');
+    }
+
+    function renderTop(payload){
+      const top = Array.isArray(payload?.top) ? payload.top.slice(0,10) : [];
+      document.getElementById('topBody').innerHTML = top.map((it, idx) => `
+        <tr>
+          <td><div class="rank">${idx+1}</div></td>
+          <td>${it.bot || '-'}</td>
+          <td>${it.id || '-'}</td>
+          <td>${it.symbol || '-'}</td>
+          <td class="${Number(it.realProfit || 0) >= 0 ? 'green' : 'red'}">${formatSigned(it.realProfit)}</td>
+          <td class="${Number(it.realPct || 0) >= 0 ? 'green' : 'red'}">${formatPct(it.realPct)}</td>
+          <td>${formatPct(it.todayPct)}</td>
+          <td>${formatNumber(it.dd)}%</td>
+          <td>${it.statusVi || it.status || '-'}</td>
+        </tr>
+      `).join('');
     }
 
     function renderCalendar(payload) {
@@ -691,9 +613,7 @@
           const statusText = String(row.statusvi || '').trim() || '-';
           const statusCls = String(row.status || '').toUpperCase() === 'RUNNING'
             ? 'green'
-            : String(row.status || '').toUpperCase() === 'PAUSED'
-              ? 'red'
-              : 'yellow';
+            : String(row.status || '').toUpperCase() === 'PAUSED' ? 'red' : 'yellow';
 
           cell.className = 'day';
           cell.title =
@@ -727,10 +647,11 @@
 
     async function fetchSummary() {
       if (!activeKey || fetchBusy) return;
+      const token = tokenValue();
+      if (!token) return;
       fetchBusy = true;
-
       try {
-        const data = await jsonp({ mode: 'summary', key: activeKey });
+        const data = await jsonp({ mode: 'summary', q: activeKey, token });
         renderSummary(data);
       } catch (err) {
         setConnection('Lỗi tải dữ liệu: ' + err.message, 'error');
@@ -741,40 +662,90 @@
 
     async function fetchMonth() {
       if (!activeKey) return;
+      const token = tokenValue();
+      if (!token) return;
       const { year, month } = getMonthValue();
-
       try {
-        const data = await jsonp({ mode: 'month', key: activeKey, y: year, m: month });
+        const data = await jsonp({ mode: 'month', q: activeKey, y: year, m: month, token });
         renderCalendar(data);
       } catch (err) {
         setConnection('Lỗi tải lịch tháng: ' + err.message, 'error');
       }
     }
 
+    async function fetchTop() {
+      const token = tokenValue();
+      if (!token) return;
+      try {
+        const data = await jsonp({ mode: 'top', limit: 10, token });
+        renderTop(data);
+      } catch (err) {
+        document.getElementById('sendResult').textContent = 'Lỗi tải top: ' + err.message;
+      }
+    }
+
+    async function sendCommand(cmd){
+      const token = tokenValue();
+      if (!token) { alert('Nhập token trước'); return; }
+      if (!currentSummary) { alert('Chưa có bot đang hiển thị'); return; }
+      try{
+        const data = await jsonp({
+          mode:'remote_set',
+          token,
+          id: String(currentSummary.id || ''),
+          bot: String(currentSummary.bot || ''),
+          symbol: String(currentSummary.symbol || ''),
+          cmd: String(cmd || ''),
+          lot1: document.getElementById('lot1').value.trim(),
+          lot2: document.getElementById('lot2').value.trim(),
+          lot3: document.getElementById('lot3').value.trim(),
+          lot4: document.getElementById('lot4').value.trim(),
+          lot5: document.getElementById('lot5').value.trim(),
+          timemode: document.getElementById('timemode').value.trim()
+        });
+        if (!data || !data.ok) throw new Error((data && data.error) || 'Gửi lệnh thất bại');
+        document.getElementById('sendResult').textContent = `Đã gửi ${cmd} | nonce ${data.nonce} | ${data.action}`;
+        setTimeout(fetchSummary, 1200);
+      }catch(err){
+        document.getElementById('sendResult').textContent = 'Lỗi gửi lệnh: ' + err.message;
+      }
+    }
+
     function stopRealtime() {
       if (summaryTimer) clearInterval(summaryTimer);
       if (monthTimer) clearInterval(monthTimer);
-      summaryTimer = null;
-      monthTimer = null;
+      if (topTimer) clearInterval(topTimer);
+      summaryTimer = monthTimer = topTimer = null;
     }
 
     function startRealtime() {
       stopRealtime();
       fetchSummary();
       fetchMonth();
+      fetchTop();
       summaryTimer = setInterval(fetchSummary, REFRESH_MS);
       monthTimer = setInterval(fetchMonth, MONTH_REFRESH_MS);
+      topTimer = setInterval(fetchTop, TOP_REFRESH_MS);
     }
 
-    function applySearch(value) {
+    async function applySearch(value) {
       activeKey = String(value || '').trim();
       localStorage.setItem(STORAGE_KEY, activeKey);
 
-      if (!activeKey) {
+      if (!activeKey || !tokenValue()) {
         stopRealtime();
         els.dashboard.style.display = 'none';
         els.emptyState.style.display = 'flex';
         setConnection('Đang chờ dữ liệu...', 'waiting');
+        return;
+      }
+
+      const ok = await checkAuth();
+      if (!ok) {
+        stopRealtime();
+        els.dashboard.style.display = 'none';
+        els.emptyState.style.display = 'flex';
+        setConnection('Token không hợp lệ', 'error');
         return;
       }
 
@@ -795,9 +766,31 @@
         }
       });
 
-      els.monthInput.addEventListener('change', () => {
-        if (activeKey) fetchMonth();
+      els.monthInput.addEventListener('change', () => { if (activeKey) fetchMonth(); });
+
+      document.getElementById('btnSaveToken').addEventListener('click', async () => {
+        localStorage.setItem(TOKEN_KEY, tokenValue());
+        const ok = await checkAuth();
+        if (ok) {
+          setConnection('Token hợp lệ, sẵn sàng tải dữ liệu', 'live');
+          if (activeKey) startRealtime();
+        } else {
+          setConnection('Token sai', 'error');
+        }
       });
+
+      document.getElementById('btnClearToken').addEventListener('click', () => {
+        els.tokenInput.value = '';
+        localStorage.removeItem(TOKEN_KEY);
+        document.getElementById('authText').textContent = 'Chưa xác thực';
+        stopRealtime();
+        els.dashboard.style.display = 'none';
+        els.emptyState.style.display = 'flex';
+        setConnection('Đã xóa token', 'waiting');
+      });
+
+      document.querySelectorAll('[data-cmd]').forEach(btn => btn.onclick = () => sendCommand(btn.dataset.cmd));
+      document.getElementById('btnApplyLots').onclick = () => sendCommand('set_lots');
     }
 
     function initMonthInput() {
@@ -807,27 +800,24 @@
       els.monthInput.value = `${yyyy}-${mm}`;
     }
 
-    function initSavedKey() {
+    async function initSavedKey() {
       const saved = localStorage.getItem(STORAGE_KEY) || '';
+      const savedToken = localStorage.getItem(TOKEN_KEY) || '';
+      if (savedToken) els.tokenInput.value = savedToken;
       if (saved) {
         els.searchInput.value = saved;
-        applySearch(saved);
+        await applySearch(saved);
+      } else {
+        await checkAuth();
       }
     }
 
     initMonthInput();
     setupEvents();
     initSavedKey();
-  </script>
 
-  <script>
-    document.addEventListener('wheel', function(e){
-      if (e.ctrlKey) e.preventDefault();
-    }, { passive:false });
-
-    document.addEventListener('keydown', function(e){
-      if (e.ctrlKey && ['+','-','0'].includes(e.key)) e.preventDefault();
-    });
+    document.addEventListener('wheel', function(e){ if (e.ctrlKey) e.preventDefault(); }, { passive:false });
+    document.addEventListener('keydown', function(e){ if (e.ctrlKey && ['+','-','0'].includes(e.key)) e.preventDefault(); });
   </script>
 </body>
 </html>
