@@ -2,14 +2,15 @@
 <html lang="vi">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-  <title>JustinCua Bot</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <title>JustinCua</title>
   <style>
     :root{
       --bg:#07101f;
       --bg2:#0d1730;
       --panel:#111b31;
-      --panel2:#162547;
       --card:#0f1830;
       --text:#eff5ff;
       --muted:#90a3ca;
@@ -21,37 +22,37 @@
       --red:#ff6b7b;
       --yellow:#ffc857;
       --shadow:0 18px 48px rgba(0,0,0,.35);
-      --safe-bottom:max(14px, env(safe-area-inset-bottom));
+      --safe-bottom:env(safe-area-inset-bottom, 0px);
+      --safe-top:env(safe-area-inset-top, 0px);
+      --nav-h:82px;
     }
     *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-    html,body{margin:0;padding:0;background:radial-gradient(circle at top,#182b55 0%,#0b1327 36%,var(--bg) 100%);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;overflow:hidden}
-    body{min-height:100vh;display:grid;place-items:center}
-    .shell{width:min(440px,100vw);height:min(920px,100vh);position:relative;overflow:hidden;background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.015));border:1px solid rgba(255,255,255,.07);border-radius:32px;box-shadow:var(--shadow);backdrop-filter:blur(16px)}
-    @media (max-width:520px){body{display:block}.shell{width:100vw;height:100vh;border:none;border-radius:0}}
-    .shell:before{content:"";position:absolute;right:-24%;top:-6%;width:220px;height:220px;background:radial-gradient(circle,rgba(71,217,255,.18),rgba(71,217,255,0));pointer-events:none}
-    .shell:after{content:"";position:absolute;left:-26%;bottom:40%;width:230px;height:230px;background:radial-gradient(circle,rgba(90,168,255,.18),rgba(90,168,255,0));pointer-events:none}
-    .screen{position:absolute;inset:0;display:flex;flex-direction:column;background:linear-gradient(180deg,rgba(8,12,24,.58),rgba(8,12,24,.98))}
-    .top{padding:18px 16px 12px;border-bottom:1px solid var(--line2);background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.015));backdrop-filter:blur(15px);z-index:3}
+    html,body{margin:0;padding:0;background:radial-gradient(circle at top,#182b55 0%,#0b1327 36%,var(--bg) 100%);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;height:100%}
+    body{overflow:hidden}
+    .app{width:100%;height:100dvh;position:relative;overflow:hidden;background:linear-gradient(180deg,rgba(8,12,24,.58),rgba(8,12,24,.98))}
+    .app:before{content:"";position:absolute;right:-20%;top:-8%;width:240px;height:240px;background:radial-gradient(circle,rgba(71,217,255,.18),rgba(71,217,255,0));pointer-events:none}
+    .app:after{content:"";position:absolute;left:-24%;bottom:28%;width:240px;height:240px;background:radial-gradient(circle,rgba(90,168,255,.18),rgba(90,168,255,0));pointer-events:none}
+
+    .top{position:sticky;top:0;z-index:20;padding:calc(12px + var(--safe-top)) 16px 12px;border-bottom:1px solid var(--line2);background:linear-gradient(180deg,rgba(10,16,31,.96),rgba(10,16,31,.86));backdrop-filter:blur(18px)}
     .head{display:flex;align-items:center;justify-content:space-between;gap:12px}
-    .brand{min-width:0}
     .title{font-size:20px;font-weight:900;letter-spacing:.3px}
-    .sub{font-size:12px;color:var(--muted);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-    .top-actions{display:flex;gap:10px;align-items:center}
+    .sub{font-size:12px;color:var(--muted);margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:72vw}
+    .top-right{display:flex;gap:10px;align-items:center}
     .pill{display:inline-flex;align-items:center;gap:8px;min-height:34px;padding:0 12px;border-radius:999px;border:1px solid var(--line);background:rgba(255,255,255,.05);font-size:12px;font-weight:800}
     .dot{width:8px;height:8px;border-radius:50%}
     .dot.online{background:var(--green)} .dot.warn{background:var(--yellow)} .dot.offline{background:var(--red)}
     .circle-btn{width:40px;height:40px;border-radius:999px;border:1px solid var(--line);background:rgba(255,255,255,.05);display:grid;place-items:center;color:var(--text);cursor:pointer}
     .searchbar{margin-top:12px;display:flex;gap:10px}
-    .input,.select,textarea{width:100%;border-radius:16px;border:1px solid var(--line);background:rgba(255,255,255,.045);color:var(--text);outline:none}
-    .input,.select{height:46px;padding:0 14px;font-size:14px}
-    textarea{min-height:170px;padding:14px;font-size:12px;resize:vertical}
-    .content{flex:1;overflow:auto;padding:14px 14px calc(96px + var(--safe-bottom));scrollbar-width:none}
+
+    .content{position:absolute;inset:0;overflow:auto;padding:0 14px calc(var(--nav-h) + 32px + var(--safe-bottom));scrollbar-width:none}
     .content::-webkit-scrollbar{display:none}
+    .content-inner{padding-top:calc(108px + var(--safe-top))}
+
     .view{display:none;animation:fade .18s ease}
     .view.active{display:block}
     @keyframes fade{from{opacity:.35;transform:translateY(4px)}to{opacity:1;transform:none}}
 
-    .card,.panel,.hero,.bot-card,.calendar-wrap,.raw-wrap{background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.025));border:1px solid var(--line);border-radius:24px;box-shadow:var(--shadow)}
+    .card,.panel,.hero,.bot-card,.calendar-wrap,.raw-wrap,.settings-box{background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.025));border:1px solid var(--line);border-radius:24px;box-shadow:var(--shadow)}
     .hero{padding:16px;position:relative;overflow:hidden}
     .hero:after{content:"";position:absolute;right:-20%;bottom:-40%;width:180px;height:180px;background:radial-gradient(circle,rgba(90,168,255,.18),rgba(90,168,255,0));pointer-events:none}
     .hero-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
@@ -77,10 +78,11 @@
     .section-head{display:flex;align-items:center;justify-content:space-between;margin:0 4px 10px;gap:10px}
     .section-title{font-size:13px;font-weight:900;letter-spacing:.45px;color:#dbe8ff}
     .section-note{font-size:11px;color:var(--muted);text-align:right}
-    .panel{padding:14px}
+    .panel,.settings-box,.calendar-wrap,.raw-wrap{padding:14px}
     .chips{display:flex;gap:8px;flex-wrap:wrap}
     .chip{padding:8px 12px;border-radius:999px;border:1px solid var(--line);background:rgba(255,255,255,.04);font-size:12px;color:var(--muted)}
     .chip strong{color:var(--text)}
+    .helper{font-size:12px;color:var(--muted);line-height:1.55}
 
     .calendar-wrap{padding:14px}
     .month-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
@@ -107,45 +109,58 @@
     .field label{font-size:12px;color:var(--muted)}
     .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
     .row-3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+    .input,.select,textarea{width:100%;border-radius:16px;border:1px solid var(--line);background:rgba(255,255,255,.045);color:var(--text);outline:none}
+    .input,.select{height:46px;padding:0 14px;font-size:14px}
+    .input[type="password"]{letter-spacing:.2em}
+    textarea{min-height:170px;padding:14px;font-size:12px;resize:vertical}
     .btn{height:44px;padding:0 14px;border-radius:16px;border:1px solid var(--line);background:linear-gradient(135deg,#2d8cff,#1ec7ff);color:white;font-weight:800;cursor:pointer}
     .btn.secondary{background:rgba(255,255,255,.04);color:var(--text)}
     .btn.danger{background:linear-gradient(135deg,#f05b72,#ff7c6b)}
     .btn.warn{background:linear-gradient(135deg,#eab43d,#ffcf5e);color:#322300}
     .btn.ghost{background:rgba(255,255,255,.03);color:var(--muted)}
     .btn:disabled{opacity:.45;cursor:not-allowed}
-
     .cmd-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
-    .tiny{font-size:11px;color:var(--muted);line-height:1.5}
+    .tiny{font-size:11px;color:var(--muted);line-height:1.55}
     .empty{padding:18px;text-align:center;border-radius:18px;background:rgba(255,255,255,.03);border:1px dashed var(--line);color:var(--muted)}
-    .raw-wrap{padding:14px}
     pre{margin:0;white-space:pre-wrap;word-break:break-word;font-size:12px;line-height:1.48;color:#dfeaff}
+    .hidden{display:none !important}
 
-    .nav{position:absolute;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom));display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:10px;border-radius:24px;background:rgba(10,16,31,.93);border:1px solid var(--line);backdrop-filter:blur(18px);z-index:5}
+    .nav{position:fixed;left:12px;right:12px;bottom:calc(10px + var(--safe-bottom));display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:10px;border-radius:24px;background:rgba(10,16,31,.96);border:1px solid var(--line);backdrop-filter:blur(18px);z-index:60;box-shadow:0 12px 36px rgba(0,0,0,.35)}
+    .nav.nav-3{grid-template-columns:repeat(3,1fr)}
     .nav-btn{border:none;background:transparent;color:var(--muted);padding:8px 4px;border-radius:16px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;font-size:11px;font-weight:800}
     .nav-btn .icon{font-size:17px;line-height:1}
     .nav-btn.active{background:rgba(90,168,255,.14);color:var(--text);box-shadow:inset 0 0 0 1px rgba(90,168,255,.16)}
+
+    @media (max-width:430px){
+      .hero-name{font-size:20px}
+      .mini .big{font-size:24px}
+      .row,.row-3,.grid-3{grid-template-columns:1fr}
+      .bot-kv{grid-template-columns:repeat(2,1fr)}
+      .calendar-weekdays,.calendar-grid{gap:6px}
+      .day{min-height:72px}
+    }
   </style>
 </head>
 <body>
-<div class="shell">
-  <div class="screen">
-    <div class="top">
-      <div class="head">
-        <div class="brand">
-          <div class="title">JUSTINCUA BOT APP</div>
-          <div class="sub" id="metaText">Đang tải dữ liệu realtime...</div>
-        </div>
-        <div class="top-actions">
-          <div class="pill"><span class="dot warn" id="globalDot"></span><span id="globalState">Đang đồng bộ</span></div>
-          <button class="circle-btn" id="refreshBtn" aria-label="Làm mới">↻</button>
-        </div>
+<div class="app">
+  <div class="top">
+    <div class="head">
+      <div>
+        <div class="title">JUSTINCUA BOT</div>
+        <div class="sub" id="metaText">Chưa cấu hình link heartbeat.</div>
       </div>
-      <div class="searchbar">
-        <input class="input" id="search" placeholder="Nhập ID hoặc tên bot để lọc..." />
+      <div class="top-right">
+        <div class="pill"><span class="dot warn" id="globalDot"></span><span id="globalState">Chưa kết nối</span></div>
+        <button class="circle-btn" id="refreshBtn" aria-label="Làm mới">↻</button>
       </div>
     </div>
+    <div class="searchbar">
+      <input class="input" id="search" placeholder="Nhập ID hoặc tên bot để lọc..." />
+    </div>
+  </div>
 
-    <div class="content">
+  <div class="content">
+    <div class="content-inner">
       <section class="view active" id="view-home">
         <div class="hero" id="heroCard"></div>
 
@@ -169,8 +184,18 @@
 
         <div class="section">
           <div class="section-head">
+            <div class="section-title">BOT KHỚP TÌM KIẾM</div>
+            <div class="section-note" id="botsCount">0 bot</div>
+          </div>
+          <div class="bot-list" id="botList"></div>
+        </div>
+      </section>
+
+      <section class="view" id="view-profit">
+        <div class="section">
+          <div class="section-head">
             <div class="section-title">PROFIT THÁNG DẠNG LỊCH</div>
-            <div class="section-note">Dùng số dư đầu ngày và equity hiện tại</div>
+            <div class="section-note">Equity hiện tại - số dư đầu ngày</div>
           </div>
           <div class="calendar-wrap">
             <div class="month-head">
@@ -184,49 +209,37 @@
             <div class="tiny" style="margin-top:10px" id="calendarHint"></div>
           </div>
         </div>
-
-        <div class="section">
-          <div class="section-head">
-            <div class="section-title">BOT KHỚP TÌM KIẾM</div>
-            <div class="section-note" id="botsCount">0 bot</div>
-          </div>
-          <div class="bot-list" id="botList"></div>
-        </div>
       </section>
 
-      <section class="view" id="view-cpanel">
-        <div class="panel">
-          <div class="row">
-            <div class="field">
-              <label>Link heartbeat / panel</label>
-              <input class="input" id="baseUrl" value="" />
-            </div>
-            <div class="field">
-              <label>Token</label>
-              <input class="input" id="token" value="cua" />
-            </div>
+      <section class="view hidden" id="view-cpanel">
+        <div class="section">
+          <div class="section-head">
+            <div class="section-title">ADMIN CPANEL</div>
+            <div class="section-note" id="cpanelState">Đã khóa</div>
           </div>
-          <div class="row" style="margin-top:10px">
-            <div class="field">
-              <label>Bot đang chọn</label>
-              <select class="select" id="botSelect"></select>
+          <div class="settings-box">
+            <div class="row">
+              <div class="field">
+                <label>Bot đang chọn</label>
+                <select class="select" id="botSelect"></select>
+              </div>
+              <div class="field">
+                <label>Command path</label>
+                <input class="input" id="commandPath" placeholder="/panel/command" />
+              </div>
             </div>
-            <div class="field">
-              <label>Command path</label>
-              <input class="input" id="commandPath" value="/panel/command" />
+            <div class="tiny" style="margin-top:10px">CPanel chỉ hiện sau khi admin unlock trên thiết bị này. Có thể thêm admin secret riêng để backend xác thực lệnh.</div>
+            <div class="row" style="margin-top:10px">
+              <button class="btn secondary" id="useSearchBtn">Chọn theo ô tìm kiếm</button>
+              <button class="btn ghost" id="lockAdminBtn">Khóa admin</button>
             </div>
-          </div>
-          <div class="tiny" style="margin-top:10px">Phần hiển thị lấy từ heartbeat hiện tại. Nút điều khiển dùng command path bạn nhập.</div>
-          <div class="row" style="margin-top:10px">
-            <button class="btn" id="applyConnectionBtn">Kết nối</button>
-            <button class="btn secondary" id="useSearchBtn">Chọn theo ô tìm kiếm</button>
           </div>
         </div>
 
         <div class="section">
           <div class="section-head">
             <div class="section-title">THÔNG TIN BOT FULL</div>
-            <div class="section-note" id="cpanelState">Chưa chọn bot</div>
+            <div class="section-note">chi tiết bot gửi về</div>
           </div>
           <div class="panel">
             <div class="grid-4" id="detailGrid"></div>
@@ -236,7 +249,7 @@
         <div class="section">
           <div class="section-head">
             <div class="section-title">LỆNH ĐIỀU KHIỂN</div>
-            <div class="section-note">close / time / lots</div>
+            <div class="section-note">ẩn với khách</div>
           </div>
           <div class="panel">
             <div class="cmd-grid">
@@ -257,59 +270,102 @@
               <input class="input lot-input" data-lot="lot5" placeholder="Lot5" />
               <button class="btn" id="applyLotsBtn">Áp lots</button>
             </div>
-            <div class="tiny" style="margin-top:10px" id="commandResult">Chưa gửi lệnh.</div>
+            <div class="tiny" style="margin-top:10px" id="commandResult">Admin chưa gửi lệnh.</div>
           </div>
         </div>
 
         <div class="section">
           <div class="section-head">
             <div class="section-title">RAW BOT JSON</div>
-            <div class="section-note">để debug nhanh</div>
+            <div class="section-note">debug admin</div>
           </div>
           <div class="raw-wrap"><pre id="rawJson">{}</pre></div>
         </div>
       </section>
 
-      <section class="view" id="view-logs">
-        <div class="section-head">
-          <div class="section-title">LOG SERVER + APP</div>
-          <div class="section-note">realtime / command</div>
-        </div>
-        <div class="panel"><div class="bot-list" id="logList"></div></div>
-      </section>
-
-      <section class="view" id="view-menu">
-        <div class="panel">
+      <section class="view" id="view-settings">
+        <div class="settings-box">
+          <div class="section-head" style="margin:0 0 10px 0">
+            <div class="section-title">KẾT NỐI HEARTBEAT</div>
+            <div class="section-note" id="connectionState">Chưa cấu hình</div>
+          </div>
           <div class="field">
+            <label>Link panel / heartbeat</label>
+            <input class="input" id="baseUrl" placeholder="Ví dụ: https://ten-mien-cua-ban.up.railway.app" autocomplete="off" spellcheck="false" />
+          </div>
+          <div class="field" style="margin-top:10px">
+            <label>Token</label>
+            <input class="input" id="token" type="password" placeholder="Nhập token riêng khi giao cho khách" autocomplete="off" spellcheck="false" />
+          </div>
+          <div class="field" style="margin-top:10px">
             <label>Chu kỳ làm mới (ms)</label>
             <input class="input" id="refreshMs" type="number" min="1000" step="500" value="1500" />
           </div>
           <div class="row" style="margin-top:10px">
+            <button class="btn" id="saveConnectionBtn">Lưu kết nối</button>
             <button class="btn secondary" id="toggleAutoBtn">Tắt auto</button>
-            <button class="btn" id="saveBtn">Lưu thiết lập</button>
           </div>
           <div class="row" style="margin-top:10px">
-            <button class="btn ghost" id="clearHistoryBtn">Xóa lịch sử tháng cục bộ</button>
-            <button class="btn ghost" id="exportHistoryBtn">Xuất lịch sử JSON</button>
+            <button class="btn ghost" id="clearConnectionBtn">Xóa link + token</button>
+            <button class="btn ghost" id="clearHistoryBtn">Xóa lịch sử tháng</button>
           </div>
-          <div class="tiny" style="margin-top:10px" id="diagnosticText">Chưa có dữ liệu.</div>
+          <div class="helper" style="margin-top:10px">Mặc định app không gắn sẵn link hay token. Sau khi nhập và lưu, lần sau mở lại trên chính thiết bị này sẽ tự nhớ.</div>
+        </div>
+
+        <div class="settings-box section">
+          <div class="section-head" style="margin:0 0 10px 0">
+            <div class="section-title">ADMIN</div>
+            <div class="section-note" id="adminState">Đang khóa</div>
+          </div>
+          <div class="field">
+            <label>Đặt / đổi mã PIN admin trên máy này</label>
+            <input class="input" id="adminPinNew" type="password" placeholder="PIN mới" autocomplete="new-password" />
+          </div>
+          <div class="field" style="margin-top:10px">
+            <label>Nhập lại PIN mới</label>
+            <input class="input" id="adminPinConfirm" type="password" placeholder="Nhập lại PIN" autocomplete="new-password" />
+          </div>
+          <div class="field" style="margin-top:10px">
+            <label>Admin secret gửi kèm lệnh (tuỳ chọn cho backend)</label>
+            <input class="input" id="adminSecret" type="password" placeholder="Không bắt buộc, chỉ admin mới biết" autocomplete="off" />
+          </div>
+          <div class="row" style="margin-top:10px">
+            <button class="btn secondary" id="saveAdminBtn">Lưu PIN admin</button>
+            <button class="btn ghost" id="removeAdminBtn">Xóa PIN admin</button>
+          </div>
+          <div class="field" style="margin-top:14px">
+            <label>Mở khóa admin</label>
+            <input class="input" id="adminUnlockPin" type="password" placeholder="Nhập PIN để hiện CPanel" autocomplete="current-password" />
+          </div>
+          <div class="row" style="margin-top:10px">
+            <button class="btn" id="unlockAdminBtn">Mở khóa</button>
+            <button class="btn ghost" id="lockSettingsBtn">Khóa lại</button>
+          </div>
+          <div class="helper" style="margin-top:10px">Ẩn CPanel ở frontend chỉ giúp bớt lộ ra cho khách. Muốn chặn spam thật sự, backend phải kiểm tra thêm admin secret hoặc chữ ký lệnh.</div>
+        </div>
+
+        <div class="settings-box section">
+          <div class="section-head" style="margin:0 0 10px 0">
+            <div class="section-title">TRẠNG THÁI</div>
+            <div class="section-note">thiết bị hiện tại</div>
+          </div>
+          <div class="helper" id="diagnosticText">Chưa có dữ liệu.</div>
         </div>
       </section>
     </div>
-
-    <nav class="nav">
-      <button class="nav-btn active" data-tab="home"><span class="icon">⌂</span><span>Home</span></button>
-      <button class="nav-btn" data-tab="cpanel"><span class="icon">⚡</span><span>CPanel</span></button>
-      <button class="nav-btn" data-tab="logs"><span class="icon">☰</span><span>Logs</span></button>
-      <button class="nav-btn" data-tab="menu"><span class="icon">⚙</span><span>Menu</span></button>
-    </nav>
   </div>
+
+  <nav class="nav nav-3" id="navBar">
+    <button class="nav-btn active" data-tab="home"><span class="icon">⌂</span><span>Home</span></button>
+    <button class="nav-btn" data-tab="profit"><span class="icon">◫</span><span>Profit</span></button>
+    <button class="nav-btn hidden" data-tab="cpanel" id="cpanelNavBtn"><span class="icon">⚡</span><span>CPanel</span></button>
+    <button class="nav-btn" data-tab="settings"><span class="icon">⚙</span><span>Cài đặt</span></button>
+  </nav>
 </div>
 
 <script>
-const STORAGE_KEY = 'jc_bot_app_control_v1';
-const HISTORY_KEY = 'jc_bot_history_v1';
-const ACTION_LOG_KEY = 'jc_bot_action_logs_v1';
+const STORAGE_KEY = 'jc_bot_app_secure_v1';
+const HISTORY_KEY = 'jc_bot_history_secure_v1';
 const TZ_OFFSET_HOURS = 8;
 
 const els = {
@@ -323,29 +379,40 @@ const els = {
   summaryTime: document.getElementById('summaryTime'),
   quickChips: document.getElementById('quickChips'),
   filterNote: document.getElementById('filterNote'),
+  botsCount: document.getElementById('botsCount'),
+  botList: document.getElementById('botList'),
   monthName: document.getElementById('monthName'),
   monthTotalBadge: document.getElementById('monthTotalBadge'),
   calendarGrid: document.getElementById('calendarGrid'),
   calendarHint: document.getElementById('calendarHint'),
-  botsCount: document.getElementById('botsCount'),
-  botList: document.getElementById('botList'),
   baseUrl: document.getElementById('baseUrl'),
   token: document.getElementById('token'),
-  commandPath: document.getElementById('commandPath'),
+  refreshMs: document.getElementById('refreshMs'),
+  saveConnectionBtn: document.getElementById('saveConnectionBtn'),
+  toggleAutoBtn: document.getElementById('toggleAutoBtn'),
+  clearConnectionBtn: document.getElementById('clearConnectionBtn'),
+  clearHistoryBtn: document.getElementById('clearHistoryBtn'),
+  connectionState: document.getElementById('connectionState'),
+  adminPinNew: document.getElementById('adminPinNew'),
+  adminPinConfirm: document.getElementById('adminPinConfirm'),
+  adminSecret: document.getElementById('adminSecret'),
+  saveAdminBtn: document.getElementById('saveAdminBtn'),
+  removeAdminBtn: document.getElementById('removeAdminBtn'),
+  adminUnlockPin: document.getElementById('adminUnlockPin'),
+  unlockAdminBtn: document.getElementById('unlockAdminBtn'),
+  lockSettingsBtn: document.getElementById('lockSettingsBtn'),
+  adminState: document.getElementById('adminState'),
   botSelect: document.getElementById('botSelect'),
-  applyConnectionBtn: document.getElementById('applyConnectionBtn'),
+  commandPath: document.getElementById('commandPath'),
   useSearchBtn: document.getElementById('useSearchBtn'),
+  lockAdminBtn: document.getElementById('lockAdminBtn'),
   detailGrid: document.getElementById('detailGrid'),
   cpanelState: document.getElementById('cpanelState'),
   rawJson: document.getElementById('rawJson'),
   commandResult: document.getElementById('commandResult'),
-  refreshMs: document.getElementById('refreshMs'),
-  toggleAutoBtn: document.getElementById('toggleAutoBtn'),
-  saveBtn: document.getElementById('saveBtn'),
-  clearHistoryBtn: document.getElementById('clearHistoryBtn'),
-  exportHistoryBtn: document.getElementById('exportHistoryBtn'),
   diagnosticText: document.getElementById('diagnosticText'),
-  logList: document.getElementById('logList'),
+  navBar: document.getElementById('navBar'),
+  cpanelNavBtn: document.getElementById('cpanelNavBtn'),
   navBtns: [...document.querySelectorAll('.nav-btn')],
   views: [...document.querySelectorAll('.view')],
   cmdBtns: [...document.querySelectorAll('[data-cmd]')],
@@ -354,17 +421,19 @@ const els = {
 };
 
 let state = {
-  baseUrl: 'https://cpanel-production.up.railway.app',
-  token: 'cua',
+  baseUrl: '',
+  token: '',
   commandPath: '/panel/command',
   refreshMs: 1500,
   autoRefresh: true,
   selectedKey: '',
+  adminPinHash: '',
+  adminSecret: '',
 };
+let sessionAdmin = false;
 let timer = null;
 let fetchEpochSec = 0;
 let lastPayload = null;
-let actionLogs = loadJson(ACTION_LOG_KEY, []);
 let historyStore = loadJson(HISTORY_KEY, {});
 const seenMap = new Map();
 const snapshotMap = new Map();
@@ -373,18 +442,6 @@ function loadJson(key, fallback){
   try{ const raw = localStorage.getItem(key); return raw ? JSON.parse(raw) : fallback; }catch{ return fallback; }
 }
 function saveJson(key, value){ localStorage.setItem(key, JSON.stringify(value)); }
-function loadSettings(){
-  const saved = loadJson(STORAGE_KEY, null);
-  if(saved && typeof saved === 'object') state = { ...state, ...saved };
-  els.baseUrl.value = state.baseUrl;
-  els.token.value = state.token;
-  els.commandPath.value = state.commandPath;
-  els.refreshMs.value = state.refreshMs;
-  els.toggleAutoBtn.textContent = state.autoRefresh ? 'Tắt auto' : 'Bật auto';
-}
-function persistSettings(){
-  saveJson(STORAGE_KEY, state);
-}
 function escapeHtml(s){
   return String(s ?? '').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#39;');
 }
@@ -414,14 +471,8 @@ function epochToTWDate(epochSec){
   const d = new Date((epochSec + TZ_OFFSET_HOURS*3600) * 1000);
   return `${d.getUTCFullYear()}-${String(d.getUTCMonth()+1).padStart(2,'0')}-${String(d.getUTCDate()).padStart(2,'0')}`;
 }
-function currentTWDate(){
-  const now = Math.floor(Date.now()/1000);
-  return epochToTWDate(now);
-}
-function currentTWYearMonth(){
-  const key = currentTWDate();
-  return key.slice(0,7);
-}
+function currentTWDate(){ return epochToTWDate(Math.floor(Date.now()/1000)); }
+function currentTWYearMonth(){ return currentTWDate().slice(0,7); }
 function fmtAgo(tsSec){
   const t = Number(tsSec); if(!Number.isFinite(t) || t <= 0) return 'không rõ';
   const diff = Math.max(0, fetchEpochSec - t);
@@ -430,18 +481,9 @@ function fmtAgo(tsSec){
   if(diff < 3600) return `${Math.floor(diff/60)}m trước`;
   return `${Math.floor(diff/3600)}h trước`;
 }
-function normMode(v){
-  const s = String(v ?? '--').trim();
-  if(!s) return '--';
-  if(s === 'mode_247') return '24/7';
-  return s;
-}
-function itemKey(raw){
-  const id = raw.id ?? raw.accountID ?? raw.accountId ?? raw.login ?? '';
-  const bot = raw.bot ?? raw.botName ?? raw.name ?? 'Unknown';
-  const symbol = raw.symbol ?? '--';
-  return `${id}|${bot}|${symbol}`;
-}
+function normMode(v){ const s = String(v ?? '--').trim(); return s === 'mode_247' ? '24/7' : (s || '--'); }
+function itemKey(raw){ return `${raw.id ?? raw.accountID ?? raw.accountId ?? raw.login ?? ''}|${raw.bot ?? raw.botName ?? raw.name ?? 'Unknown'}|${raw.symbol ?? '--'}`; }
+function historyKey(item){ return item.key; }
 function keepAliveByChange(key, core){
   const prev = snapshotMap.get(key);
   const now = JSON.stringify(core);
@@ -449,24 +491,28 @@ function keepAliveByChange(key, core){
 }
 function normItem(raw){
   const key = itemKey(raw);
-  const id = raw.id ?? raw.accountID ?? raw.accountId ?? raw.login ?? '';
-  const bot = raw.bot ?? raw.botName ?? raw.name ?? 'Unknown';
-  const symbol = raw.symbol ?? '--';
-  const balance = Number(raw.balance ?? raw.totalcapital ?? 0);
-  const equity = Number(raw.equity ?? raw.aftercapital ?? raw.afterCapital ?? 0);
-  const realProfit = Number(raw.realProfit ?? raw.realprofit ?? 0);
-  const realPct = Number(raw.realPct ?? raw.realpct ?? 0);
-  const dayTotal = Number(raw.dayTotal ?? raw.afterprofit ?? raw.daytotal ?? 0);
-  const dd = Number(raw.dd ?? raw.maxdd ?? 0);
-  const status = String(raw.status ?? raw.statusvi ?? 'UNKNOWN').toUpperCase();
-  const timeMode = normMode(raw.timeMode ?? raw.timemode ?? '--');
+  const item = {
+    key,
+    id: raw.id ?? raw.accountID ?? raw.accountId ?? raw.login ?? '',
+    bot: raw.bot ?? raw.botName ?? raw.name ?? 'Unknown',
+    symbol: raw.symbol ?? '--',
+    balance: Number(raw.balance ?? raw.totalcapital ?? 0),
+    equity: Number(raw.equity ?? raw.aftercapital ?? raw.afterCapital ?? 0),
+    realProfit: Number(raw.realProfit ?? raw.realprofit ?? 0),
+    realPct: Number(raw.realPct ?? raw.realpct ?? 0),
+    dayTotal: Number(raw.dayTotal ?? raw.afterprofit ?? raw.daytotal ?? 0),
+    dd: Number(raw.dd ?? raw.maxdd ?? 0),
+    status: String(raw.status ?? raw.statusvi ?? 'UNKNOWN').toUpperCase(),
+    timeMode: normMode(raw.timeMode ?? raw.timemode ?? '--'),
+    reason: raw.reason ?? raw.statusreason ?? raw.note ?? '',
+    raw,
+  };
   const tsRaw = raw.ts ?? raw.lastTs ?? raw.updatedAtTs ?? raw.updated_at_ts ?? raw.heartbeat_ts ?? raw.eaupdate ?? raw.updatedAt ?? raw.server_time ?? raw.last_seen;
   const parsedTs = parseTimestamp(tsRaw);
-  keepAliveByChange(key, { balance, equity, realProfit, realPct, dayTotal, dd, status, timeMode });
+  keepAliveByChange(key, { balance:item.balance, equity:item.equity, realProfit:item.realProfit, realPct:item.realPct, dayTotal:item.dayTotal, dd:item.dd, status:item.status, timeMode:item.timeMode });
   if(parsedTs > 0) seenMap.set(key, parsedTs);
-  const ts = Math.max(parsedTs, seenMap.get(key) || 0);
-  const reason = raw.reason ?? raw.statusreason ?? raw.note ?? '';
-  return { key, id, bot, symbol, balance, equity, realProfit, realPct, dayTotal, dd, status, timeMode, ts, reason, raw };
+  item.ts = Math.max(parsedTs, seenMap.get(key) || 0);
+  return item;
 }
 function heartbeatState(item){
   const age = item.ts > 0 ? Math.max(0, fetchEpochSec - item.ts) : 999999;
@@ -481,7 +527,34 @@ function filterItems(items){
   if(!q) return items;
   return items.filter(x => String(x.id).toLowerCase().includes(q) || String(x.bot).toLowerCase().includes(q));
 }
-function historyKey(item){ return item.key; }
+function selectedItems(allItems){ return filterItems(allItems); }
+function metricCard(k, v, cls=''){ return `<div class="mini"><div class="k">${k}</div><div class="v ${cls}">${v}</div></div>`; }
+function loadSettings(){
+  const saved = loadJson(STORAGE_KEY, null);
+  if(saved && typeof saved === 'object') state = { ...state, ...saved };
+  els.baseUrl.value = state.baseUrl || '';
+  els.token.value = state.token || '';
+  els.commandPath.value = state.commandPath || '/panel/command';
+  els.refreshMs.value = state.refreshMs || 1500;
+  els.adminSecret.value = state.adminSecret || '';
+  els.toggleAutoBtn.textContent = state.autoRefresh ? 'Tắt auto' : 'Bật auto';
+}
+function persistSettings(){ saveJson(STORAGE_KEY, state); updateStatusBoxes(); }
+function isConfigured(){ return !!(state.baseUrl.trim() && state.token.trim()); }
+function updateStatusBoxes(){
+  els.connectionState.textContent = isConfigured() ? 'Đã lưu cục bộ' : 'Chưa cấu hình';
+  els.adminState.textContent = sessionAdmin ? 'Đang mở khóa' : (state.adminPinHash ? 'Có PIN, đang khóa' : 'Chưa có PIN');
+  els.cpanelState.textContent = sessionAdmin ? 'Admin đã mở khóa' : 'Đã khóa';
+  const navCount = sessionAdmin ? 4 : 3;
+  els.navBar.classList.toggle('nav-3', navCount === 3);
+  els.cpanelNavBtn.classList.toggle('hidden', !sessionAdmin);
+  document.getElementById('view-cpanel').classList.toggle('hidden', !sessionAdmin);
+}
+async function sha256(text){
+  const enc = new TextEncoder().encode(text);
+  const buf = await crypto.subtle.digest('SHA-256', enc);
+  return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2,'0')).join('');
+}
 function updateHistory(items){
   const dayKey = epochToTWDate(fetchEpochSec || Math.floor(Date.now()/1000));
   for(const item of items){
@@ -491,13 +564,10 @@ function updateHistory(items){
       historyStore[key][dayKey] = {
         id:item.id, bot:item.bot, symbol:item.symbol,
         openBalance:Number.isFinite(item.balance) ? item.balance : 0,
-        openEquity:Number.isFinite(item.equity) ? item.equity : 0,
-        lastBalance:Number.isFinite(item.balance) ? item.balance : 0,
         lastEquity:Number.isFinite(item.equity) ? item.equity : 0,
         lastTs:item.ts || fetchEpochSec || Math.floor(Date.now()/1000)
       };
     } else {
-      historyStore[key][dayKey].lastBalance = Number.isFinite(item.balance) ? item.balance : historyStore[key][dayKey].lastBalance;
       historyStore[key][dayKey].lastEquity = Number.isFinite(item.equity) ? item.equity : historyStore[key][dayKey].lastEquity;
       historyStore[key][dayKey].lastTs = item.ts || fetchEpochSec || historyStore[key][dayKey].lastTs;
       historyStore[key][dayKey].id = item.id;
@@ -507,11 +577,6 @@ function updateHistory(items){
   }
   saveJson(HISTORY_KEY, historyStore);
 }
-function selectedItems(allItems){
-  const filtered = filterItems(allItems);
-  return filtered;
-}
-function metricCard(k, v, cls=''){ return `<div class="mini"><div class="k">${k}</div><div class="v ${cls}">${v}</div></div>`; }
 function aggregateMonth(items){
   const ym = currentTWYearMonth();
   let totalProfit = 0;
@@ -539,8 +604,9 @@ function renderHome(allItems){
   const filtered = selectedItems(allItems);
   const hero = filtered[0] || allItems[0] || null;
   els.filterNote.textContent = els.search.value.trim() ? `Đang lọc: ${els.search.value.trim()}` : 'Tất cả bot';
-
-  if(!hero){
+  if(!isConfigured()){
+    els.heroCard.innerHTML = `<div class="empty">Chưa cấu hình link heartbeat và token. Vào <strong>Cài đặt</strong> để nhập rồi lưu cục bộ trên thiết bị này.</div>`;
+  } else if(!hero){
     els.heroCard.innerHTML = '<div class="empty">Chưa có bot nào để hiển thị.</div>';
   } else {
     const hb = heartbeatState(hero);
@@ -559,12 +625,10 @@ function renderHome(allItems){
         <div class="mini"><div class="k">Tổng hôm nay</div><div class="v ${hero.dayTotal >= 0 ? 'green' : 'red'}">${fmtNum(hero.dayTotal)}</div></div>
       </div>`;
   }
-
   const online = allItems.filter(x => heartbeatState(x).online).length;
   const running = allItems.filter(x => x.status.includes('RUN')).length;
   const paused = allItems.filter(x => x.status.includes('PAUSE')).length;
   const month = aggregateMonth(filtered.length ? filtered : allItems);
-
   els.summaryGrid.innerHTML = [
     ['Tổng bot', allItems.length, 'blue'],
     ['Đang chạy', running, running ? 'green' : 'muted'],
@@ -575,16 +639,13 @@ function renderHome(allItems){
     ['Lọc hiện tại', filtered.length || allItems.length, 'blue'],
     ['Cập nhật', fetchEpochSec ? new Date(fetchEpochSec * 1000).toLocaleTimeString('vi-VN') : '--', 'muted'],
   ].map(([k,v,cls]) => metricCard(k,v,cls)).join('');
-
   els.quickChips.innerHTML = [
     `<span class="chip"><strong>${allItems.length}</strong> bot trên server</span>`,
     `<span class="chip"><strong>${running}</strong> bot đang chạy</span>`,
     `<span class="chip"><strong>${paused}</strong> bot đang tắt</span>`,
     `<span class="chip"><strong>${filtered.length || allItems.length}</strong> bot đang hiển thị</span>`
   ].join('');
-
   els.summaryTime.textContent = fetchEpochSec ? `Server ${new Date(fetchEpochSec * 1000).toLocaleTimeString('vi-VN')}` : '--';
-  renderCalendar(filtered.length ? filtered : allItems);
   renderBotList(filtered);
 }
 function renderBotList(items){
@@ -617,9 +678,11 @@ function renderBotList(items){
   document.querySelectorAll('[data-select-key]').forEach(node => node.addEventListener('click', () => {
     state.selectedKey = node.getAttribute('data-select-key');
     persistSettings();
-    populateBotSelect(lastPayload?.items ? lastPayload.items.map(normItem) : []);
-    activateTab('cpanel');
-    renderCpanel(lastPayload?.items ? lastPayload.items.map(normItem) : []);
+    if(sessionAdmin){
+      populateBotSelect(lastPayload?.items ? lastPayload.items.map(normItem) : []);
+      activateTab('cpanel');
+      renderCpanel(lastPayload?.items ? lastPayload.items.map(normItem) : []);
+    }
   }));
 }
 function renderCalendar(items){
@@ -649,12 +712,15 @@ function renderCalendar(items){
       </div>`);
   }
   els.calendarGrid.innerHTML = cells.join('');
-  els.calendarHint.textContent = 'Lịch tháng này đang tính theo: equity hiện tại - số dư đầu ngày đã lưu. Muốn backfill đủ tháng trước, bạn cần giữ app chạy hoặc cấp thêm nguồn lịch sử.';
+  els.calendarHint.textContent = 'Lịch tháng tính theo equity hiện tại trừ số dư đầu ngày đã lưu trên app. Không dùng kiểu vốn thực cũ.';
 }
 function updateHeader(items){
   const online = items.filter(x => heartbeatState(x).online).length;
-  els.metaText.textContent = `Realtime ${online}/${items.length} bot • ${fetchEpochSec ? new Date(fetchEpochSec * 1000).toLocaleTimeString('vi-VN') : '--'}`;
-  if(!items.length){
+  els.metaText.textContent = isConfigured() ? `Realtime ${online}/${items.length} bot • ${fetchEpochSec ? new Date(fetchEpochSec * 1000).toLocaleTimeString('vi-VN') : '--'}` : 'Chưa cấu hình link heartbeat.';
+  if(!isConfigured()){
+    els.globalDot.className = 'dot warn';
+    els.globalState.textContent = 'Chưa kết nối';
+  } else if(!items.length){
     els.globalDot.className = 'dot warn';
     els.globalState.textContent = 'Chưa có bot';
   } else if(online > 0){
@@ -662,21 +728,19 @@ function updateHeader(items){
     els.globalState.textContent = `${online} online`;
   } else {
     els.globalDot.className = 'dot offline';
-    els.globalState.textContent = 'Không có heartbeat';
+    els.globalState.textContent = 'Mất heartbeat';
   }
 }
 function populateBotSelect(items){
   const filtered = selectedItems(items);
   const source = filtered.length ? filtered : items;
-  if(!source.length){
-    els.botSelect.innerHTML = '<option value="">Chưa có bot</option>';
-    return;
-  }
+  if(!source.length){ els.botSelect.innerHTML = '<option value="">Chưa có bot</option>'; return; }
   if(!state.selectedKey || !source.some(x => x.key === state.selectedKey)) state.selectedKey = source[0].key;
   els.botSelect.innerHTML = source.map(x => `<option value="${escapeHtml(x.key)}">${escapeHtml(x.bot)} • ${escapeHtml(x.id || '--')} • ${escapeHtml(x.symbol)}</option>`).join('');
   els.botSelect.value = state.selectedKey;
 }
 function renderCpanel(items){
+  if(!sessionAdmin) return;
   populateBotSelect(items);
   const selected = items.find(x => x.key === state.selectedKey) || items[0] || null;
   if(!selected){
@@ -700,30 +764,10 @@ function renderCpanel(items){
     ['DD', `${fmtNum(selected.dd)}%`, selected.dd > 0 ? 'red' : 'blue'],
     ['Mode', escapeHtml(selected.timeMode), 'blue'],
     ['Heartbeat', fmtAgo(selected.ts), hb.online ? 'green' : 'yellow'],
+    ['Lý do', escapeHtml(selected.reason || '--'), 'muted'],
+    ['Command path', escapeHtml(state.commandPath || '/panel/command'), 'muted'],
   ].map(([k,v,cls]) => metricCard(k,v,cls)).join('');
   els.rawJson.textContent = JSON.stringify(selected.raw, null, 2);
-}
-function pushActionLog(text){
-  const stamp = new Date().toLocaleString('vi-VN');
-  actionLogs.unshift({ time: stamp, text });
-  actionLogs = actionLogs.slice(0, 50);
-  saveJson(ACTION_LOG_KEY, actionLogs);
-  renderLogs(lastPayload?.items ? lastPayload.items.map(normItem) : []);
-}
-function renderLogs(items){
-  const serverLogs = Array.isArray(lastPayload?.logs) ? lastPayload.logs.map(x => typeof x === 'string' ? x : JSON.stringify(x)) : [];
-  const rows = [];
-  rows.push(...actionLogs.map(x => ({ type:'App', time:x.time, text:x.text })));
-  rows.push(...serverLogs.slice(0, 20).map((x, i) => ({ type:'Server', time:`#${i+1}`, text:x })));
-  if(!rows.length){
-    els.logList.innerHTML = '<div class="empty">Chưa có log.</div>';
-    return;
-  }
-  els.logList.innerHTML = rows.map(x => `
-    <div class="bot-card">
-      <div class="bot-meta">${escapeHtml(x.type)} • ${escapeHtml(x.time)}</div>
-      <div style="margin-top:8px;font-size:13px;line-height:1.5">${escapeHtml(x.text)}</div>
-    </div>`).join('');
 }
 function setDiagnostic(text){ els.diagnosticText.textContent = text; }
 function renderAll(payload){
@@ -731,16 +775,20 @@ function renderAll(payload){
   updateHistory(items);
   updateHeader(items);
   renderHome(items);
+  renderCalendar(selectedItems(items).length ? selectedItems(items) : items);
   renderCpanel(items);
-  renderLogs(items);
-  setDiagnostic(`Auto ${state.autoRefresh ? 'ON' : 'OFF'} • Refresh ${state.refreshMs}ms • Lưu lịch sử tháng cục bộ: ${Object.keys(historyStore).length} bot`);
+  setDiagnostic(`Auto ${state.autoRefresh ? 'ON' : 'OFF'} • Refresh ${state.refreshMs}ms • Kết nối ${isConfigured() ? 'đã lưu' : 'chưa lưu'} • CPanel ${sessionAdmin ? 'mở' : 'khóa'}`);
 }
 async function fetchSummary(){
+  if(!isConfigured()){
+    fetchEpochSec = Math.floor(Date.now()/1000);
+    lastPayload = { items: [] };
+    renderAll(lastPayload);
+    return;
+  }
   const base = state.baseUrl.replace(/\/$/, '');
-  const token = state.token.trim();
-  if(!base || !token) return;
   try{
-    const url = `${base}/panel/summary?token=${encodeURIComponent(token)}&_=${Date.now()}`;
+    const url = `${base}/panel/summary?token=${encodeURIComponent(state.token)}&_=${Date.now()}`;
     const res = await fetch(url, { cache:'no-store' });
     if(!res.ok) throw new Error(`HTTP ${res.status}`);
     const json = await res.json();
@@ -753,7 +801,6 @@ async function fetchSummary(){
     els.globalState.textContent = 'Lỗi tải';
     els.metaText.textContent = `Lỗi tải dữ liệu: ${err.message}`;
     setDiagnostic(`Lỗi: ${err.message}`);
-    pushActionLog(`Lỗi fetch summary: ${err.message}`);
   }
 }
 function restartAuto(){
@@ -762,40 +809,103 @@ function restartAuto(){
   timer = setInterval(fetchSummary, state.refreshMs);
 }
 function activateTab(tab){
+  if(tab === 'cpanel' && !sessionAdmin) tab = 'settings';
   els.navBtns.forEach(btn => btn.classList.toggle('active', btn.dataset.tab === tab));
   els.views.forEach(view => view.classList.toggle('active', view.id === `view-${tab}`));
 }
 async function sendCommand(cmd, extras = {}){
+  if(!sessionAdmin){ els.commandResult.textContent = 'CPanel đang khóa.'; return; }
   const items = Array.isArray(lastPayload?.items) ? lastPayload.items.map(normItem) : [];
   const bot = items.find(x => x.key === state.selectedKey);
   if(!bot){ els.commandResult.textContent = 'Chưa chọn bot.'; return; }
   const base = state.baseUrl.replace(/\/$/, '');
   const path = String(state.commandPath || '/panel/command').trim();
-  const qs = new URLSearchParams({ token: state.token, id: bot.id || '', bot: bot.bot || '', symbol: bot.symbol || '', cmd, ...extras });
+  const params = { token: state.token, id: bot.id || '', bot: bot.bot || '', symbol: bot.symbol || '', cmd, ...extras };
+  if(state.adminSecret) params.admin_secret = state.adminSecret;
+  const qs = new URLSearchParams(params);
   const url = `${base}${path.startsWith('/') ? path : '/' + path}?${qs.toString()}`;
   els.commandResult.textContent = `Đang gửi: ${cmd}`;
   try{
     const res = await fetch(url, { method:'GET', cache:'no-store' });
     const text = await res.text();
     els.commandResult.textContent = `HTTP ${res.status} • ${text.slice(0, 220) || '(rỗng)'}`;
-    pushActionLog(`Gửi lệnh ${cmd} cho ${bot.bot} • HTTP ${res.status}`);
     fetchSummary();
   } catch(err){
     els.commandResult.textContent = `Lỗi gửi lệnh: ${err.message}`;
-    pushActionLog(`Lỗi gửi lệnh ${cmd}: ${err.message}`);
   }
+}
+function lockAdmin(){
+  sessionAdmin = false;
+  updateStatusBoxes();
+  if(document.querySelector('.view.active')?.id === 'view-cpanel') activateTab('home');
 }
 
 els.navBtns.forEach(btn => btn.addEventListener('click', () => activateTab(btn.dataset.tab)));
 els.refreshBtn.addEventListener('click', fetchSummary);
 els.search.addEventListener('input', () => { if(lastPayload) renderAll(lastPayload); });
-els.applyConnectionBtn.addEventListener('click', () => {
+els.saveConnectionBtn.addEventListener('click', () => {
   state.baseUrl = els.baseUrl.value.trim();
   state.token = els.token.value.trim();
-  state.commandPath = els.commandPath.value.trim() || '/panel/command';
+  state.refreshMs = Math.max(1000, Number(els.refreshMs.value) || 1500);
+  persistSettings();
+  restartAuto();
+  fetchSummary();
+});
+els.toggleAutoBtn.addEventListener('click', () => {
+  state.autoRefresh = !state.autoRefresh;
+  els.toggleAutoBtn.textContent = state.autoRefresh ? 'Tắt auto' : 'Bật auto';
+  persistSettings();
+  restartAuto();
+});
+els.clearConnectionBtn.addEventListener('click', () => {
+  state.baseUrl = '';
+  state.token = '';
+  els.baseUrl.value = '';
+  els.token.value = '';
   persistSettings();
   fetchSummary();
 });
+els.clearHistoryBtn.addEventListener('click', () => {
+  historyStore = {};
+  saveJson(HISTORY_KEY, historyStore);
+  if(lastPayload) renderAll(lastPayload); else fetchSummary();
+});
+els.saveAdminBtn.addEventListener('click', async () => {
+  const pin = els.adminPinNew.value.trim();
+  const pin2 = els.adminPinConfirm.value.trim();
+  state.adminSecret = els.adminSecret.value.trim();
+  if(!pin || pin.length < 4){ setDiagnostic('PIN admin cần ít nhất 4 ký tự.'); persistSettings(); return; }
+  if(pin !== pin2){ setDiagnostic('PIN admin nhập lại chưa khớp.'); return; }
+  state.adminPinHash = await sha256(pin);
+  persistSettings();
+  els.adminPinNew.value = '';
+  els.adminPinConfirm.value = '';
+  setDiagnostic('Đã lưu PIN admin và admin secret cục bộ.');
+});
+els.removeAdminBtn.addEventListener('click', () => {
+  state.adminPinHash = '';
+  state.adminSecret = '';
+  els.adminSecret.value = '';
+  lockAdmin();
+  persistSettings();
+  setDiagnostic('Đã xóa PIN admin trên thiết bị này.');
+});
+els.unlockAdminBtn.addEventListener('click', async () => {
+  const pin = els.adminUnlockPin.value.trim();
+  if(!state.adminPinHash){ setDiagnostic('Chưa có PIN admin để mở khóa.'); return; }
+  const hash = await sha256(pin);
+  if(hash !== state.adminPinHash){ setDiagnostic('PIN admin không đúng.'); return; }
+  sessionAdmin = true;
+  state.adminSecret = els.adminSecret.value.trim();
+  persistSettings();
+  els.adminUnlockPin.value = '';
+  updateStatusBoxes();
+  if(lastPayload) renderCpanel(lastPayload.items ? lastPayload.items.map(normItem) : []);
+  activateTab('cpanel');
+  setDiagnostic('Đã mở khóa CPanel trên thiết bị này.');
+});
+els.lockSettingsBtn.addEventListener('click', () => { lockAdmin(); setDiagnostic('Đã khóa lại admin.'); });
+els.lockAdminBtn.addEventListener('click', () => { lockAdmin(); setDiagnostic('Đã khóa lại admin.'); });
 els.useSearchBtn.addEventListener('click', () => {
   const items = Array.isArray(lastPayload?.items) ? lastPayload.items.map(normItem) : [];
   const filtered = selectedItems(items);
@@ -803,50 +913,18 @@ els.useSearchBtn.addEventListener('click', () => {
     state.selectedKey = filtered[0].key;
     persistSettings();
     renderCpanel(items);
-    pushActionLog(`Đã chọn bot theo ô tìm kiếm: ${filtered[0].bot}`);
   }
 });
 els.botSelect.addEventListener('change', () => { state.selectedKey = els.botSelect.value; persistSettings(); renderCpanel(lastPayload?.items ? lastPayload.items.map(normItem) : []); });
 els.cmdBtns.forEach(btn => btn.addEventListener('click', () => sendCommand(btn.dataset.cmd)));
 els.applyLotsBtn.addEventListener('click', () => {
-  const extras = { };
+  const extras = {};
   els.lotInputs.forEach(input => { if(input.value.trim()) extras[input.dataset.lot] = input.value.trim(); });
   sendCommand('apply_lots', extras);
 });
-els.toggleAutoBtn.addEventListener('click', () => {
-  state.autoRefresh = !state.autoRefresh;
-  els.toggleAutoBtn.textContent = state.autoRefresh ? 'Tắt auto' : 'Bật auto';
-  persistSettings();
-  restartAuto();
-  setDiagnostic(`Auto ${state.autoRefresh ? 'ON' : 'OFF'}`);
-});
-els.saveBtn.addEventListener('click', () => {
-  state.baseUrl = els.baseUrl.value.trim();
-  state.token = els.token.value.trim();
-  state.commandPath = els.commandPath.value.trim() || '/panel/command';
-  state.refreshMs = Math.max(1000, Number(els.refreshMs.value) || 1500);
-  persistSettings();
-  restartAuto();
-  fetchSummary();
-  pushActionLog('Đã lưu thiết lập app');
-});
-els.clearHistoryBtn.addEventListener('click', () => {
-  historyStore = {};
-  saveJson(HISTORY_KEY, historyStore);
-  if(lastPayload) renderAll(lastPayload);
-  pushActionLog('Đã xóa lịch sử tháng cục bộ');
-});
-els.exportHistoryBtn.addEventListener('click', () => {
-  const blob = new Blob([JSON.stringify(historyStore, null, 2)], { type:'application/json' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = `jc-history-${Date.now()}.json`;
-  a.click();
-  URL.revokeObjectURL(a.href);
-  pushActionLog('Đã xuất lịch sử JSON');
-});
 
 loadSettings();
+updateStatusBoxes();
 fetchSummary();
 restartAuto();
 </script>
