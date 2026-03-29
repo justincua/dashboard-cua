@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <title>JustinCua</title>
+  <title>JustinCua Bot</title>
   <style>
     :root{
       --bg:#07101f;
@@ -13,7 +13,7 @@
       --panel:#111b31;
       --card:#0f1830;
       --text:#eff5ff;
-      --muted:#90a3ca;
+      --muted:#8fa4cb;
       --line:rgba(255,255,255,.08);
       --line2:rgba(255,255,255,.05);
       --blue:#5aa8ff;
@@ -22,911 +22,725 @@
       --red:#ff6b7b;
       --yellow:#ffc857;
       --shadow:0 18px 48px rgba(0,0,0,.35);
-      --safe-bottom:env(safe-area-inset-bottom, 0px);
-      --safe-top:env(safe-area-inset-top, 0px);
-      --nav-h:82px;
+      --safe-top:env(safe-area-inset-top,0px);
+      --safe-bottom:env(safe-area-inset-bottom,0px);
     }
     *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-    html,body{margin:0;padding:0;background:radial-gradient(circle at top,#182b55 0%,#0b1327 36%,var(--bg) 100%);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;height:100%}
-    body{overflow:hidden}
-    .app{width:100%;height:100dvh;position:relative;overflow:hidden;background:linear-gradient(180deg,rgba(8,12,24,.58),rgba(8,12,24,.98))}
-    .app:before{content:"";position:absolute;right:-20%;top:-8%;width:240px;height:240px;background:radial-gradient(circle,rgba(71,217,255,.18),rgba(71,217,255,0));pointer-events:none}
-    .app:after{content:"";position:absolute;left:-24%;bottom:28%;width:240px;height:240px;background:radial-gradient(circle,rgba(90,168,255,.18),rgba(90,168,255,0));pointer-events:none}
+    html,body{margin:0;padding:0;height:100%;background:radial-gradient(circle at top,#182b55 0%,#0b1327 36%,var(--bg) 100%);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+    body{display:flex;justify-content:center;align-items:stretch;overflow:hidden}
+    .phone{
+      width:min(100vw,430px);
+      height:100dvh;
+      background:linear-gradient(180deg,rgba(9,15,29,.96),rgba(9,15,29,.99));
+      position:relative;
+      overflow:hidden;
+      box-shadow:0 0 0 1px rgba(255,255,255,.04), 0 28px 80px rgba(0,0,0,.45);
+    }
+    @media (min-width:700px){
+      body{padding:14px}
+      .phone{height:min(100dvh - 28px,900px);border-radius:34px;border:1px solid rgba(255,255,255,.08)}
+    }
+    .phone:before{content:"";position:absolute;right:-28%;top:-8%;width:220px;height:220px;background:radial-gradient(circle,rgba(71,217,255,.16),rgba(71,217,255,0));pointer-events:none}
+    .phone:after{content:"";position:absolute;left:-22%;bottom:16%;width:240px;height:240px;background:radial-gradient(circle,rgba(90,168,255,.18),rgba(90,168,255,0));pointer-events:none}
 
-    .top{position:sticky;top:0;z-index:20;padding:calc(12px + var(--safe-top)) 16px 12px;border-bottom:1px solid var(--line2);background:linear-gradient(180deg,rgba(10,16,31,.96),rgba(10,16,31,.86));backdrop-filter:blur(18px)}
-    .head{display:flex;align-items:center;justify-content:space-between;gap:12px}
-    .title{font-size:20px;font-weight:900;letter-spacing:.3px}
-    .sub{font-size:12px;color:var(--muted);margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:72vw}
-    .top-right{display:flex;gap:10px;align-items:center}
-    .pill{display:inline-flex;align-items:center;gap:8px;min-height:34px;padding:0 12px;border-radius:999px;border:1px solid var(--line);background:rgba(255,255,255,.05);font-size:12px;font-weight:800}
+    .app{position:relative;height:100%;display:flex;flex-direction:column;overflow:hidden}
+    .header{padding:calc(14px + var(--safe-top)) 16px 12px;border-bottom:1px solid var(--line2);background:linear-gradient(180deg,rgba(10,16,31,.96),rgba(10,16,31,.90));backdrop-filter:blur(18px);position:relative;z-index:5;flex:0 0 auto}
+    .head-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+    .brand{font-size:17px;font-weight:900;letter-spacing:.3px}
+    .sub{font-size:12px;color:var(--muted);margin-top:4px;line-height:1.4}
+    .head-actions{display:flex;align-items:center;gap:10px}
+    .pill{display:inline-flex;align-items:center;gap:8px;min-height:36px;padding:0 12px;border-radius:999px;border:1px solid var(--line);background:rgba(255,255,255,.05);font-size:12px;font-weight:800;white-space:nowrap}
     .dot{width:8px;height:8px;border-radius:50%}
     .dot.online{background:var(--green)} .dot.warn{background:var(--yellow)} .dot.offline{background:var(--red)}
-    .circle-btn{width:40px;height:40px;border-radius:999px;border:1px solid var(--line);background:rgba(255,255,255,.05);display:grid;place-items:center;color:var(--text);cursor:pointer}
-    .searchbar{margin-top:12px;display:flex;gap:10px}
+    .icon-btn{width:40px;height:40px;border-radius:999px;border:1px solid var(--line);background:rgba(255,255,255,.05);display:grid;place-items:center;color:var(--text);cursor:pointer}
+    .search{margin-top:12px}
+    .input,.select,textarea{width:100%;border:1px solid var(--line);background:rgba(255,255,255,.045);color:var(--text);outline:none}
+    .input,.select{height:46px;border-radius:16px;padding:0 14px;font-size:14px}
+    .input[type=password]{letter-spacing:.18em}
+    textarea{min-height:160px;border-radius:18px;padding:14px;font-size:12px;resize:vertical}
 
-    .content{position:absolute;inset:0;overflow:auto;padding:0 14px calc(var(--nav-h) + 32px + var(--safe-bottom));scrollbar-width:none}
-    .content::-webkit-scrollbar{display:none}
-    .content-inner{padding-top:calc(108px + var(--safe-top))}
-
+    .main{flex:1 1 auto;overflow:auto;padding:14px 14px 10px;scrollbar-width:none;position:relative;z-index:1}
+    .main::-webkit-scrollbar{display:none}
     .view{display:none;animation:fade .18s ease}
     .view.active{display:block}
     @keyframes fade{from{opacity:.35;transform:translateY(4px)}to{opacity:1;transform:none}}
 
-    .card,.panel,.hero,.bot-card,.calendar-wrap,.raw-wrap,.settings-box{background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.025));border:1px solid var(--line);border-radius:24px;box-shadow:var(--shadow)}
-    .hero{padding:16px;position:relative;overflow:hidden}
-    .hero:after{content:"";position:absolute;right:-20%;bottom:-40%;width:180px;height:180px;background:radial-gradient(circle,rgba(90,168,255,.18),rgba(90,168,255,0));pointer-events:none}
-    .hero-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
-    .hero-name{font-size:22px;font-weight:900;line-height:1.08}
+    .hero,.card,.calendar-wrap,.settings-box,.bot-card,.panel{background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.025));border:1px solid var(--line);border-radius:24px;box-shadow:var(--shadow)}
+    .hero,.settings-box,.calendar-wrap,.panel{padding:14px}
+    .hero-name{font-size:22px;font-weight:900;line-height:1.06}
     .hero-meta{font-size:12px;color:var(--muted);margin-top:6px}
+    .hero-top{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
     .badge{padding:9px 12px;border-radius:999px;border:1px solid var(--line);font-size:12px;font-weight:900;white-space:nowrap}
     .badge.running{background:rgba(41,208,125,.12);color:var(--green)}
     .badge.paused{background:rgba(255,107,123,.12);color:var(--red)}
     .badge.stale{background:rgba(255,200,87,.12);color:var(--yellow)}
     .badge.info{background:rgba(90,168,255,.14);color:var(--blue)}
-
-    .grid-2,.grid-3,.grid-4{display:grid;gap:10px}
+    .grid-2,.grid-3{display:grid;gap:10px}
     .grid-2{grid-template-columns:repeat(2,1fr)}
     .grid-3{grid-template-columns:repeat(3,1fr)}
-    .grid-4{grid-template-columns:repeat(2,1fr)}
-    .mini{padding:12px;border-radius:18px;background:rgba(255,255,255,.03);border:1px solid var(--line2);min-height:86px}
-    .mini .k{font-size:11px;color:var(--muted);margin-bottom:8px}
-    .mini .v{font-size:16px;font-weight:800;line-height:1.2}
-    .mini .big{font-size:28px;font-weight:900;line-height:1}
+    .mini{padding:12px;border-radius:18px;background:rgba(255,255,255,.03);border:1px solid var(--line2);min-height:84px}
+    .k{font-size:11px;color:var(--muted);margin-bottom:8px}
+    .v{font-size:16px;font-weight:800;line-height:1.2}
+    .big{font-size:28px;font-weight:900;line-height:1}
     .green{color:var(--green)} .red{color:var(--red)} .yellow{color:var(--yellow)} .blue{color:var(--blue)} .muted{color:var(--muted)}
-
     .section{margin-top:14px}
-    .section-head{display:flex;align-items:center;justify-content:space-between;margin:0 4px 10px;gap:10px}
-    .section-title{font-size:13px;font-weight:900;letter-spacing:.45px;color:#dbe8ff}
+    .section-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:0 4px 10px}
+    .section-title{font-size:13px;font-weight:900;letter-spacing:.42px;color:#dbe8ff}
     .section-note{font-size:11px;color:var(--muted);text-align:right}
-    .panel,.settings-box,.calendar-wrap,.raw-wrap{padding:14px}
-    .chips{display:flex;gap:8px;flex-wrap:wrap}
-    .chip{padding:8px 12px;border-radius:999px;border:1px solid var(--line);background:rgba(255,255,255,.04);font-size:12px;color:var(--muted)}
-    .chip strong{color:var(--text)}
-    .helper{font-size:12px;color:var(--muted);line-height:1.55}
-
-    .calendar-wrap{padding:14px}
-    .month-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
-    .month-name{font-size:15px;font-weight:900}
-    .calendar-weekdays,.calendar-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:8px}
-    .calendar-weekdays div{font-size:11px;color:var(--muted);text-align:center;padding-bottom:2px}
-    .day{min-height:78px;border-radius:16px;border:1px solid var(--line2);background:rgba(255,255,255,.03);padding:8px;display:flex;flex-direction:column;gap:6px;justify-content:flex-start}
-    .day.empty{background:transparent;border:1px dashed transparent}
-    .day.today{box-shadow:inset 0 0 0 1px rgba(90,168,255,.35)}
-    .day-num{font-size:11px;color:#dfe9ff;font-weight:800}
-    .day-profit{font-size:11px;font-weight:900;line-height:1.2}
-    .day-base{font-size:10px;color:var(--muted);line-height:1.2}
-
     .bot-list{display:grid;gap:10px}
     .bot-card{padding:14px}
-    .bot-top{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+    .bot-top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
     .bot-name{font-size:17px;font-weight:900}
     .bot-meta{font-size:12px;color:var(--muted);margin-top:4px}
     .bot-kv{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
     .bot-kv .mini{min-height:0;padding:10px}
     .bot-kv .v{font-size:15px}
-
+    .calendar-weekdays,.calendar-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:8px}
+    .calendar-weekdays div{font-size:11px;color:var(--muted);text-align:center;padding-bottom:2px}
+    .day{min-height:82px;border-radius:16px;border:1px solid var(--line2);background:rgba(255,255,255,.03);padding:8px;display:flex;flex-direction:column;gap:6px}
+    .day.empty{background:transparent;border:1px dashed transparent}
+    .day.today{box-shadow:inset 0 0 0 1px rgba(90,168,255,.35)}
+    .day-num{font-size:11px;font-weight:800}
+    .day-profit{font-size:11px;font-weight:900;line-height:1.2}
+    .day-base{font-size:10px;color:var(--muted);line-height:1.2}
+    .month-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px}
+    .month-name{font-size:15px;font-weight:900}
+    .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
     .field{display:grid;gap:8px}
     .field label{font-size:12px;color:var(--muted)}
-    .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-    .row-3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-    .input,.select,textarea{width:100%;border-radius:16px;border:1px solid var(--line);background:rgba(255,255,255,.045);color:var(--text);outline:none}
-    .input,.select{height:46px;padding:0 14px;font-size:14px}
-    .input[type="password"]{letter-spacing:.2em}
-    textarea{min-height:170px;padding:14px;font-size:12px;resize:vertical}
-    .btn{height:44px;padding:0 14px;border-radius:16px;border:1px solid var(--line);background:linear-gradient(135deg,#2d8cff,#1ec7ff);color:white;font-weight:800;cursor:pointer}
-    .btn.secondary{background:rgba(255,255,255,.04);color:var(--text)}
+    .btn{height:44px;border:none;border-radius:16px;padding:0 14px;font-weight:800;cursor:pointer;color:#fff;background:linear-gradient(135deg,#2d8cff,#1ec7ff)}
+    .btn.secondary{background:rgba(255,255,255,.045);border:1px solid var(--line);color:var(--text)}
     .btn.danger{background:linear-gradient(135deg,#f05b72,#ff7c6b)}
-    .btn.warn{background:linear-gradient(135deg,#eab43d,#ffcf5e);color:#322300}
-    .btn.ghost{background:rgba(255,255,255,.03);color:var(--muted)}
+    .btn.warn{background:linear-gradient(135deg,#eab43d,#ffcf5e);color:#3b2b00}
+    .btn.ghost{background:rgba(255,255,255,.03);border:1px solid var(--line);color:var(--muted)}
     .btn:disabled{opacity:.45;cursor:not-allowed}
     .cmd-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
     .tiny{font-size:11px;color:var(--muted);line-height:1.55}
-    .empty{padding:18px;text-align:center;border-radius:18px;background:rgba(255,255,255,.03);border:1px dashed var(--line);color:var(--muted)}
+    .helper{font-size:12px;color:var(--muted);line-height:1.55}
+    .empty{padding:18px;border-radius:18px;background:rgba(255,255,255,.03);border:1px dashed var(--line);text-align:center;color:var(--muted)}
     pre{margin:0;white-space:pre-wrap;word-break:break-word;font-size:12px;line-height:1.48;color:#dfeaff}
     .hidden{display:none !important}
-
-    .nav{position:fixed;left:12px;right:12px;bottom:calc(10px + var(--safe-bottom));display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:10px;border-radius:24px;background:rgba(10,16,31,.96);border:1px solid var(--line);backdrop-filter:blur(18px);z-index:60;box-shadow:0 12px 36px rgba(0,0,0,.35)}
-    .nav.nav-3{grid-template-columns:repeat(3,1fr)}
+    .nav{flex:0 0 auto;display:grid;gap:8px;padding:10px 12px calc(10px + var(--safe-bottom));background:linear-gradient(180deg,rgba(10,16,31,.92),rgba(10,16,31,.98));border-top:1px solid var(--line2)}
+    .nav[data-count="3"]{grid-template-columns:repeat(3,1fr)}
+    .nav[data-count="4"]{grid-template-columns:repeat(4,1fr)}
     .nav-btn{border:none;background:transparent;color:var(--muted);padding:8px 4px;border-radius:16px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;font-size:11px;font-weight:800}
-    .nav-btn .icon{font-size:17px;line-height:1}
-    .nav-btn.active{background:rgba(90,168,255,.14);color:var(--text);box-shadow:inset 0 0 0 1px rgba(90,168,255,.16)}
-
-    @media (max-width:430px){
-      .hero-name{font-size:20px}
-      .mini .big{font-size:24px}
-      .row,.row-3,.grid-3{grid-template-columns:1fr}
-      .bot-kv{grid-template-columns:repeat(2,1fr)}
-      .calendar-weekdays,.calendar-grid{gap:6px}
-      .day{min-height:72px}
-    }
+    .nav-btn .icon{font-size:18px;line-height:1}
+    .nav-btn.active{background:rgba(90,168,255,.14);color:#fff}
+    .modal-backdrop{position:absolute;inset:0;background:rgba(4,8,18,.68);backdrop-filter:blur(10px);display:none;align-items:center;justify-content:center;padding:16px;z-index:50}
+    .modal-backdrop.show{display:flex}
+    .modal{width:100%;max-width:360px;background:linear-gradient(180deg,#101a31,#0b1427);border:1px solid var(--line);border-radius:26px;box-shadow:var(--shadow);padding:16px}
+    .modal h3{margin:0 0 8px;font-size:18px}
+    .modal p{margin:0 0 14px;color:var(--muted);font-size:12px;line-height:1.5}
+    .modal .row{margin-top:12px}
   </style>
 </head>
 <body>
-<div class="app">
-  <div class="top">
-    <div class="head">
-      <div>
-        <div class="title">JUSTINCUA BOT</div>
-        <div class="sub" id="metaText">Chưa cấu hình link heartbeat.</div>
-      </div>
-      <div class="top-right">
-        <div class="pill"><span class="dot warn" id="globalDot"></span><span id="globalState">Chưa kết nối</span></div>
-        <button class="circle-btn" id="refreshBtn" aria-label="Làm mới">↻</button>
-      </div>
-    </div>
-    <div class="searchbar">
-      <input class="input" id="search" placeholder="Nhập ID hoặc tên bot để lọc..." />
-    </div>
-  </div>
-
-  <div class="content">
-    <div class="content-inner">
-      <section class="view active" id="view-home">
-        <div class="hero" id="heroCard"></div>
-
-        <div class="section">
-          <div class="section-head">
-            <div class="section-title">TỔNG QUAN THÁNG</div>
-            <div class="section-note" id="summaryTime">--</div>
+  <div class="phone">
+    <div class="app">
+      <header class="header">
+        <div class="head-top">
+          <div>
+            <div class="brand">JUSTINCUA BOT APP</div>
+            <div class="sub" id="subText">Chưa cấu hình link Railway.</div>
           </div>
-          <div class="panel">
-            <div class="grid-4" id="summaryGrid"></div>
+          <div class="head-actions">
+            <div class="pill" id="connectPill"><span class="dot offline"></span><span>Chưa kết nối</span></div>
+            <button class="icon-btn" id="refreshBtn">↻</button>
           </div>
         </div>
+        <div class="search"><input class="input" id="searchInput" placeholder="Nhập ID hoặc tên bot để lọc..." /></div>
+      </header>
 
-        <div class="section">
-          <div class="section-head">
-            <div class="section-title">LỌC HIỆN TẠI</div>
-            <div class="section-note" id="filterNote">Tất cả bot</div>
-          </div>
-          <div class="chips" id="quickChips"></div>
-        </div>
-
-        <div class="section">
-          <div class="section-head">
-            <div class="section-title">BOT KHỚP TÌM KIẾM</div>
-            <div class="section-note" id="botsCount">0 bot</div>
-          </div>
-          <div class="bot-list" id="botList"></div>
-        </div>
-      </section>
-
-      <section class="view" id="view-profit">
-        <div class="section">
-          <div class="section-head">
-            <div class="section-title">PROFIT THÁNG DẠNG LỊCH</div>
-            <div class="section-note">Equity hiện tại - số dư đầu ngày</div>
-          </div>
-          <div class="calendar-wrap">
-            <div class="month-head">
-              <div class="month-name" id="monthName">--</div>
-              <div class="badge info" id="monthTotalBadge">--</div>
+      <main class="main" id="mainScroll">
+        <section class="view active" id="view-home">
+          <div class="hero" id="heroCard">
+            <div class="hero-top">
+              <div>
+                <div class="hero-name" id="heroName">Chưa có bot</div>
+                <div class="hero-meta" id="heroMeta">Nhập link Railway + token ở Cài đặt để bắt đầu.</div>
+              </div>
+              <div class="badge info" id="heroBadge">Chưa kết nối</div>
             </div>
-            <div class="calendar-weekdays">
-              <div>CN</div><div>2</div><div>3</div><div>4</div><div>5</div><div>6</div><div>7</div>
+            <div class="grid-2" style="margin-top:12px">
+              <div class="mini"><div class="k">Tổng bot</div><div class="v big" id="sumBots">0</div></div>
+              <div class="mini"><div class="k">Đang chạy</div><div class="v big green" id="sumRunning">0</div></div>
+              <div class="mini"><div class="k">Đang tắt</div><div class="v big red" id="sumOffline">0</div></div>
+              <div class="mini"><div class="k">Heartbeat chậm</div><div class="v big yellow" id="sumSlow">0</div></div>
             </div>
-            <div class="calendar-grid" id="calendarGrid"></div>
-            <div class="tiny" style="margin-top:10px" id="calendarHint"></div>
+            <div class="grid-2" style="margin-top:10px">
+              <div class="mini"><div class="k">Tổng lãi tháng bot</div><div class="v" id="sumMonthProfit">0.00</div></div>
+              <div class="mini"><div class="k">Tổng % bot tháng</div><div class="v" id="sumMonthPct">0.00%</div></div>
+            </div>
           </div>
-        </div>
-      </section>
 
-      <section class="view hidden" id="view-cpanel">
-        <div class="section">
-          <div class="section-head">
-            <div class="section-title">ADMIN CPANEL</div>
-            <div class="section-note" id="cpanelState">Đã khóa</div>
+          <div class="section">
+            <div class="section-head">
+              <div class="section-title">BOT ĐANG HIỂN THỊ</div>
+              <div class="section-note" id="botsCount">0 bot</div>
+            </div>
+            <div class="bot-list" id="botList"></div>
           </div>
-          <div class="settings-box">
-            <div class="row">
+        </section>
+
+        <section class="view" id="view-profit">
+          <div class="section">
+            <div class="section-head">
+              <div class="section-title">PROFIT THÁNG DẠNG LỊCH</div>
+              <div class="section-note">Equity hiện tại - số dư đầu ngày</div>
+            </div>
+            <div class="calendar-wrap">
+              <div class="month-head">
+                <div class="month-name" id="monthName">--</div>
+                <div class="badge info" id="monthTotalBadge">--</div>
+              </div>
+              <div class="calendar-weekdays"><div>CN</div><div>2</div><div>3</div><div>4</div><div>5</div><div>6</div><div>7</div></div>
+              <div class="calendar-grid" id="calendarGrid"></div>
+              <div class="tiny" style="margin-top:10px" id="calendarHint">Chưa có dữ liệu bot.</div>
+            </div>
+          </div>
+        </section>
+
+        <section class="view hidden" id="view-cpanel">
+          <div class="section">
+            <div class="section-head">
+              <div class="section-title">ADMIN CPANEL</div>
+              <div class="section-note" id="cpanelState">Đã mở khóa</div>
+            </div>
+            <div class="panel">
               <div class="field">
                 <label>Bot đang chọn</label>
                 <select class="select" id="botSelect"></select>
               </div>
-              <div class="field">
-                <label>Command path</label>
-                <input class="input" id="commandPath" placeholder="/panel/command" />
+              <div class="cmd-grid" style="margin-top:12px">
+                <button class="btn danger" data-cmd="close_all">Đóng hết</button>
+                <button class="btn secondary" data-cmd="close_buy">Đóng BUY</button>
+                <button class="btn secondary" data-cmd="close_sell">Đóng SELL</button>
+                <button class="btn warn" data-cmd="close_loss">Đóng lệnh âm</button>
+                <button class="btn secondary" data-cmd="time_on">Trade theo giờ</button>
+                <button class="btn secondary" data-cmd="time_off">Trade 24/7</button>
               </div>
+              <div class="section" style="margin-top:12px">
+                <div class="section-head"><div class="section-title">ÁP LOTS</div></div>
+                <div class="row">
+                  <input class="input" id="lot1" placeholder="Lot 1" />
+                  <input class="input" id="lot2" placeholder="Lot 2" />
+                </div>
+                <div class="row" style="margin-top:10px">
+                  <input class="input" id="lot3" placeholder="Lot 3" />
+                  <input class="input" id="lot4" placeholder="Lot 4" />
+                </div>
+                <div class="field" style="margin-top:10px"><input class="input" id="lot5" placeholder="Lot 5" /></div>
+                <button class="btn" id="applyLotsBtn" style="margin-top:10px;width:100%">Áp lots</button>
+              </div>
+              <div class="tiny" style="margin-top:12px">CPanel chỉ hiện sau khi nhập đúng PIN admin từ Railway.</div>
             </div>
-            <div class="tiny" style="margin-top:10px">CPanel chỉ hiện sau khi admin unlock trên thiết bị này. Có thể thêm admin secret riêng để backend xác thực lệnh.</div>
-            <div class="row" style="margin-top:10px">
-              <button class="btn secondary" id="useSearchBtn">Chọn theo ô tìm kiếm</button>
-              <button class="btn ghost" id="lockAdminBtn">Khóa admin</button>
+          </div>
+
+          <div class="section">
+            <div class="section-head">
+              <div class="section-title">THÔNG TIN BOT</div>
+              <div class="section-note" id="commandStatus">Chưa gửi lệnh</div>
+            </div>
+            <div class="panel">
+              <div class="grid-2" id="cpanelStats"></div>
+              <div class="section" style="margin-top:12px">
+                <div class="section-head"><div class="section-title">RAW JSON</div></div>
+                <textarea readonly id="rawJson"></textarea>
+              </div>
+              <button class="btn ghost" id="lockAdminBtn" style="width:100%;margin-top:12px">Khóa admin</button>
             </div>
           </div>
-        </div>
+        </section>
 
-        <div class="section">
-          <div class="section-head">
-            <div class="section-title">THÔNG TIN BOT FULL</div>
-            <div class="section-note">chi tiết bot gửi về</div>
-          </div>
-          <div class="panel">
-            <div class="grid-4" id="detailGrid"></div>
-          </div>
-        </div>
-
-        <div class="section">
-          <div class="section-head">
-            <div class="section-title">LỆNH ĐIỀU KHIỂN</div>
-            <div class="section-note">ẩn với khách</div>
-          </div>
-          <div class="panel">
-            <div class="cmd-grid">
-              <button class="btn danger" data-cmd="close_all">Đóng hết</button>
-              <button class="btn danger" data-cmd="close_buy">Đóng BUY</button>
-              <button class="btn danger" data-cmd="close_sell">Đóng SELL</button>
-              <button class="btn warn" data-cmd="close_loss">Đóng lệnh âm</button>
-              <button class="btn secondary" data-cmd="time_on">Bật theo giờ</button>
-              <button class="btn secondary" data-cmd="mode_247">Trade 24/7</button>
+        <section class="view" id="view-settings">
+          <div class="section">
+            <div class="section-head">
+              <div class="section-title">CÀI ĐẶT KẾT NỐI</div>
+            
             </div>
-            <div class="row-3" style="margin-top:10px">
-              <input class="input lot-input" data-lot="lot1" placeholder="Lot1" />
-              <input class="input lot-input" data-lot="lot2" placeholder="Lot2" />
-              <input class="input lot-input" data-lot="lot3" placeholder="Lot3" />
+            <div class="settings-box">
+              <div class="field">
+                <label>Link Railway</label>
+                <input class="input" id="baseUrl" placeholder="" />
+              </div>
+              <div class="field" style="margin-top:10px">
+                <label>Panel token</label>
+                <input class="input" id="panelToken" placeholder="token web" />
+              </div>
+              <div class="field" style="margin-top:10px">
+                <label>Refresh (ms)</label>
+                <input class="input" id="refreshMs" placeholder="1000" />
+              </div>
+              <div class="row" style="margin-top:12px">
+                <button class="btn" id="saveSettingsBtn">Lưu kết nối</button>
+                <button class="btn secondary" id="clearSettingsBtn">Xóa lưu</button>
+              </div>
+            
             </div>
-            <div class="row-3" style="margin-top:10px">
-              <input class="input lot-input" data-lot="lot4" placeholder="Lot4" />
-              <input class="input lot-input" data-lot="lot5" placeholder="Lot5" />
-              <button class="btn" id="applyLotsBtn">Áp lots</button>
+          </div>
+
+          <div class="section">
+            <div class="section-head">
+              <div class="section-title">QUYỀN ADMIN</div>
+              <div class="section-note" id="adminStatus">Đang khóa</div>
             </div>
-            <div class="tiny" style="margin-top:10px" id="commandResult">Admin chưa gửi lệnh.</div>
+            <div class="settings-box">
+              <button class="btn warn" id="openUnlockBtn" style="width:100%">Mở khóa admin</button>
+              <div class="helper" style="margin-top:12px">Liên hệ ADMIN cấp PIN --> Nhập đúng thì mới hiện CPanel.</div>
+            </div>
           </div>
-        </div>
+        </section>
+      </main>
 
-        <div class="section">
-          <div class="section-head">
-            <div class="section-title">RAW BOT JSON</div>
-            <div class="section-note">debug admin</div>
-          </div>
-          <div class="raw-wrap"><pre id="rawJson">{}</pre></div>
-        </div>
-      </section>
+      <nav class="nav" id="navBar" data-count="3">
+        <button class="nav-btn active" data-view="home"><span class="icon">⌂</span><span>Home</span></button>
+        <button class="nav-btn" data-view="profit"><span class="icon">◫</span><span>Profit</span></button>
+        <button class="nav-btn hidden" id="cpanelNavBtn" data-view="cpanel"><span class="icon">⚙</span><span>CPanel</span></button>
+        <button class="nav-btn" data-view="settings"><span class="icon">☰</span><span>Cài đặt</span></button>
+      </nav>
 
-      <section class="view" id="view-settings">
-        <div class="settings-box">
-          <div class="section-head" style="margin:0 0 10px 0">
-            <div class="section-title">KẾT NỐI HEARTBEAT</div>
-            <div class="section-note" id="connectionState">Chưa cấu hình</div>
+      <div class="modal-backdrop" id="unlockModal">
+        <div class="modal">
+          <h3>Mở khóa admin</h3>
+          <p>Nhập PIN admin đang lưu ở Railway. Khi đúng, CPanel sẽ hiện trên thiết bị này.</p>
+          <input class="input" id="adminPinInput" type="password" placeholder="Nhập PIN admin" />
+          <div class="row">
+            <button class="btn secondary" id="closeUnlockBtn">Hủy</button>
+            <button class="btn warn" id="unlockAdminBtn">Mở khóa</button>
           </div>
-          <div class="field">
-            <label>Link panel / heartbeat</label>
-            <input class="input" id="baseUrl" placeholder="Ví dụ: https://ten-mien-cua-ban.up.railway.app" autocomplete="off" spellcheck="false" />
-          </div>
-          <div class="field" style="margin-top:10px">
-            <label>Token</label>
-            <input class="input" id="token" type="password" placeholder="Nhập token riêng khi giao cho khách" autocomplete="off" spellcheck="false" />
-          </div>
-          <div class="field" style="margin-top:10px">
-            <label>Chu kỳ làm mới (ms)</label>
-            <input class="input" id="refreshMs" type="number" min="1000" step="500" value="1500" />
-          </div>
-          <div class="row" style="margin-top:10px">
-            <button class="btn" id="saveConnectionBtn">Lưu kết nối</button>
-            <button class="btn secondary" id="toggleAutoBtn">Tắt auto</button>
-          </div>
-          <div class="row" style="margin-top:10px">
-            <button class="btn ghost" id="clearConnectionBtn">Xóa link + token</button>
-            <button class="btn ghost" id="clearHistoryBtn">Xóa lịch sử tháng</button>
-          </div>
-          <div class="helper" style="margin-top:10px">Mặc định app không gắn sẵn link hay token. Sau khi nhập và lưu, lần sau mở lại trên chính thiết bị này sẽ tự nhớ.</div>
         </div>
-
-        <div class="settings-box section">
-          <div class="section-head" style="margin:0 0 10px 0">
-            <div class="section-title">ADMIN</div>
-            <div class="section-note" id="adminState">Đang khóa</div>
-          </div>
-          <div class="field">
-            <label>Đặt / đổi mã PIN admin trên máy này</label>
-            <input class="input" id="adminPinNew" type="password" placeholder="PIN mới" autocomplete="new-password" />
-          </div>
-          <div class="field" style="margin-top:10px">
-            <label>Nhập lại PIN mới</label>
-            <input class="input" id="adminPinConfirm" type="password" placeholder="Nhập lại PIN" autocomplete="new-password" />
-          </div>
-          <div class="field" style="margin-top:10px">
-            <label>Admin secret gửi kèm lệnh (tuỳ chọn cho backend)</label>
-            <input class="input" id="adminSecret" type="password" placeholder="Không bắt buộc, chỉ admin mới biết" autocomplete="off" />
-          </div>
-          <div class="row" style="margin-top:10px">
-            <button class="btn secondary" id="saveAdminBtn">Lưu PIN admin</button>
-            <button class="btn ghost" id="removeAdminBtn">Xóa PIN admin</button>
-          </div>
-          <div class="field" style="margin-top:14px">
-            <label>Mở khóa admin</label>
-            <input class="input" id="adminUnlockPin" type="password" placeholder="Nhập PIN để hiện CPanel" autocomplete="current-password" />
-          </div>
-          <div class="row" style="margin-top:10px">
-            <button class="btn" id="unlockAdminBtn">Mở khóa</button>
-            <button class="btn ghost" id="lockSettingsBtn">Khóa lại</button>
-          </div>
-          <div class="helper" style="margin-top:10px">Ẩn CPanel ở frontend chỉ giúp bớt lộ ra cho khách. Muốn chặn spam thật sự, backend phải kiểm tra thêm admin secret hoặc chữ ký lệnh.</div>
-        </div>
-
-        <div class="settings-box section">
-          <div class="section-head" style="margin:0 0 10px 0">
-            <div class="section-title">TRẠNG THÁI</div>
-            <div class="section-note">thiết bị hiện tại</div>
-          </div>
-          <div class="helper" id="diagnosticText">Chưa có dữ liệu.</div>
-        </div>
-      </section>
+      </div>
     </div>
   </div>
 
-  <nav class="nav nav-3" id="navBar">
-    <button class="nav-btn active" data-tab="home"><span class="icon">⌂</span><span>Home</span></button>
-    <button class="nav-btn" data-tab="profit"><span class="icon">◫</span><span>Profit</span></button>
-    <button class="nav-btn hidden" data-tab="cpanel" id="cpanelNavBtn"><span class="icon">⚡</span><span>CPanel</span></button>
-    <button class="nav-btn" data-tab="settings"><span class="icon">⚙</span><span>Cài đặt</span></button>
-  </nav>
-</div>
-
 <script>
-const STORAGE_KEY = 'jc_bot_app_secure_v1';
-const HISTORY_KEY = 'jc_bot_history_secure_v1';
-const TZ_OFFSET_HOURS = 8;
-
-const els = {
-  search: document.getElementById('search'),
-  metaText: document.getElementById('metaText'),
-  globalDot: document.getElementById('globalDot'),
-  globalState: document.getElementById('globalState'),
-  refreshBtn: document.getElementById('refreshBtn'),
-  heroCard: document.getElementById('heroCard'),
-  summaryGrid: document.getElementById('summaryGrid'),
-  summaryTime: document.getElementById('summaryTime'),
-  quickChips: document.getElementById('quickChips'),
-  filterNote: document.getElementById('filterNote'),
-  botsCount: document.getElementById('botsCount'),
-  botList: document.getElementById('botList'),
-  monthName: document.getElementById('monthName'),
-  monthTotalBadge: document.getElementById('monthTotalBadge'),
-  calendarGrid: document.getElementById('calendarGrid'),
-  calendarHint: document.getElementById('calendarHint'),
-  baseUrl: document.getElementById('baseUrl'),
-  token: document.getElementById('token'),
-  refreshMs: document.getElementById('refreshMs'),
-  saveConnectionBtn: document.getElementById('saveConnectionBtn'),
-  toggleAutoBtn: document.getElementById('toggleAutoBtn'),
-  clearConnectionBtn: document.getElementById('clearConnectionBtn'),
-  clearHistoryBtn: document.getElementById('clearHistoryBtn'),
-  connectionState: document.getElementById('connectionState'),
-  adminPinNew: document.getElementById('adminPinNew'),
-  adminPinConfirm: document.getElementById('adminPinConfirm'),
-  adminSecret: document.getElementById('adminSecret'),
-  saveAdminBtn: document.getElementById('saveAdminBtn'),
-  removeAdminBtn: document.getElementById('removeAdminBtn'),
-  adminUnlockPin: document.getElementById('adminUnlockPin'),
-  unlockAdminBtn: document.getElementById('unlockAdminBtn'),
-  lockSettingsBtn: document.getElementById('lockSettingsBtn'),
-  adminState: document.getElementById('adminState'),
-  botSelect: document.getElementById('botSelect'),
-  commandPath: document.getElementById('commandPath'),
-  useSearchBtn: document.getElementById('useSearchBtn'),
-  lockAdminBtn: document.getElementById('lockAdminBtn'),
-  detailGrid: document.getElementById('detailGrid'),
-  cpanelState: document.getElementById('cpanelState'),
-  rawJson: document.getElementById('rawJson'),
-  commandResult: document.getElementById('commandResult'),
-  diagnosticText: document.getElementById('diagnosticText'),
-  navBar: document.getElementById('navBar'),
-  cpanelNavBtn: document.getElementById('cpanelNavBtn'),
-  navBtns: [...document.querySelectorAll('.nav-btn')],
-  views: [...document.querySelectorAll('.view')],
-  cmdBtns: [...document.querySelectorAll('[data-cmd]')],
-  lotInputs: [...document.querySelectorAll('.lot-input')],
-  applyLotsBtn: document.getElementById('applyLotsBtn'),
-};
-
-let state = {
-  baseUrl: '',
-  token: '',
-  commandPath: '/panel/command',
-  refreshMs: 1500,
-  autoRefresh: true,
-  selectedKey: '',
-  adminPinHash: '',
-  adminSecret: '',
-};
-let sessionAdmin = false;
-let timer = null;
-let fetchEpochSec = 0;
-let lastPayload = null;
-let historyStore = loadJson(HISTORY_KEY, {});
-const seenMap = new Map();
-const snapshotMap = new Map();
-
-function loadJson(key, fallback){
-  try{ const raw = localStorage.getItem(key); return raw ? JSON.parse(raw) : fallback; }catch{ return fallback; }
-}
-function saveJson(key, value){ localStorage.setItem(key, JSON.stringify(value)); }
-function escapeHtml(s){
-  return String(s ?? '').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#39;');
-}
-function fmtNum(v, digits=2){
-  const n = Number(v); if(!Number.isFinite(n)) return '--';
-  return n.toLocaleString('en-US',{minimumFractionDigits:digits, maximumFractionDigits:digits});
-}
-function parseTimestamp(v){
-  if(v == null || v === '') return 0;
-  if(typeof v === 'number'){
-    if(v > 1e12) return Math.floor(v/1000);
-    if(v > 1e9) return Math.floor(v);
-    return 0;
-  }
-  const s = String(v).trim();
-  if(!s) return 0;
-  if(/^\d+$/.test(s)){
-    const n = Number(s);
-    if(n > 1e12) return Math.floor(n/1000);
-    if(n > 1e9) return Math.floor(n);
-  }
-  const p = Date.parse(s);
-  if(Number.isFinite(p)) return Math.floor(p/1000);
-  return 0;
-}
-function epochToTWDate(epochSec){
-  const d = new Date((epochSec + TZ_OFFSET_HOURS*3600) * 1000);
-  return `${d.getUTCFullYear()}-${String(d.getUTCMonth()+1).padStart(2,'0')}-${String(d.getUTCDate()).padStart(2,'0')}`;
-}
-function currentTWDate(){ return epochToTWDate(Math.floor(Date.now()/1000)); }
-function currentTWYearMonth(){ return currentTWDate().slice(0,7); }
-function fmtAgo(tsSec){
-  const t = Number(tsSec); if(!Number.isFinite(t) || t <= 0) return 'không rõ';
-  const diff = Math.max(0, fetchEpochSec - t);
-  if(diff < 2) return 'vừa xong';
-  if(diff < 60) return `${diff}s trước`;
-  if(diff < 3600) return `${Math.floor(diff/60)}m trước`;
-  return `${Math.floor(diff/3600)}h trước`;
-}
-function normMode(v){ const s = String(v ?? '--').trim(); return s === 'mode_247' ? '24/7' : (s || '--'); }
-function itemKey(raw){ return `${raw.id ?? raw.accountID ?? raw.accountId ?? raw.login ?? ''}|${raw.bot ?? raw.botName ?? raw.name ?? 'Unknown'}|${raw.symbol ?? '--'}`; }
-function historyKey(item){ return item.key; }
-function keepAliveByChange(key, core){
-  const prev = snapshotMap.get(key);
-  const now = JSON.stringify(core);
-  if(prev !== now){ snapshotMap.set(key, now); seenMap.set(key, fetchEpochSec); }
-}
-function normItem(raw){
-  const key = itemKey(raw);
-  const item = {
-    key,
-    id: raw.id ?? raw.accountID ?? raw.accountId ?? raw.login ?? '',
-    bot: raw.bot ?? raw.botName ?? raw.name ?? 'Unknown',
-    symbol: raw.symbol ?? '--',
-    balance: Number(raw.balance ?? raw.totalcapital ?? 0),
-    equity: Number(raw.equity ?? raw.aftercapital ?? raw.afterCapital ?? 0),
-    realProfit: Number(raw.realProfit ?? raw.realprofit ?? 0),
-    realPct: Number(raw.realPct ?? raw.realpct ?? 0),
-    dayTotal: Number(raw.dayTotal ?? raw.afterprofit ?? raw.daytotal ?? 0),
-    dd: Number(raw.dd ?? raw.maxdd ?? 0),
-    status: String(raw.status ?? raw.statusvi ?? 'UNKNOWN').toUpperCase(),
-    timeMode: normMode(raw.timeMode ?? raw.timemode ?? '--'),
-    reason: raw.reason ?? raw.statusreason ?? raw.note ?? '',
-    raw,
+(() => {
+  const LS = {
+    baseUrl: 'jc_secure_base_url_v2',
+    token: 'jc_secure_panel_token_v2',
+    refreshMs: 'jc_secure_refresh_ms_v2',
+    adminSession: 'jc_secure_admin_session_v2',
+    adminExpiry: 'jc_secure_admin_expiry_v2',
+    profitStore: 'jc_secure_profit_store_v2',
   };
-  const tsRaw = raw.ts ?? raw.lastTs ?? raw.updatedAtTs ?? raw.updated_at_ts ?? raw.heartbeat_ts ?? raw.eaupdate ?? raw.updatedAt ?? raw.server_time ?? raw.last_seen;
-  const parsedTs = parseTimestamp(tsRaw);
-  keepAliveByChange(key, { balance:item.balance, equity:item.equity, realProfit:item.realProfit, realPct:item.realPct, dayTotal:item.dayTotal, dd:item.dd, status:item.status, timeMode:item.timeMode });
-  if(parsedTs > 0) seenMap.set(key, parsedTs);
-  item.ts = Math.max(parsedTs, seenMap.get(key) || 0);
-  return item;
-}
-function heartbeatState(item){
-  const age = item.ts > 0 ? Math.max(0, fetchEpochSec - item.ts) : 999999;
-  const run = item.status.includes('RUN');
-  const pause = item.status.includes('PAUSE');
-  if(age <= 15) return { label: run ? 'Đang online' : (pause ? 'Online / Pause' : 'Online'), cls: run ? 'running' : 'paused', online:true };
-  if(age <= 45) return { label:'Heartbeat chậm', cls:'stale', online:true };
-  return { label:'Mất heartbeat', cls:'stale', online:false };
-}
-function filterItems(items){
-  const q = els.search.value.trim().toLowerCase();
-  if(!q) return items;
-  return items.filter(x => String(x.id).toLowerCase().includes(q) || String(x.bot).toLowerCase().includes(q));
-}
-function selectedItems(allItems){ return filterItems(allItems); }
-function metricCard(k, v, cls=''){ return `<div class="mini"><div class="k">${k}</div><div class="v ${cls}">${v}</div></div>`; }
-function loadSettings(){
-  const saved = loadJson(STORAGE_KEY, null);
-  if(saved && typeof saved === 'object') state = { ...state, ...saved };
-  els.baseUrl.value = state.baseUrl || '';
-  els.token.value = state.token || '';
-  els.commandPath.value = state.commandPath || '/panel/command';
-  els.refreshMs.value = state.refreshMs || 1500;
-  els.adminSecret.value = state.adminSecret || '';
-  els.toggleAutoBtn.textContent = state.autoRefresh ? 'Tắt auto' : 'Bật auto';
-}
-function persistSettings(){ saveJson(STORAGE_KEY, state); updateStatusBoxes(); }
-function isConfigured(){ return !!(state.baseUrl.trim() && state.token.trim()); }
-function updateStatusBoxes(){
-  els.connectionState.textContent = isConfigured() ? 'Đã lưu cục bộ' : 'Chưa cấu hình';
-  els.adminState.textContent = sessionAdmin ? 'Đang mở khóa' : (state.adminPinHash ? 'Có PIN, đang khóa' : 'Chưa có PIN');
-  els.cpanelState.textContent = sessionAdmin ? 'Admin đã mở khóa' : 'Đã khóa';
-  const navCount = sessionAdmin ? 4 : 3;
-  els.navBar.classList.toggle('nav-3', navCount === 3);
-  els.cpanelNavBtn.classList.toggle('hidden', !sessionAdmin);
-  document.getElementById('view-cpanel').classList.toggle('hidden', !sessionAdmin);
-}
-async function sha256(text){
-  const enc = new TextEncoder().encode(text);
-  const buf = await crypto.subtle.digest('SHA-256', enc);
-  return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2,'0')).join('');
-}
-function updateHistory(items){
-  const dayKey = epochToTWDate(fetchEpochSec || Math.floor(Date.now()/1000));
-  for(const item of items){
-    const key = historyKey(item);
-    if(!historyStore[key]) historyStore[key] = {};
-    if(!historyStore[key][dayKey]){
-      historyStore[key][dayKey] = {
-        id:item.id, bot:item.bot, symbol:item.symbol,
-        openBalance:Number.isFinite(item.balance) ? item.balance : 0,
-        lastEquity:Number.isFinite(item.equity) ? item.equity : 0,
-        lastTs:item.ts || fetchEpochSec || Math.floor(Date.now()/1000)
-      };
-    } else {
-      historyStore[key][dayKey].lastEquity = Number.isFinite(item.equity) ? item.equity : historyStore[key][dayKey].lastEquity;
-      historyStore[key][dayKey].lastTs = item.ts || fetchEpochSec || historyStore[key][dayKey].lastTs;
-      historyStore[key][dayKey].id = item.id;
-      historyStore[key][dayKey].bot = item.bot;
-      historyStore[key][dayKey].symbol = item.symbol;
-    }
+
+  const state = {
+    baseUrl: localStorage.getItem(LS.baseUrl) || '',
+    token: localStorage.getItem(LS.token) || '',
+    refreshMs: Number(localStorage.getItem(LS.refreshMs) || 1000),
+    adminSession: localStorage.getItem(LS.adminSession) || '',
+    adminExpiry: Number(localStorage.getItem(LS.adminExpiry) || 0),
+    items: [],
+    totals: { totalBots:0, running:0, offline:0, slow:0, monthProfit:0, monthPct:0 },
+    search: '',
+    currentView: 'home',
+    loading: false,
+    lastError: '',
+    selectedKey: '',
+    timer: null,
+    profitStore: JSON.parse(localStorage.getItem(LS.profitStore) || '{}'),
+  };
+
+  const $ = (id) => document.getElementById(id);
+  const els = {
+    subText: $('subText'), connectPill: $('connectPill'), refreshBtn: $('refreshBtn'),
+    searchInput: $('searchInput'), heroName: $('heroName'), heroMeta: $('heroMeta'), heroBadge: $('heroBadge'),
+    sumBots: $('sumBots'), sumRunning: $('sumRunning'), sumOffline: $('sumOffline'), sumSlow: $('sumSlow'),
+    sumMonthProfit: $('sumMonthProfit'), sumMonthPct: $('sumMonthPct'), botsCount: $('botsCount'), botList: $('botList'),
+    monthName: $('monthName'), monthTotalBadge: $('monthTotalBadge'), calendarGrid: $('calendarGrid'), calendarHint: $('calendarHint'),
+    botSelect: $('botSelect'), cpanelStats: $('cpanelStats'), rawJson: $('rawJson'), commandStatus: $('commandStatus'), cpanelState: $('cpanelState'),
+    baseUrl: $('baseUrl'), panelToken: $('panelToken'), refreshMs: $('refreshMs'), saveSettingsBtn: $('saveSettingsBtn'), clearSettingsBtn: $('clearSettingsBtn'),
+    openUnlockBtn: $('openUnlockBtn'), adminStatus: $('adminStatus'), lockAdminBtn: $('lockAdminBtn'),
+    unlockModal: $('unlockModal'), adminPinInput: $('adminPinInput'), closeUnlockBtn: $('closeUnlockBtn'), unlockAdminBtn: $('unlockAdminBtn'),
+    navBar: $('navBar'), cpanelNavBtn: $('cpanelNavBtn'),
+    applyLotsBtn: $('applyLotsBtn'),
+    lot1: $('lot1'), lot2: $('lot2'), lot3: $('lot3'), lot4: $('lot4'), lot5: $('lot5')
+  };
+
+  function fmtNum(v, d=2){ const n = Number(v); return Number.isFinite(n) ? n.toLocaleString('en-US',{minimumFractionDigits:d, maximumFractionDigits:d}) : '0.00'; }
+  function fmtPct(v){ return `${fmtNum(v,2)}%`; }
+  function now(){ return Date.now(); }
+  function todayKey(){ const d=new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
+  function botKey(b){ return `${b.id || ''}__${(b.bot || '').toLowerCase()}__${(b.symbol || '').toUpperCase()}`; }
+  function escapeHtml(s){ return String(s||'').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+  function saveProfitStore(){ localStorage.setItem(LS.profitStore, JSON.stringify(state.profitStore)); }
+
+  function isAdminUnlocked(){ return !!state.adminSession && state.adminExpiry > now(); }
+
+  function setAdminUnlocked(sessionToken, expiresAt){
+    state.adminSession = sessionToken || '';
+    state.adminExpiry = Number(expiresAt || 0);
+    localStorage.setItem(LS.adminSession, state.adminSession);
+    localStorage.setItem(LS.adminExpiry, String(state.adminExpiry));
+    updateAdminUI();
   }
-  saveJson(HISTORY_KEY, historyStore);
-}
-function aggregateMonth(items){
-  const ym = currentTWYearMonth();
-  let totalProfit = 0;
-  let totalBase = 0;
-  const days = {};
-  const allowedKeys = new Set((items.length ? items : []).map(x => x.key));
-  for(const [key, perDay] of Object.entries(historyStore)){
-    if(items.length && !allowedKeys.has(key)) continue;
-    for(const [day, rec] of Object.entries(perDay)){
-      if(!day.startsWith(ym)) continue;
-      const pnl = (Number(rec.lastEquity) || 0) - (Number(rec.openBalance) || 0);
-      const base = Number(rec.openBalance) || 0;
-      totalProfit += pnl;
-      totalBase += base;
-      if(!days[day]) days[day] = { pnl:0, base:0, bots:0 };
-      days[day].pnl += pnl;
-      days[day].base += base;
-      days[day].bots += 1;
-    }
+
+  function clearAdmin(){
+    state.adminSession=''; state.adminExpiry=0;
+    localStorage.removeItem(LS.adminSession);
+    localStorage.removeItem(LS.adminExpiry);
+    if(state.currentView === 'cpanel') switchView('settings');
+    updateAdminUI();
   }
-  const pct = totalBase > 0 ? (totalProfit/totalBase)*100 : 0;
-  return { totalProfit, pct, days };
-}
-function renderHome(allItems){
-  const filtered = selectedItems(allItems);
-  const hero = filtered[0] || allItems[0] || null;
-  els.filterNote.textContent = els.search.value.trim() ? `Đang lọc: ${els.search.value.trim()}` : 'Tất cả bot';
-  if(!isConfigured()){
-    els.heroCard.innerHTML = `<div class="empty">Chưa cấu hình link heartbeat và token. Vào <strong>Cài đặt</strong> để nhập rồi lưu cục bộ trên thiết bị này.</div>`;
-  } else if(!hero){
-    els.heroCard.innerHTML = '<div class="empty">Chưa có bot nào để hiển thị.</div>';
-  } else {
-    const hb = heartbeatState(hero);
-    els.heroCard.innerHTML = `
-      <div class="hero-top">
-        <div>
-          <div class="hero-name">${escapeHtml(hero.bot)}</div>
-          <div class="hero-meta">ID ${escapeHtml(hero.id || '--')} • ${escapeHtml(hero.symbol)} • ${escapeHtml(hero.timeMode)} • ${fmtAgo(hero.ts)}</div>
-        </div>
-        <div class="badge ${hb.cls}">${hb.label}</div>
-      </div>
-      <div class="grid-2" style="margin-top:14px">
-        <div class="mini"><div class="k">Balance</div><div class="big">${fmtNum(hero.balance)}</div></div>
-        <div class="mini"><div class="k">Equity</div><div class="big">${fmtNum(hero.equity)}</div></div>
-        <div class="mini"><div class="k">Lãi vốn thực</div><div class="v ${hero.realProfit >= 0 ? 'green' : 'red'}">${fmtNum(hero.realProfit)}</div></div>
-        <div class="mini"><div class="k">Tổng hôm nay</div><div class="v ${hero.dayTotal >= 0 ? 'green' : 'red'}">${fmtNum(hero.dayTotal)}</div></div>
-      </div>`;
+
+  function updateAdminUI(){
+    const unlocked = isAdminUnlocked();
+    els.adminStatus.textContent = unlocked ? 'Đã mở khóa' : 'Đang khóa';
+    els.cpanelState.textContent = unlocked ? 'Đã mở khóa' : 'Đã khóa';
+    els.cpanelNavBtn.classList.toggle('hidden', !unlocked);
+    $('view-cpanel').classList.toggle('hidden', !unlocked);
+    const count = unlocked ? 4 : 3;
+    els.navBar.dataset.count = String(count);
   }
-  const online = allItems.filter(x => heartbeatState(x).online).length;
-  const running = allItems.filter(x => x.status.includes('RUN')).length;
-  const paused = allItems.filter(x => x.status.includes('PAUSE')).length;
-  const month = aggregateMonth(filtered.length ? filtered : allItems);
-  els.summaryGrid.innerHTML = [
-    ['Tổng bot', allItems.length, 'blue'],
-    ['Đang chạy', running, running ? 'green' : 'muted'],
-    ['Đang tắt', paused, paused ? 'red' : 'muted'],
-    ['Bot online', online, online ? 'green' : 'red'],
-    ['Tổng lãi bot tháng', fmtNum(month.totalProfit), month.totalProfit >= 0 ? 'green' : 'red'],
-    ['Tổng % bot tháng', `${fmtNum(month.pct)}%`, month.pct >= 0 ? 'green' : 'red'],
-    ['Lọc hiện tại', filtered.length || allItems.length, 'blue'],
-    ['Cập nhật', fetchEpochSec ? new Date(fetchEpochSec * 1000).toLocaleTimeString('vi-VN') : '--', 'muted'],
-  ].map(([k,v,cls]) => metricCard(k,v,cls)).join('');
-  els.quickChips.innerHTML = [
-    `<span class="chip"><strong>${allItems.length}</strong> bot trên server</span>`,
-    `<span class="chip"><strong>${running}</strong> bot đang chạy</span>`,
-    `<span class="chip"><strong>${paused}</strong> bot đang tắt</span>`,
-    `<span class="chip"><strong>${filtered.length || allItems.length}</strong> bot đang hiển thị</span>`
-  ].join('');
-  els.summaryTime.textContent = fetchEpochSec ? `Server ${new Date(fetchEpochSec * 1000).toLocaleTimeString('vi-VN')}` : '--';
-  renderBotList(filtered);
-}
-function renderBotList(items){
-  els.botsCount.textContent = `${items.length} bot`;
-  if(!items.length){
-    els.botList.innerHTML = '<div class="empty">Không có bot nào khớp ID hoặc tên bot.</div>';
-    return;
-  }
-  els.botList.innerHTML = items.map(x => {
-    const hb = heartbeatState(x);
-    return `
-      <div class="bot-card" data-select-key="${escapeHtml(x.key)}">
-        <div class="bot-top">
-          <div>
-            <div class="bot-name">${escapeHtml(x.bot)}</div>
-            <div class="bot-meta">ID ${escapeHtml(x.id || '--')} • ${escapeHtml(x.symbol)} • ${escapeHtml(x.timeMode)} • ${fmtAgo(x.ts)}</div>
-          </div>
-          <div class="badge ${hb.cls}">${hb.label}</div>
-        </div>
-        <div class="bot-kv">
-          <div class="mini"><div class="k">Balance</div><div class="v">${fmtNum(x.balance)}</div></div>
-          <div class="mini"><div class="k">Equity</div><div class="v">${fmtNum(x.equity)}</div></div>
-          <div class="mini"><div class="k">DD</div><div class="v ${x.dd > 0 ? 'red' : 'blue'}">${fmtNum(x.dd)}%</div></div>
-          <div class="mini"><div class="k">Lãi vốn thực</div><div class="v ${x.realProfit >= 0 ? 'green' : 'red'}">${fmtNum(x.realProfit)}</div></div>
-          <div class="mini"><div class="k">% vốn thực</div><div class="v ${x.realPct >= 0 ? 'green' : 'red'}">${fmtNum(x.realPct)}%</div></div>
-          <div class="mini"><div class="k">Tổng hôm nay</div><div class="v ${x.dayTotal >= 0 ? 'green' : 'red'}">${fmtNum(x.dayTotal)}</div></div>
-        </div>
-      </div>`;
-  }).join('');
-  document.querySelectorAll('[data-select-key]').forEach(node => node.addEventListener('click', () => {
-    state.selectedKey = node.getAttribute('data-select-key');
-    persistSettings();
-    if(sessionAdmin){
-      populateBotSelect(lastPayload?.items ? lastPayload.items.map(normItem) : []);
-      activateTab('cpanel');
-      renderCpanel(lastPayload?.items ? lastPayload.items.map(normItem) : []);
-    }
-  }));
-}
-function renderCalendar(items){
-  const month = aggregateMonth(items);
-  const ym = currentTWYearMonth();
-  const [year, mon] = ym.split('-').map(Number);
-  const first = new Date(year, mon - 1, 1);
-  const startDay = first.getDay();
-  const daysInMonth = new Date(year, mon, 0).getDate();
-  const today = currentTWDate();
-  const monthLabel = new Date(year, mon - 1, 1).toLocaleDateString('vi-VN', { month:'long', year:'numeric' });
-  els.monthName.textContent = monthLabel;
-  els.monthTotalBadge.className = `badge ${month.totalProfit >= 0 ? 'running' : 'paused'}`;
-  els.monthTotalBadge.textContent = `${fmtNum(month.totalProfit)} • ${fmtNum(month.pct)}%`;
-  const cells = [];
-  for(let i = 0; i < startDay; i++) cells.push('<div class="day empty"></div>');
-  for(let d = 1; d <= daysInMonth; d++){
-    const key = `${ym}-${String(d).padStart(2,'0')}`;
-    const rec = month.days[key];
-    const pnl = rec ? rec.pnl : 0;
-    const cls = pnl > 0 ? 'green' : (pnl < 0 ? 'red' : 'muted');
-    cells.push(`
-      <div class="day ${key === today ? 'today' : ''}">
-        <div class="day-num">${d}</div>
-        <div class="day-profit ${cls}">${rec ? fmtNum(pnl) : '--'}</div>
-        <div class="day-base">${rec ? `${fmtNum(rec.base)} vốn` : 'chưa có'}</div>
-      </div>`);
-  }
-  els.calendarGrid.innerHTML = cells.join('');
-  els.calendarHint.textContent = 'Lịch tháng tính theo equity hiện tại trừ số dư đầu ngày đã lưu trên app. Không dùng kiểu vốn thực cũ.';
-}
-function updateHeader(items){
-  const online = items.filter(x => heartbeatState(x).online).length;
-  els.metaText.textContent = isConfigured() ? `Realtime ${online}/${items.length} bot • ${fetchEpochSec ? new Date(fetchEpochSec * 1000).toLocaleTimeString('vi-VN') : '--'}` : 'Chưa cấu hình link heartbeat.';
-  if(!isConfigured()){
-    els.globalDot.className = 'dot warn';
-    els.globalState.textContent = 'Chưa kết nối';
-  } else if(!items.length){
-    els.globalDot.className = 'dot warn';
-    els.globalState.textContent = 'Chưa có bot';
-  } else if(online > 0){
-    els.globalDot.className = 'dot online';
-    els.globalState.textContent = `${online} online`;
-  } else {
-    els.globalDot.className = 'dot offline';
-    els.globalState.textContent = 'Mất heartbeat';
-  }
-}
-function populateBotSelect(items){
-  const filtered = selectedItems(items);
-  const source = filtered.length ? filtered : items;
-  if(!source.length){ els.botSelect.innerHTML = '<option value="">Chưa có bot</option>'; return; }
-  if(!state.selectedKey || !source.some(x => x.key === state.selectedKey)) state.selectedKey = source[0].key;
-  els.botSelect.innerHTML = source.map(x => `<option value="${escapeHtml(x.key)}">${escapeHtml(x.bot)} • ${escapeHtml(x.id || '--')} • ${escapeHtml(x.symbol)}</option>`).join('');
-  els.botSelect.value = state.selectedKey;
-}
-function renderCpanel(items){
-  if(!sessionAdmin) return;
-  populateBotSelect(items);
-  const selected = items.find(x => x.key === state.selectedKey) || items[0] || null;
-  if(!selected){
-    els.detailGrid.innerHTML = '<div class="empty">Chưa có bot để điều khiển.</div>';
-    els.rawJson.textContent = '{}';
-    els.cpanelState.textContent = 'Chưa chọn bot';
-    return;
-  }
-  const hb = heartbeatState(selected);
-  els.cpanelState.textContent = `${selected.bot} • ${hb.label}`;
-  els.detailGrid.innerHTML = [
-    ['Bot', escapeHtml(selected.bot), 'blue'],
-    ['ID', escapeHtml(selected.id || '--'), 'blue'],
-    ['Symbol', escapeHtml(selected.symbol), 'blue'],
-    ['Status', escapeHtml(selected.status || '--'), hb.online ? 'green' : 'red'],
-    ['Balance', fmtNum(selected.balance), 'blue'],
-    ['Equity', fmtNum(selected.equity), 'blue'],
-    ['Lãi vốn thực', fmtNum(selected.realProfit), selected.realProfit >= 0 ? 'green' : 'red'],
-    ['% vốn thực', `${fmtNum(selected.realPct)}%`, selected.realPct >= 0 ? 'green' : 'red'],
-    ['Tổng hôm nay', fmtNum(selected.dayTotal), selected.dayTotal >= 0 ? 'green' : 'red'],
-    ['DD', `${fmtNum(selected.dd)}%`, selected.dd > 0 ? 'red' : 'blue'],
-    ['Mode', escapeHtml(selected.timeMode), 'blue'],
-    ['Heartbeat', fmtAgo(selected.ts), hb.online ? 'green' : 'yellow'],
-    ['Lý do', escapeHtml(selected.reason || '--'), 'muted'],
-    ['Command path', escapeHtml(state.commandPath || '/panel/command'), 'muted'],
-  ].map(([k,v,cls]) => metricCard(k,v,cls)).join('');
-  els.rawJson.textContent = JSON.stringify(selected.raw, null, 2);
-}
-function setDiagnostic(text){ els.diagnosticText.textContent = text; }
-function renderAll(payload){
-  const items = Array.isArray(payload?.items) ? payload.items.map(normItem) : [];
-  updateHistory(items);
-  updateHeader(items);
-  renderHome(items);
-  renderCalendar(selectedItems(items).length ? selectedItems(items) : items);
-  renderCpanel(items);
-  setDiagnostic(`Auto ${state.autoRefresh ? 'ON' : 'OFF'} • Refresh ${state.refreshMs}ms • Kết nối ${isConfigured() ? 'đã lưu' : 'chưa lưu'} • CPanel ${sessionAdmin ? 'mở' : 'khóa'}`);
-}
-async function fetchSummary(){
-  if(!isConfigured()){
-    fetchEpochSec = Math.floor(Date.now()/1000);
-    lastPayload = { items: [] };
-    renderAll(lastPayload);
-    return;
-  }
-  const base = state.baseUrl.replace(/\/$/, '');
-  try{
-    const url = `${base}/panel/summary?token=${encodeURIComponent(state.token)}&_=${Date.now()}`;
-    const res = await fetch(url, { cache:'no-store' });
-    if(!res.ok) throw new Error(`HTTP ${res.status}`);
-    const json = await res.json();
-    fetchEpochSec = parseTimestamp(json.server_time) || Math.floor(Date.now()/1000);
-    lastPayload = json;
-    renderAll(json);
-  } catch(err){
-    fetchEpochSec = Math.floor(Date.now()/1000);
-    els.globalDot.className = 'dot offline';
-    els.globalState.textContent = 'Lỗi tải';
-    els.metaText.textContent = `Lỗi tải dữ liệu: ${err.message}`;
-    setDiagnostic(`Lỗi: ${err.message}`);
-  }
-}
-function restartAuto(){
-  if(timer) clearInterval(timer);
-  if(!state.autoRefresh) return;
-  timer = setInterval(fetchSummary, state.refreshMs);
-}
-function activateTab(tab){
-  if(tab === 'cpanel' && !sessionAdmin) tab = 'settings';
-  els.navBtns.forEach(btn => btn.classList.toggle('active', btn.dataset.tab === tab));
-  els.views.forEach(view => view.classList.toggle('active', view.id === `view-${tab}`));
-}
-async function sendCommand(cmd, extras = {}){
-  if(!sessionAdmin){ els.commandResult.textContent = 'CPanel đang khóa.'; return; }
-  const items = Array.isArray(lastPayload?.items) ? lastPayload.items.map(normItem) : [];
-  const bot = items.find(x => x.key === state.selectedKey);
-  if(!bot){ els.commandResult.textContent = 'Chưa chọn bot.'; return; }
-  const base = state.baseUrl.replace(/\/$/, '');
-  const path = String(state.commandPath || '/panel/command').trim();
-  const params = { token: state.token, id: bot.id || '', bot: bot.bot || '', symbol: bot.symbol || '', cmd, ...extras };
-  if(state.adminSecret) params.admin_secret = state.adminSecret;
-  const qs = new URLSearchParams(params);
-  const url = `${base}${path.startsWith('/') ? path : '/' + path}?${qs.toString()}`;
-  els.commandResult.textContent = `Đang gửi: ${cmd}`;
-  try{
-    const res = await fetch(url, { method:'GET', cache:'no-store' });
+
+  async function fetchJson(url, opts={}){
+    const res = await fetch(url, opts);
     const text = await res.text();
-    els.commandResult.textContent = `HTTP ${res.status} • ${text.slice(0, 220) || '(rỗng)'}`;
-    fetchSummary();
-  } catch(err){
-    els.commandResult.textContent = `Lỗi gửi lệnh: ${err.message}`;
+    let json = null;
+    try { json = JSON.parse(text); } catch(_) {}
+    if(!res.ok){
+      const msg = json?.error ? `${res.status} ${json.error}` : `${res.status} ${text || res.statusText}`;
+      throw new Error(msg);
+    }
+    return json || {};
   }
-}
-function lockAdmin(){
-  sessionAdmin = false;
-  updateStatusBoxes();
-  if(document.querySelector('.view.active')?.id === 'view-cpanel') activateTab('home');
-}
 
-els.navBtns.forEach(btn => btn.addEventListener('click', () => activateTab(btn.dataset.tab)));
-els.refreshBtn.addEventListener('click', fetchSummary);
-els.search.addEventListener('input', () => { if(lastPayload) renderAll(lastPayload); });
-els.saveConnectionBtn.addEventListener('click', () => {
-  state.baseUrl = els.baseUrl.value.trim();
-  state.token = els.token.value.trim();
-  state.refreshMs = Math.max(1000, Number(els.refreshMs.value) || 1500);
-  persistSettings();
-  restartAuto();
-  fetchSummary();
-});
-els.toggleAutoBtn.addEventListener('click', () => {
-  state.autoRefresh = !state.autoRefresh;
-  els.toggleAutoBtn.textContent = state.autoRefresh ? 'Tắt auto' : 'Bật auto';
-  persistSettings();
-  restartAuto();
-});
-els.clearConnectionBtn.addEventListener('click', () => {
-  state.baseUrl = '';
-  state.token = '';
-  els.baseUrl.value = '';
-  els.token.value = '';
-  persistSettings();
-  fetchSummary();
-});
-els.clearHistoryBtn.addEventListener('click', () => {
-  historyStore = {};
-  saveJson(HISTORY_KEY, historyStore);
-  if(lastPayload) renderAll(lastPayload); else fetchSummary();
-});
-els.saveAdminBtn.addEventListener('click', async () => {
-  const pin = els.adminPinNew.value.trim();
-  const pin2 = els.adminPinConfirm.value.trim();
-  state.adminSecret = els.adminSecret.value.trim();
-  if(!pin || pin.length < 4){ setDiagnostic('PIN admin cần ít nhất 4 ký tự.'); persistSettings(); return; }
-  if(pin !== pin2){ setDiagnostic('PIN admin nhập lại chưa khớp.'); return; }
-  state.adminPinHash = await sha256(pin);
-  persistSettings();
-  els.adminPinNew.value = '';
-  els.adminPinConfirm.value = '';
-  setDiagnostic('Đã lưu PIN admin và admin secret cục bộ.');
-});
-els.removeAdminBtn.addEventListener('click', () => {
-  state.adminPinHash = '';
-  state.adminSecret = '';
-  els.adminSecret.value = '';
-  lockAdmin();
-  persistSettings();
-  setDiagnostic('Đã xóa PIN admin trên thiết bị này.');
-});
-els.unlockAdminBtn.addEventListener('click', async () => {
-  const pin = els.adminUnlockPin.value.trim();
-  if(!state.adminPinHash){ setDiagnostic('Chưa có PIN admin để mở khóa.'); return; }
-  const hash = await sha256(pin);
-  if(hash !== state.adminPinHash){ setDiagnostic('PIN admin không đúng.'); return; }
-  sessionAdmin = true;
-  state.adminSecret = els.adminSecret.value.trim();
-  persistSettings();
-  els.adminUnlockPin.value = '';
-  updateStatusBoxes();
-  if(lastPayload) renderCpanel(lastPayload.items ? lastPayload.items.map(normItem) : []);
-  activateTab('cpanel');
-  setDiagnostic('Đã mở khóa CPanel trên thiết bị này.');
-});
-els.lockSettingsBtn.addEventListener('click', () => { lockAdmin(); setDiagnostic('Đã khóa lại admin.'); });
-els.lockAdminBtn.addEventListener('click', () => { lockAdmin(); setDiagnostic('Đã khóa lại admin.'); });
-els.useSearchBtn.addEventListener('click', () => {
-  const items = Array.isArray(lastPayload?.items) ? lastPayload.items.map(normItem) : [];
-  const filtered = selectedItems(items);
-  if(filtered[0]){
-    state.selectedKey = filtered[0].key;
-    persistSettings();
-    renderCpanel(items);
+  function connectionReady(){ return !!state.baseUrl && !!state.token; }
+
+  function buildUrl(path, params={}){
+    const u = new URL(path, state.baseUrl.replace(/\/$/, '') + '/');
+    Object.entries(params).forEach(([k,v]) => {
+      if(v !== undefined && v !== null && v !== '') u.searchParams.set(k, v);
+    });
+    return u.toString();
   }
-});
-els.botSelect.addEventListener('change', () => { state.selectedKey = els.botSelect.value; persistSettings(); renderCpanel(lastPayload?.items ? lastPayload.items.map(normItem) : []); });
-els.cmdBtns.forEach(btn => btn.addEventListener('click', () => sendCommand(btn.dataset.cmd)));
-els.applyLotsBtn.addEventListener('click', () => {
-  const extras = {};
-  els.lotInputs.forEach(input => { if(input.value.trim()) extras[input.dataset.lot] = input.value.trim(); });
-  sendCommand('apply_lots', extras);
-});
 
-loadSettings();
-updateStatusBoxes();
-fetchSummary();
-restartAuto();
+  function currentItems(){
+    const q = state.search.trim().toLowerCase();
+    if(!q) return state.items;
+    return state.items.filter(b => [b.id,b.bot,b.symbol,b.name].some(v => String(v||'').toLowerCase().includes(q)));
+  }
+
+  function selectedBot(){
+    const items = currentItems();
+    if(!items.length) return null;
+    if(state.selectedKey){
+      const found = state.items.find(b => botKey(b) === state.selectedKey);
+      if(found) return found;
+    }
+    return items[0];
+  }
+
+  function syncSelected(){
+    const bot = selectedBot();
+    state.selectedKey = bot ? botKey(bot) : '';
+  }
+
+  function rememberProfit(items){
+    const dkey = todayKey();
+    items.forEach(b => {
+      const key = botKey(b);
+      if(!state.profitStore[key]) state.profitStore[key] = {};
+      const startCapital = Number(b.startcapital || b.totalcapital || b.balance || 0);
+      const afterCapital = Number(b.aftercapital || b.equity || b.balance || 0);
+      state.profitStore[key][dkey] = {
+        id: b.id, bot: b.bot, symbol: b.symbol,
+        startCapital,
+        afterCapital,
+        profit: afterCapital - startCapital,
+        pct: startCapital > 0 ? ((afterCapital - startCapital) / startCapital) * 100 : 0,
+        updatedAt: b.updatedAt || new Date().toISOString()
+      };
+    });
+    saveProfitStore();
+  }
+
+  function renderConnection(){
+    const ok = connectionReady();
+    const bad = !!state.lastError;
+    els.subText.textContent = ok ? `${state.baseUrl} • refresh ${state.refreshMs}ms` : 'Chưa cấu hình link Railway.';
+    const cls = bad ? 'offline' : (ok ? 'online' : 'offline');
+    const text = bad ? 'Lỗi kết nối' : (ok ? 'Đã cấu hình' : 'Chưa kết nối');
+    els.connectPill.innerHTML = `<span class="dot ${cls}"></span><span>${text}</span>`;
+  }
+
+  function statusBadge(bot){
+    const s = bot?.heartbeat_state || 'offline';
+    if(s === 'online') return { cls:'running', text:'Đang chạy' };
+    if(s === 'slow') return { cls:'stale', text:'Heartbeat chậm' };
+    return { cls:'paused', text:'Đang tắt' };
+  }
+
+  function renderHero(){
+    const bot = selectedBot();
+    if(!bot){
+      els.heroName.textContent = 'Chưa có bot';
+      els.heroMeta.textContent = connectionReady() ? (state.lastError || 'Không có dữ liệu phù hợp.') : 'Nhập link Railway + token ở Cài đặt để bắt đầu.';
+      els.heroBadge.className = 'badge info';
+      els.heroBadge.textContent = connectionReady() ? 'Chưa có dữ liệu' : 'Chưa kết nối';
+      return;
+    }
+    const badge = statusBadge(bot);
+    els.heroName.textContent = `#${bot.bot || 'Bot'} ${bot.symbol ? '• ' + bot.symbol : ''}`;
+    els.heroMeta.textContent = `ID: ${bot.id || '--'} • Balance ${fmtNum(bot.balance || bot.totalcapital || 0)} • Equity ${fmtNum(bot.equity || bot.aftercapital || 0)}`;
+    els.heroBadge.className = `badge ${badge.cls}`;
+    els.heroBadge.textContent = badge.text;
+  }
+
+  function renderTotals(){
+    els.sumBots.textContent = String(state.totals.totalBots || 0);
+    els.sumRunning.textContent = String(state.totals.running || 0);
+    els.sumOffline.textContent = String(state.totals.offline || 0);
+    els.sumSlow.textContent = String(state.totals.slow || 0);
+    els.sumMonthProfit.textContent = fmtNum(state.totals.monthProfit || 0);
+    els.sumMonthPct.textContent = fmtPct(state.totals.monthPct || 0);
+  }
+
+  function renderBots(){
+    const items = currentItems();
+    els.botsCount.textContent = `${items.length} bot`;
+    if(!items.length){
+      els.botList.innerHTML = `<div class="empty">${connectionReady() ? 'Không có bot khớp tìm kiếm.' : 'Chưa có kết nối Railway.'}</div>`;
+      return;
+    }
+    els.botList.innerHTML = items.map(b => {
+      const badge = statusBadge(b);
+      const profit = Number(b.aftercapital || b.equity || 0) - Number(b.startcapital || b.totalcapital || b.balance || 0);
+      return `
+        <div class="bot-card" data-key="${escapeHtml(botKey(b))}">
+          <div class="bot-top">
+            <div>
+              <div class="bot-name">${escapeHtml(b.bot || 'Bot')}</div>
+              <div class="bot-meta">ID: ${escapeHtml(b.id || '--')} • ${escapeHtml(b.symbol || '--')}</div>
+            </div>
+            <div class="badge ${badge.cls}">${badge.text}</div>
+          </div>
+          <div class="bot-kv">
+            <div class="mini"><div class="k">Balance</div><div class="v">${fmtNum(b.balance || b.totalcapital || 0)}</div></div>
+            <div class="mini"><div class="k">Equity</div><div class="v">${fmtNum(b.equity || b.aftercapital || 0)}</div></div>
+            <div class="mini"><div class="k">DD</div><div class="v ${Number(b.dd||0)>0?'red':''}">${fmtPct(b.dd || 0)}</div></div>
+            <div class="mini"><div class="k">Lãi ngày</div><div class="v ${profit>=0?'green':'red'}">${fmtNum(profit)}</div></div>
+            <div class="mini"><div class="k">% ngày</div><div class="v ${(b.startcapital||b.totalcapital||b.balance)>0 && profit>=0?'green':'red'}">${fmtPct(((Number(b.startcapital||b.totalcapital||b.balance||0)>0)?(profit/Number(b.startcapital||b.totalcapital||b.balance||0)*100):0))}</div></div>
+            <div class="mini"><div class="k">Mode</div><div class="v">${escapeHtml(b.timeMode || '--')}</div></div>
+          </div>
+        </div>`;
+    }).join('');
+    [...els.botList.querySelectorAll('.bot-card')].forEach(card => {
+      card.addEventListener('click', () => {
+        state.selectedKey = card.dataset.key || '';
+        renderAll();
+      });
+    });
+  }
+
+  function renderBotSelect(){
+    const items = currentItems();
+    if(!items.length){
+      els.botSelect.innerHTML = '<option value="">Chưa có bot</option>';
+      return;
+    }
+    els.botSelect.innerHTML = items.map(b => {
+      const key = botKey(b);
+      return `<option value="${escapeHtml(key)}" ${key===state.selectedKey?'selected':''}>${escapeHtml(`${b.bot} • ${b.id} • ${b.symbol}`)}</option>`;
+    }).join('');
+  }
+
+  function renderCalendar(){
+    const bot = selectedBot();
+    const nowDate = new Date();
+    const year = nowDate.getFullYear();
+    const month = nowDate.getMonth();
+    els.monthName.textContent = `tháng ${month+1} năm ${year}`;
+    if(!bot){
+      els.monthTotalBadge.textContent = '--';
+      els.calendarGrid.innerHTML = '<div class="empty" style="grid-column:1 / -1">Chưa có bot để hiển thị lịch profit.</div>';
+      els.calendarHint.textContent = 'Nhập ID hoặc tên bot để chọn bot cần xem.';
+      return;
+    }
+    const key = botKey(bot);
+    const store = state.profitStore[key] || {};
+    const first = new Date(year, month, 1);
+    const last = new Date(year, month + 1, 0);
+    const startWeek = first.getDay();
+    const days = last.getDate();
+    let totalProfit = 0, totalPct = 0;
+    let html = '';
+    for(let i=0;i<startWeek;i++) html += '<div class="day empty"></div>';
+    const today = todayKey();
+    for(let d=1; d<=days; d++){
+      const keyDay = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+      const rec = store[keyDay];
+      const profit = rec ? Number(rec.profit || 0) : null;
+      const pct = rec ? Number(rec.pct || 0) : null;
+      if(rec){ totalProfit += profit; totalPct += pct; }
+      html += `
+        <div class="day ${keyDay===today?'today':''}">
+          <div class="day-num">${d}</div>
+          <div class="day-profit ${profit===null?'muted':(profit>=0?'green':'red')}">${profit===null?'--':fmtNum(profit)}</div>
+          <div class="day-base">${pct===null?'':fmtPct(pct)}${rec?`<br>Start ${fmtNum(rec.startCapital||0,0)}`:''}</div>
+        </div>`;
+    }
+    els.calendarGrid.innerHTML = html;
+    els.monthTotalBadge.textContent = `${fmtNum(totalProfit)} • ${fmtPct(totalPct)}`;
+    els.calendarHint.textContent = `Bot: ${bot.bot} • ID ${bot.id} • Profit ngày = Equity hiện tại - số dư đầu ngày.`;
+  }
+
+  function renderCpanel(){
+    const bot = selectedBot();
+    renderBotSelect();
+    if(!bot){
+      els.cpanelStats.innerHTML = '<div class="empty" style="grid-column:1 / -1">Chưa có bot để điều khiển.</div>';
+      els.rawJson.value = '';
+      return;
+    }
+    const profit = Number(bot.aftercapital || bot.equity || 0) - Number(bot.startcapital || bot.totalcapital || bot.balance || 0);
+    const stats = [
+      ['ID', bot.id], ['Bot', bot.bot], ['Symbol', bot.symbol], ['Balance', fmtNum(bot.balance||bot.totalcapital||0)],
+      ['Equity', fmtNum(bot.equity||bot.aftercapital||0)], ['Lãi ngày', fmtNum(profit)], ['DD', fmtPct(bot.dd||0)], ['Mode', bot.timeMode||'--'],
+      ['Status', bot.statusvi || bot.status || '--'], ['Trend', bot.trend || '--'], ['Orders', bot.orders ?? '--'], ['Lots', bot.lots ?? '--']
+    ];
+    els.cpanelStats.innerHTML = stats.map(([k,v]) => `<div class="mini"><div class="k">${escapeHtml(k)}</div><div class="v">${escapeHtml(String(v ?? '--'))}</div></div>`).join('');
+    els.rawJson.value = JSON.stringify(bot, null, 2);
+  }
+
+  function renderAll(){
+    syncSelected();
+    renderConnection();
+    renderTotals();
+    renderHero();
+    renderBots();
+    renderCalendar();
+    if(isAdminUnlocked()) renderCpanel();
+  }
+
+  function switchView(view){
+    state.currentView = view;
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    const v = document.getElementById(`view-${view}`); if(v) v.classList.add('active');
+    const btn = document.querySelector(`.nav-btn[data-view="${view}"]`); if(btn) btn.classList.add('active');
+    $('mainScroll').scrollTop = 0;
+  }
+
+  async function refreshData(){
+    if(state.loading || !connectionReady()) { renderConnection(); renderAll(); return; }
+    state.loading = true;
+    try{
+      const json = await fetchJson(buildUrl('/panel/summary', { token: state.token }));
+      state.items = Array.isArray(json.items) ? json.items : [];
+      state.totals = json.totals || { totalBots:0, running:0, offline:0, slow:0, monthProfit:0, monthPct:0 };
+      state.lastError = '';
+      rememberProfit(state.items);
+      renderAll();
+    }catch(err){
+      state.lastError = String(err.message || err);
+      renderAll();
+    }finally{ state.loading = false; }
+  }
+
+  function scheduleRefresh(){
+    if(state.timer) clearInterval(state.timer);
+    if(connectionReady()) state.timer = setInterval(refreshData, Math.max(500, Number(state.refreshMs || 1000)));
+  }
+
+  function saveSettings(){
+    state.baseUrl = (els.baseUrl.value || '').trim();
+    state.token = (els.panelToken.value || '').trim();
+    state.refreshMs = Math.max(500, Number(els.refreshMs.value || 1000));
+    localStorage.setItem(LS.baseUrl, state.baseUrl);
+    localStorage.setItem(LS.token, state.token);
+    localStorage.setItem(LS.refreshMs, String(state.refreshMs));
+    renderConnection();
+    scheduleRefresh();
+    refreshData();
+  }
+
+  function clearSettings(){
+    localStorage.removeItem(LS.baseUrl); localStorage.removeItem(LS.token); localStorage.removeItem(LS.refreshMs);
+    state.baseUrl=''; state.token=''; state.refreshMs=1000; state.items=[]; state.selectedKey=''; state.lastError='';
+    if(state.timer) clearInterval(state.timer);
+    els.baseUrl.value=''; els.panelToken.value=''; els.refreshMs.value='1000';
+    renderAll();
+  }
+
+  async function unlockAdmin(){
+    if(!connectionReady()) return alert('Hãy lưu link Railway và token trước.');
+    const pin = (els.adminPinInput.value || '').trim();
+    if(!pin) return alert('Nhập PIN admin.');
+    try{
+      const json = await fetchJson(buildUrl('/panel/admin/unlock'), {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ token: state.token, pin })
+      });
+      setAdminUnlocked(json.session_token, json.expires_at_ms);
+      els.unlockModal.classList.remove('show');
+      els.adminPinInput.value='';
+      switchView('cpanel');
+      renderAll();
+    }catch(err){
+      alert('Mở khóa thất bại: ' + err.message);
+    }
+  }
+
+  async function lockAdminRemote(){
+    if(!connectionReady() || !isAdminUnlocked()) { clearAdmin(); return; }
+    try{
+      await fetchJson(buildUrl('/panel/admin/lock'), {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ token: state.token, session_token: state.adminSession })
+      });
+    }catch(_){ }
+    clearAdmin();
+  }
+
+  async function sendCommand(cmd, extra={}){
+    const bot = selectedBot();
+    if(!bot) return alert('Chưa có bot để gửi lệnh.');
+    if(!isAdminUnlocked()) return alert('Hãy mở khóa admin trước.');
+    try{
+      const json = await fetchJson(buildUrl('/panel/command'), {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ token: state.token, session_token: state.adminSession, id: bot.id, bot: bot.bot, symbol: bot.symbol, cmd, ...extra })
+      });
+      els.commandStatus.textContent = `Đã xếp lệnh: ${json.cmd || cmd}`;
+    }catch(err){
+      if(String(err.message).includes('FORBIDDEN_ADMIN') || String(err.message).includes('ADMIN_SESSION')) clearAdmin();
+      alert('Gửi lệnh lỗi: ' + err.message);
+    }
+  }
+
+  function bindEvents(){
+    document.querySelectorAll('.nav-btn').forEach(btn => btn.addEventListener('click', () => switchView(btn.dataset.view)));
+    els.refreshBtn.addEventListener('click', refreshData);
+    els.searchInput.addEventListener('input', (e) => { state.search = e.target.value || ''; renderAll(); });
+    els.saveSettingsBtn.addEventListener('click', saveSettings);
+    els.clearSettingsBtn.addEventListener('click', clearSettings);
+    els.openUnlockBtn.addEventListener('click', () => els.unlockModal.classList.add('show'));
+    els.closeUnlockBtn.addEventListener('click', () => els.unlockModal.classList.remove('show'));
+    els.unlockAdminBtn.addEventListener('click', unlockAdmin);
+    els.lockAdminBtn.addEventListener('click', lockAdminRemote);
+    els.unlockModal.addEventListener('click', (e) => { if(e.target === els.unlockModal) els.unlockModal.classList.remove('show'); });
+    els.botSelect.addEventListener('change', (e) => { state.selectedKey = e.target.value || ''; renderAll(); });
+    document.querySelectorAll('[data-cmd]').forEach(btn => btn.addEventListener('click', () => sendCommand(btn.dataset.cmd)));
+    els.applyLotsBtn.addEventListener('click', () => sendCommand('apply_lots', {
+      lot1: els.lot1.value.trim(), lot2: els.lot2.value.trim(), lot3: els.lot3.value.trim(), lot4: els.lot4.value.trim(), lot5: els.lot5.value.trim()
+    }));
+  }
+
+  function init(){
+    els.baseUrl.value = state.baseUrl;
+    els.panelToken.value = state.token;
+    els.refreshMs.value = String(state.refreshMs || 1000);
+    if(!isAdminUnlocked()) clearAdmin(); else updateAdminUI();
+    bindEvents();
+    renderAll();
+    scheduleRefresh();
+    refreshData();
+  }
+
+  init();
+})();
 </script>
 </body>
 </html>
