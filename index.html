@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <title>JustinCua</title>
+  <title>JustinCua Bot</title>
   <style>
     :root{
       --bg:#07101f;
@@ -24,16 +24,19 @@
       --shadow:0 18px 48px rgba(0,0,0,.35);
       --safe-bottom:env(safe-area-inset-bottom, 0px);
       --safe-top:env(safe-area-inset-top, 0px);
-      --nav-h:82px;
+      --nav-h:84px;
+      --top-h:120px;
+      --app-w:430px;
     }
     *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
     html,body{margin:0;padding:0;background:radial-gradient(circle at top,#182b55 0%,#0b1327 36%,var(--bg) 100%);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;height:100%}
     body{overflow:hidden}
-    .app{width:100%;height:100dvh;position:relative;overflow:hidden;background:linear-gradient(180deg,rgba(8,12,24,.58),rgba(8,12,24,.98))}
+    .shell{width:100%;height:100dvh;display:flex;align-items:center;justify-content:center;padding:12px}
+    .app{width:min(100%, var(--app-w));height:100dvh;max-height:100dvh;position:relative;overflow:hidden;background:linear-gradient(180deg,rgba(8,12,24,.58),rgba(8,12,24,.98));border:1px solid rgba(255,255,255,.06);border-radius:28px;box-shadow:0 28px 70px rgba(0,0,0,.45)}
     .app:before{content:"";position:absolute;right:-20%;top:-8%;width:240px;height:240px;background:radial-gradient(circle,rgba(71,217,255,.18),rgba(71,217,255,0));pointer-events:none}
     .app:after{content:"";position:absolute;left:-24%;bottom:28%;width:240px;height:240px;background:radial-gradient(circle,rgba(90,168,255,.18),rgba(90,168,255,0));pointer-events:none}
 
-    .top{position:sticky;top:0;z-index:20;padding:calc(12px + var(--safe-top)) 16px 12px;border-bottom:1px solid var(--line2);background:linear-gradient(180deg,rgba(10,16,31,.96),rgba(10,16,31,.86));backdrop-filter:blur(18px)}
+    .top{position:absolute;left:0;right:0;top:0;z-index:20;padding:calc(12px + var(--safe-top)) 16px 12px;border-bottom:1px solid var(--line2);background:linear-gradient(180deg,rgba(10,16,31,.96),rgba(10,16,31,.86));backdrop-filter:blur(18px)}
     .head{display:flex;align-items:center;justify-content:space-between;gap:12px}
     .title{font-size:20px;font-weight:900;letter-spacing:.3px}
     .sub{font-size:12px;color:var(--muted);margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:72vw}
@@ -44,16 +47,16 @@
     .circle-btn{width:40px;height:40px;border-radius:999px;border:1px solid var(--line);background:rgba(255,255,255,.05);display:grid;place-items:center;color:var(--text);cursor:pointer}
     .searchbar{margin-top:12px;display:flex;gap:10px}
 
-    .content{position:absolute;inset:0;overflow:auto;padding:0 14px calc(var(--nav-h) + 32px + var(--safe-bottom));scrollbar-width:none}
+    .content{position:absolute;inset:0;overflow:auto;padding:0 14px calc(var(--nav-h) + 24px + var(--safe-bottom));scrollbar-width:none}
     .content::-webkit-scrollbar{display:none}
-    .content-inner{padding-top:calc(108px + var(--safe-top))}
+    .content-inner{padding-top:calc(var(--top-h) + 10px)}
 
     .view{display:none;animation:fade .18s ease}
     .view.active{display:block}
     @keyframes fade{from{opacity:.35;transform:translateY(4px)}to{opacity:1;transform:none}}
 
     .card,.panel,.hero,.bot-card,.calendar-wrap,.raw-wrap,.settings-box{background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.025));border:1px solid var(--line);border-radius:24px;box-shadow:var(--shadow)}
-    .hero{padding:16px;position:relative;overflow:hidden}
+    .hero{padding:16px;position:relative;overflow:hidden;cursor:pointer}
     .hero:after{content:"";position:absolute;right:-20%;bottom:-40%;width:180px;height:180px;background:radial-gradient(circle,rgba(90,168,255,.18),rgba(90,168,255,0));pointer-events:none}
     .hero-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
     .hero-name{font-size:22px;font-weight:900;line-height:1.08}
@@ -97,7 +100,7 @@
     .day-base{font-size:10px;color:var(--muted);line-height:1.2}
 
     .bot-list{display:grid;gap:10px}
-    .bot-card{padding:14px}
+    .bot-card{padding:14px;cursor:pointer}
     .bot-top{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
     .bot-name{font-size:17px;font-weight:900}
     .bot-meta{font-size:12px;color:var(--muted);margin-top:4px}
@@ -111,7 +114,7 @@
     .row-3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
     .input,.select,textarea{width:100%;border-radius:16px;border:1px solid var(--line);background:rgba(255,255,255,.045);color:var(--text);outline:none}
     .input,.select{height:46px;padding:0 14px;font-size:14px}
-    .input[type="password"]{letter-spacing:.2em}
+    .input[type="password"]{letter-spacing:.15em}
     textarea{min-height:170px;padding:14px;font-size:12px;resize:vertical}
     .btn{height:44px;padding:0 14px;border-radius:16px;border:1px solid var(--line);background:linear-gradient(135deg,#2d8cff,#1ec7ff);color:white;font-weight:800;cursor:pointer}
     .btn.secondary{background:rgba(255,255,255,.04);color:var(--text)}
@@ -122,28 +125,35 @@
     .cmd-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
     .tiny{font-size:11px;color:var(--muted);line-height:1.55}
     .empty{padding:18px;text-align:center;border-radius:18px;background:rgba(255,255,255,.03);border:1px dashed var(--line);color:var(--muted)}
+    .kv-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
     pre{margin:0;white-space:pre-wrap;word-break:break-word;font-size:12px;line-height:1.48;color:#dfeaff}
     .hidden{display:none !important}
 
-    .nav{position:fixed;left:12px;right:12px;bottom:calc(10px + var(--safe-bottom));display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:10px;border-radius:24px;background:rgba(10,16,31,.96);border:1px solid var(--line);backdrop-filter:blur(18px);z-index:60;box-shadow:0 12px 36px rgba(0,0,0,.35)}
+    .nav{position:fixed;left:50%;transform:translateX(-50%);width:min(calc(100% - 24px), calc(var(--app-w) - 24px));bottom:calc(10px + var(--safe-bottom));display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:10px;border-radius:24px;background:rgba(10,16,31,.96);border:1px solid var(--line);backdrop-filter:blur(18px);z-index:60;box-shadow:0 12px 36px rgba(0,0,0,.35)}
     .nav.nav-3{grid-template-columns:repeat(3,1fr)}
+    .nav.nav-5{grid-template-columns:repeat(5,1fr)}
     .nav-btn{border:none;background:transparent;color:var(--muted);padding:8px 4px;border-radius:16px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;font-size:11px;font-weight:800}
     .nav-btn .icon{font-size:17px;line-height:1}
     .nav-btn.active{background:rgba(90,168,255,.14);color:var(--text);box-shadow:inset 0 0 0 1px rgba(90,168,255,.16)}
 
     @media (max-width:430px){
+      .shell{padding:0}
+      .app{width:100%;height:100dvh;border-radius:0;border:none}
+      .nav{width:calc(100% - 24px)}
       .hero-name{font-size:20px}
       .mini .big{font-size:24px}
       .row,.row-3,.grid-3{grid-template-columns:1fr}
       .bot-kv{grid-template-columns:repeat(2,1fr)}
       .calendar-weekdays,.calendar-grid{gap:6px}
       .day{min-height:72px}
+      .kv-grid{grid-template-columns:1fr}
     }
   </style>
 </head>
 <body>
+<div class="shell">
 <div class="app">
-  <div class="top">
+  <div class="top" id="topBar">
     <div class="head">
       <div>
         <div class="title">JUSTINCUA BOT</div>
@@ -160,7 +170,7 @@
   </div>
 
   <div class="content">
-    <div class="content-inner">
+    <div class="content-inner" id="contentInner">
       <section class="view active" id="view-home">
         <div class="hero" id="heroCard"></div>
 
@@ -211,6 +221,34 @@
         </div>
       </section>
 
+      <section class="view" id="view-bot">
+        <div class="section">
+          <div class="section-head">
+            <div class="section-title">DASHBOARD BOT</div>
+            <div class="section-note" id="detailUpdated">--</div>
+          </div>
+          <div class="hero" id="detailHero"></div>
+        </div>
+
+        <div class="section">
+          <div class="section-head">
+            <div class="section-title">THÔNG TIN CHI TIẾT</div>
+            <div class="section-note">full field đang có trên server</div>
+          </div>
+          <div class="panel">
+            <div class="grid-4" id="detailGrid"></div>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-head">
+            <div class="section-title">DỮ LIỆU GỐC</div>
+            <div class="section-note">JSON bot</div>
+          </div>
+          <div class="raw-wrap"><pre id="rawJson">{}</pre></div>
+        </div>
+      </section>
+
       <section class="view hidden" id="view-cpanel">
         <div class="section">
           <div class="section-head">
@@ -224,32 +262,22 @@
                 <select class="select" id="botSelect"></select>
               </div>
               <div class="field">
-                <label>Command path</label>
+                <label>Đường dẫn lệnh</label>
                 <input class="input" id="commandPath" placeholder="/panel/command" />
               </div>
             </div>
-            <div class="tiny" style="margin-top:10px">CPanel chỉ hiện sau khi admin unlock trên thiết bị này. Có thể thêm admin secret riêng để backend xác thực lệnh.</div>
+            <div class="tiny" style="margin-top:10px">CPanel chỉ hiện sau khi quản trị mở khóa trên thiết bị này.</div>
             <div class="row" style="margin-top:10px">
               <button class="btn secondary" id="useSearchBtn">Chọn theo ô tìm kiếm</button>
-              <button class="btn ghost" id="lockAdminBtn">Khóa admin</button>
+              <button class="btn ghost" id="lockAdminBtn">Khóa quản trị</button>
             </div>
-          </div>
-        </div>
-
-        <div class="section">
-          <div class="section-head">
-            <div class="section-title">THÔNG TIN BOT FULL</div>
-            <div class="section-note">chi tiết bot gửi về</div>
-          </div>
-          <div class="panel">
-            <div class="grid-4" id="detailGrid"></div>
           </div>
         </div>
 
         <div class="section">
           <div class="section-head">
             <div class="section-title">LỆNH ĐIỀU KHIỂN</div>
-            <div class="section-note">ẩn với khách</div>
+            <div class="section-note">chỉ admin</div>
           </div>
           <div class="panel">
             <div class="cmd-grid">
@@ -270,16 +298,8 @@
               <input class="input lot-input" data-lot="lot5" placeholder="Lot5" />
               <button class="btn" id="applyLotsBtn">Áp lots</button>
             </div>
-            <div class="tiny" style="margin-top:10px" id="commandResult">Admin chưa gửi lệnh.</div>
+            <div class="tiny" style="margin-top:10px" id="commandResult">Quản trị chưa gửi lệnh.</div>
           </div>
-        </div>
-
-        <div class="section">
-          <div class="section-head">
-            <div class="section-title">RAW BOT JSON</div>
-            <div class="section-note">debug admin</div>
-          </div>
-          <div class="raw-wrap"><pre id="rawJson">{}</pre></div>
         </div>
       </section>
 
@@ -290,11 +310,11 @@
             <div class="section-note" id="connectionState">Chưa cấu hình</div>
           </div>
           <div class="field">
-            <label>Link panel / heartbeat</label>
+            <label>Link Railway</label>
             <input class="input" id="baseUrl" placeholder="Ví dụ: https://ten-mien-cua-ban.up.railway.app" autocomplete="off" spellcheck="false" />
           </div>
           <div class="field" style="margin-top:10px">
-            <label>Token</label>
+            <label>Token panel</label>
             <input class="input" id="token" type="password" placeholder="Nhập token riêng khi giao cho khách" autocomplete="off" spellcheck="false" />
           </div>
           <div class="field" style="margin-top:10px">
@@ -314,34 +334,18 @@
 
         <div class="settings-box section">
           <div class="section-head" style="margin:0 0 10px 0">
-            <div class="section-title">ADMIN</div>
+            <div class="section-title">QUẢN TRỊ</div>
             <div class="section-note" id="adminState">Đang khóa</div>
           </div>
           <div class="field">
-            <label>Đặt / đổi mã PIN admin trên máy này</label>
-            <input class="input" id="adminPinNew" type="password" placeholder="PIN mới" autocomplete="new-password" />
-          </div>
-          <div class="field" style="margin-top:10px">
-            <label>Nhập lại PIN mới</label>
-            <input class="input" id="adminPinConfirm" type="password" placeholder="Nhập lại PIN" autocomplete="new-password" />
-          </div>
-          <div class="field" style="margin-top:10px">
-            <label>Admin secret gửi kèm lệnh (tuỳ chọn cho backend)</label>
-            <input class="input" id="adminSecret" type="password" placeholder="Không bắt buộc, chỉ admin mới biết" autocomplete="off" />
+            <label>Mở khóa quản trị</label>
+            <input class="input" id="adminUnlockPin" type="password" placeholder="Nhập PIN quản trị từ Railway" autocomplete="current-password" />
           </div>
           <div class="row" style="margin-top:10px">
-            <button class="btn secondary" id="saveAdminBtn">Lưu PIN admin</button>
-            <button class="btn ghost" id="removeAdminBtn">Xóa PIN admin</button>
-          </div>
-          <div class="field" style="margin-top:14px">
-            <label>Mở khóa admin</label>
-            <input class="input" id="adminUnlockPin" type="password" placeholder="Nhập PIN để hiện CPanel" autocomplete="current-password" />
-          </div>
-          <div class="row" style="margin-top:10px">
-            <button class="btn" id="unlockAdminBtn">Mở khóa</button>
+            <button class="btn" id="unlockAdminBtn">Mở khóa admin</button>
             <button class="btn ghost" id="lockSettingsBtn">Khóa lại</button>
           </div>
-          <div class="helper" style="margin-top:10px">Ẩn CPanel ở frontend chỉ giúp bớt lộ ra cho khách. Muốn chặn spam thật sự, backend phải kiểm tra thêm admin secret hoặc chữ ký lệnh.</div>
+          <div class="helper" style="margin-top:10px">CPanel chỉ hiện sau khi nhập đúng PIN do server kiểm tra. Trên web không có chỗ đặt hay đổi PIN.</div>
         </div>
 
         <div class="settings-box section">
@@ -355,20 +359,24 @@
     </div>
   </div>
 
-  <nav class="nav nav-3" id="navBar">
+  <nav class="nav nav-4" id="navBar">
     <button class="nav-btn active" data-tab="home"><span class="icon">⌂</span><span>Home</span></button>
     <button class="nav-btn" data-tab="profit"><span class="icon">◫</span><span>Profit</span></button>
+    <button class="nav-btn" data-tab="bot"><span class="icon">▣</span><span>Bot</span></button>
     <button class="nav-btn hidden" data-tab="cpanel" id="cpanelNavBtn"><span class="icon">⚡</span><span>CPanel</span></button>
     <button class="nav-btn" data-tab="settings"><span class="icon">⚙</span><span>Cài đặt</span></button>
   </nav>
 </div>
+</div>
 
 <script>
-const STORAGE_KEY = 'jc_bot_app_secure_v1';
-const HISTORY_KEY = 'jc_bot_history_secure_v1';
+const STORAGE_KEY = 'jc_bot_app_secure_v2';
+const HISTORY_KEY = 'jc_bot_history_secure_v2';
 const TZ_OFFSET_HOURS = 8;
 
 const els = {
+  topBar: document.getElementById('topBar'),
+  contentInner: document.getElementById('contentInner'),
   search: document.getElementById('search'),
   metaText: document.getElementById('metaText'),
   globalDot: document.getElementById('globalDot'),
@@ -385,6 +393,10 @@ const els = {
   monthTotalBadge: document.getElementById('monthTotalBadge'),
   calendarGrid: document.getElementById('calendarGrid'),
   calendarHint: document.getElementById('calendarHint'),
+  detailHero: document.getElementById('detailHero'),
+  detailGrid: document.getElementById('detailGrid'),
+  detailUpdated: document.getElementById('detailUpdated'),
+  rawJson: document.getElementById('rawJson'),
   baseUrl: document.getElementById('baseUrl'),
   token: document.getElementById('token'),
   refreshMs: document.getElementById('refreshMs'),
@@ -393,11 +405,6 @@ const els = {
   clearConnectionBtn: document.getElementById('clearConnectionBtn'),
   clearHistoryBtn: document.getElementById('clearHistoryBtn'),
   connectionState: document.getElementById('connectionState'),
-  adminPinNew: document.getElementById('adminPinNew'),
-  adminPinConfirm: document.getElementById('adminPinConfirm'),
-  adminSecret: document.getElementById('adminSecret'),
-  saveAdminBtn: document.getElementById('saveAdminBtn'),
-  removeAdminBtn: document.getElementById('removeAdminBtn'),
   adminUnlockPin: document.getElementById('adminUnlockPin'),
   unlockAdminBtn: document.getElementById('unlockAdminBtn'),
   lockSettingsBtn: document.getElementById('lockSettingsBtn'),
@@ -406,9 +413,7 @@ const els = {
   commandPath: document.getElementById('commandPath'),
   useSearchBtn: document.getElementById('useSearchBtn'),
   lockAdminBtn: document.getElementById('lockAdminBtn'),
-  detailGrid: document.getElementById('detailGrid'),
   cpanelState: document.getElementById('cpanelState'),
-  rawJson: document.getElementById('rawJson'),
   commandResult: document.getElementById('commandResult'),
   diagnosticText: document.getElementById('diagnosticText'),
   navBar: document.getElementById('navBar'),
@@ -427,16 +432,16 @@ let state = {
   refreshMs: 1500,
   autoRefresh: true,
   selectedKey: '',
-  adminPinHash: '',
-  adminSecret: '',
+  adminSessionToken: '',
+  adminSessionExpiresAt: 0,
 };
-let sessionAdmin = false;
 let timer = null;
 let fetchEpochSec = 0;
-let lastPayload = null;
+let lastPayload = { items: [] };
 let historyStore = loadJson(HISTORY_KEY, {});
 const seenMap = new Map();
 const snapshotMap = new Map();
+const detailMap = new Map();
 
 function loadJson(key, fallback){
   try{ const raw = localStorage.getItem(key); return raw ? JSON.parse(raw) : fallback; }catch{ return fallback; }
@@ -489,29 +494,61 @@ function keepAliveByChange(key, core){
   const now = JSON.stringify(core);
   if(prev !== now){ snapshotMap.set(key, now); seenMap.set(key, fetchEpochSec); }
 }
+function mergeRaw(primary = {}, secondary = {}){
+  return { ...secondary, ...primary };
+}
 function normItem(raw){
   const key = itemKey(raw);
+  const detail = detailMap.get(key) || {};
+  const mergedRaw = mergeRaw(raw, detail.raw || detail);
   const item = {
     key,
-    id: raw.id ?? raw.accountID ?? raw.accountId ?? raw.login ?? '',
-    bot: raw.bot ?? raw.botName ?? raw.name ?? 'Unknown',
-    symbol: raw.symbol ?? '--',
-    balance: Number(raw.balance ?? raw.totalcapital ?? 0),
-    equity: Number(raw.equity ?? raw.aftercapital ?? raw.afterCapital ?? 0),
-    realProfit: Number(raw.realProfit ?? raw.realprofit ?? 0),
-    realPct: Number(raw.realPct ?? raw.realpct ?? 0),
-    dayTotal: Number(raw.dayTotal ?? raw.afterprofit ?? raw.daytotal ?? 0),
-    dd: Number(raw.dd ?? raw.maxdd ?? 0),
-    status: String(raw.status ?? raw.statusvi ?? 'UNKNOWN').toUpperCase(),
-    timeMode: normMode(raw.timeMode ?? raw.timemode ?? '--'),
-    reason: raw.reason ?? raw.statusreason ?? raw.note ?? '',
-    raw,
+    id: mergedRaw.id ?? mergedRaw.accountID ?? mergedRaw.accountId ?? mergedRaw.login ?? '',
+    bot: mergedRaw.bot ?? mergedRaw.botName ?? mergedRaw.name ?? 'Unknown',
+    symbol: mergedRaw.symbol ?? '--',
+    name: mergedRaw.name ?? '',
+    balance: Number(mergedRaw.balance ?? mergedRaw.totalcapital ?? 0),
+    equity: Number(mergedRaw.equity ?? mergedRaw.aftercapital ?? mergedRaw.afterCapital ?? 0),
+    totalcapital: Number(mergedRaw.totalcapital ?? mergedRaw.balance ?? 0),
+    startcapital: Number(mergedRaw.startcapital ?? 0),
+    aftercapital: Number(mergedRaw.aftercapital ?? mergedRaw.equity ?? 0),
+    afterprofit: Number(mergedRaw.afterprofit ?? mergedRaw.dayTotal ?? 0),
+    todaypct: Number(mergedRaw.todaypct ?? 0),
+    realProfit: Number(mergedRaw.realProfit ?? mergedRaw.realprofit ?? 0),
+    realPct: Number(mergedRaw.realPct ?? mergedRaw.realpct ?? 0),
+    dayTotal: Number(mergedRaw.dayTotal ?? mergedRaw.afterprofit ?? 0),
+    closedpnl: Number(mergedRaw.closedpnl ?? 0),
+    floatingpnl: Number(mergedRaw.floatingpnl ?? 0),
+    buy: Number(mergedRaw.buy ?? 0),
+    sell: Number(mergedRaw.sell ?? 0),
+    orders: Number(mergedRaw.orders ?? 0),
+    lots: Number(mergedRaw.lots ?? 0),
+    dd: Number(mergedRaw.dd ?? mergedRaw.maxdd ?? 0),
+    edd: Number(mergedRaw.edd ?? 0),
+    score: Number(mergedRaw.score ?? 0),
+    trend: String(mergedRaw.trend ?? '--'),
+    status: String(mergedRaw.status ?? mergedRaw.statusvi ?? 'UNKNOWN').toUpperCase(),
+    statusvi: String(mergedRaw.statusvi ?? '--'),
+    statusreason: String(mergedRaw.statusreason ?? mergedRaw.reason ?? ''),
+    autotrade: String(mergedRaw.autotrade ?? '--'),
+    timeMode: normMode(mergedRaw.timeMode ?? mergedRaw.timemode ?? '--'),
+    runlot1: Number(mergedRaw.runlot1 ?? 0),
+    runlot2: Number(mergedRaw.runlot2 ?? 0),
+    runlot3: Number(mergedRaw.runlot3 ?? 0),
+    runlot4: Number(mergedRaw.runlot4 ?? 0),
+    runlot5: Number(mergedRaw.runlot5 ?? 0),
+    remotestatus: String(mergedRaw.remotestatus ?? '--'),
+    remotelast: String(mergedRaw.remotelast ?? '--'),
+    scope: String(mergedRaw.scope ?? '--'),
+    reason: mergedRaw.reason ?? mergedRaw.statusreason ?? mergedRaw.note ?? '',
+    raw: mergedRaw,
   };
-  const tsRaw = raw.ts ?? raw.lastTs ?? raw.updatedAtTs ?? raw.updated_at_ts ?? raw.heartbeat_ts ?? raw.eaupdate ?? raw.updatedAt ?? raw.server_time ?? raw.last_seen;
+  const tsRaw = mergedRaw.ts ?? mergedRaw.lastTs ?? mergedRaw.updatedAtTs ?? mergedRaw.updated_at_ts ?? mergedRaw.heartbeat_ts ?? mergedRaw.eaupdate ?? mergedRaw.updatedAt ?? mergedRaw.server_time ?? mergedRaw.last_seen;
   const parsedTs = parseTimestamp(tsRaw);
-  keepAliveByChange(key, { balance:item.balance, equity:item.equity, realProfit:item.realProfit, realPct:item.realPct, dayTotal:item.dayTotal, dd:item.dd, status:item.status, timeMode:item.timeMode });
+  keepAliveByChange(key, { balance:item.balance, equity:item.equity, realProfit:item.realProfit, realPct:item.realPct, dayTotal:item.dayTotal, dd:item.dd, status:item.status, timeMode:item.timeMode, orders:item.orders, lots:item.lots, score:item.score });
   if(parsedTs > 0) seenMap.set(key, parsedTs);
   item.ts = Math.max(parsedTs, seenMap.get(key) || 0);
+  item.updatedAt = mergedRaw.updatedAt || mergedRaw.server_time || '';
   return item;
 }
 function heartbeatState(item){
@@ -536,24 +573,19 @@ function loadSettings(){
   els.token.value = state.token || '';
   els.commandPath.value = state.commandPath || '/panel/command';
   els.refreshMs.value = state.refreshMs || 1500;
-  els.adminSecret.value = state.adminSecret || '';
   els.toggleAutoBtn.textContent = state.autoRefresh ? 'Tắt auto' : 'Bật auto';
 }
 function persistSettings(){ saveJson(STORAGE_KEY, state); updateStatusBoxes(); }
 function isConfigured(){ return !!(state.baseUrl.trim() && state.token.trim()); }
+function isAdminUnlocked(){ return !!(state.adminSessionToken && Date.now() < Number(state.adminSessionExpiresAt || 0)); }
 function updateStatusBoxes(){
   els.connectionState.textContent = isConfigured() ? 'Đã lưu cục bộ' : 'Chưa cấu hình';
-  els.adminState.textContent = sessionAdmin ? 'Đang mở khóa' : (state.adminPinHash ? 'Có PIN, đang khóa' : 'Chưa có PIN');
-  els.cpanelState.textContent = sessionAdmin ? 'Admin đã mở khóa' : 'Đã khóa';
-  const navCount = sessionAdmin ? 4 : 3;
-  els.navBar.classList.toggle('nav-3', navCount === 3);
-  els.cpanelNavBtn.classList.toggle('hidden', !sessionAdmin);
-  document.getElementById('view-cpanel').classList.toggle('hidden', !sessionAdmin);
-}
-async function sha256(text){
-  const enc = new TextEncoder().encode(text);
-  const buf = await crypto.subtle.digest('SHA-256', enc);
-  return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2,'0')).join('');
+  els.adminState.textContent = isAdminUnlocked() ? 'Đã mở khóa' : 'Đang khóa';
+  els.cpanelState.textContent = isAdminUnlocked() ? 'Admin đã mở khóa' : 'Đã khóa';
+  els.cpanelNavBtn.classList.toggle('hidden', !isAdminUnlocked());
+  document.getElementById('view-cpanel').classList.toggle('hidden', !isAdminUnlocked());
+  els.navBar.classList.toggle('nav-5', isAdminUnlocked());
+  els.navBar.classList.toggle('nav-4', !isAdminUnlocked());
 }
 function updateHistory(items){
   const dayKey = epochToTWDate(fetchEpochSec || Math.floor(Date.now()/1000));
@@ -624,6 +656,7 @@ function renderHome(allItems){
         <div class="mini"><div class="k">Lãi vốn thực</div><div class="v ${hero.realProfit >= 0 ? 'green' : 'red'}">${fmtNum(hero.realProfit)}</div></div>
         <div class="mini"><div class="k">Tổng hôm nay</div><div class="v ${hero.dayTotal >= 0 ? 'green' : 'red'}">${fmtNum(hero.dayTotal)}</div></div>
       </div>`;
+    els.heroCard.onclick = () => openBotDetail(hero.key);
   }
   const online = allItems.filter(x => heartbeatState(x).online).length;
   const running = allItems.filter(x => x.status.includes('RUN')).length;
@@ -675,15 +708,7 @@ function renderBotList(items){
         </div>
       </div>`;
   }).join('');
-  document.querySelectorAll('[data-select-key]').forEach(node => node.addEventListener('click', () => {
-    state.selectedKey = node.getAttribute('data-select-key');
-    persistSettings();
-    if(sessionAdmin){
-      populateBotSelect(lastPayload?.items ? lastPayload.items.map(normItem) : []);
-      activateTab('cpanel');
-      renderCpanel(lastPayload?.items ? lastPayload.items.map(normItem) : []);
-    }
-  }));
+  document.querySelectorAll('[data-select-key]').forEach(node => node.addEventListener('click', () => openBotDetail(node.getAttribute('data-select-key'))));
 }
 function renderCalendar(items){
   const month = aggregateMonth(items);
@@ -693,7 +718,7 @@ function renderCalendar(items){
   const startDay = first.getDay();
   const daysInMonth = new Date(year, mon, 0).getDate();
   const today = currentTWDate();
-  const monthLabel = new Date(year, mon - 1, 1).toLocaleDateString('vi-VN', { month:'long', year:'numeric' });
+  const monthLabel = `tháng ${mon} năm ${year}`;
   els.monthName.textContent = monthLabel;
   els.monthTotalBadge.className = `badge ${month.totalProfit >= 0 ? 'running' : 'paused'}`;
   els.monthTotalBadge.textContent = `${fmtNum(month.totalProfit)} • ${fmtNum(month.pct)}%`;
@@ -714,6 +739,46 @@ function renderCalendar(items){
   els.calendarGrid.innerHTML = cells.join('');
   els.calendarHint.textContent = 'Lịch tháng tính theo equity hiện tại trừ số dư đầu ngày đã lưu trên app. Không dùng kiểu vốn thực cũ.';
 }
+function renderBotDetail(allItems){
+  const selected = getSelectedItem(allItems);
+  if(!selected){
+    els.detailHero.innerHTML = '<div class="empty">Chưa chọn bot. Hãy bấm vào một bot ở trang Home.</div>';
+    els.detailGrid.innerHTML = '';
+    els.rawJson.textContent = '{}';
+    els.detailUpdated.textContent = '--';
+    return;
+  }
+  const hb = heartbeatState(selected);
+  els.detailUpdated.textContent = `${hb.label} • ${fmtAgo(selected.ts)}`;
+  els.detailHero.innerHTML = `
+    <div class="hero-top">
+      <div>
+        <div class="hero-name">${escapeHtml(selected.bot)}</div>
+        <div class="hero-meta">ID ${escapeHtml(selected.id || '--')} • ${escapeHtml(selected.symbol)} • ${escapeHtml(selected.name || 'không có tên')} • ${escapeHtml(selected.timeMode)}</div>
+      </div>
+      <div class="badge ${hb.cls}">${hb.label}</div>
+    </div>
+    <div class="grid-2" style="margin-top:14px">
+      <div class="mini"><div class="k">Balance</div><div class="big">${fmtNum(selected.balance)}</div></div>
+      <div class="mini"><div class="k">Equity</div><div class="big">${fmtNum(selected.equity)}</div></div>
+      <div class="mini"><div class="k">Lãi vốn thực</div><div class="v ${selected.realProfit >= 0 ? 'green' : 'red'}">${fmtNum(selected.realProfit)}</div></div>
+      <div class="mini"><div class="k">% vốn thực</div><div class="v ${selected.realPct >= 0 ? 'green' : 'red'}">${fmtNum(selected.realPct)}%</div></div>
+    </div>`;
+  const list = [
+    ['Bot', selected.bot], ['ID', selected.id || '--'], ['Tên tài khoản', selected.name || '--'], ['Symbol', selected.symbol],
+    ['Balance', fmtNum(selected.balance)], ['Equity', fmtNum(selected.equity)], ['Tổng vốn', fmtNum(selected.totalcapital)], ['Vốn đầu ngày', fmtNum(selected.startcapital)],
+    ['Vốn hiện tại', fmtNum(selected.aftercapital)], ['Lãi hiện tại', fmtNum(selected.afterprofit)], ['% hôm nay', `${fmtNum(selected.todaypct)}%`], ['Tổng hôm nay', fmtNum(selected.dayTotal)],
+    ['Đã chốt', fmtNum(selected.closedpnl)], ['Đang chạy', fmtNum(selected.floatingpnl)], ['Buy', String(selected.buy)], ['Sell', String(selected.sell)],
+    ['Orders', String(selected.orders)], ['Lots', fmtNum(selected.lots)], ['DD', `${fmtNum(selected.dd)}%`], ['EDD', fmtNum(selected.edd)],
+    ['Score', String(selected.score)], ['Trend', selected.trend], ['Status', selected.status], ['Status tiếng Việt', selected.statusvi],
+    ['Lý do', selected.statusreason || '--'], ['AutoTrade', selected.autotrade], ['Mode', selected.timeMode], ['Lot runtime 1', fmtNum(selected.runlot1)],
+    ['Lot runtime 2', fmtNum(selected.runlot2)], ['Lot runtime 3', fmtNum(selected.runlot3)], ['Lot runtime 4', fmtNum(selected.runlot4)], ['Lot runtime 5', fmtNum(selected.runlot5)],
+    ['Remote status', selected.remotestatus], ['Remote last', selected.remotelast], ['Scope', selected.scope], ['UpdatedAt', selected.updatedAt || '--'],
+    ['Timestamp', String(selected.ts || '--')], ['Heartbeat', fmtAgo(selected.ts)]
+  ];
+  els.detailGrid.innerHTML = list.map(([k,v]) => metricCard(escapeHtml(k), escapeHtml(v))).join('');
+  els.rawJson.textContent = JSON.stringify(selected.raw, null, 2);
+}
 function updateHeader(items){
   const online = items.filter(x => heartbeatState(x).online).length;
   els.metaText.textContent = isConfigured() ? `Realtime ${online}/${items.length} bot • ${fetchEpochSec ? new Date(fetchEpochSec * 1000).toLocaleTimeString('vi-VN') : '--'}` : 'Chưa cấu hình link heartbeat.';
@@ -731,6 +796,14 @@ function updateHeader(items){
     els.globalState.textContent = 'Mất heartbeat';
   }
 }
+function getNormItems(){
+  return Array.isArray(lastPayload?.items) ? lastPayload.items.map(normItem) : [];
+}
+function getSelectedItem(items){
+  if(!items.length) return null;
+  if(!state.selectedKey || !items.some(x => x.key === state.selectedKey)) state.selectedKey = items[0].key;
+  return items.find(x => x.key === state.selectedKey) || items[0] || null;
+}
 function populateBotSelect(items){
   const filtered = selectedItems(items);
   const source = filtered.length ? filtered : items;
@@ -740,50 +813,32 @@ function populateBotSelect(items){
   els.botSelect.value = state.selectedKey;
 }
 function renderCpanel(items){
-  if(!sessionAdmin) return;
+  if(!isAdminUnlocked()) return;
   populateBotSelect(items);
-  const selected = items.find(x => x.key === state.selectedKey) || items[0] || null;
+  const selected = getSelectedItem(items);
   if(!selected){
-    els.detailGrid.innerHTML = '<div class="empty">Chưa có bot để điều khiển.</div>';
-    els.rawJson.textContent = '{}';
     els.cpanelState.textContent = 'Chưa chọn bot';
     return;
   }
   const hb = heartbeatState(selected);
   els.cpanelState.textContent = `${selected.bot} • ${hb.label}`;
-  els.detailGrid.innerHTML = [
-    ['Bot', escapeHtml(selected.bot), 'blue'],
-    ['ID', escapeHtml(selected.id || '--'), 'blue'],
-    ['Symbol', escapeHtml(selected.symbol), 'blue'],
-    ['Status', escapeHtml(selected.status || '--'), hb.online ? 'green' : 'red'],
-    ['Balance', fmtNum(selected.balance), 'blue'],
-    ['Equity', fmtNum(selected.equity), 'blue'],
-    ['Lãi vốn thực', fmtNum(selected.realProfit), selected.realProfit >= 0 ? 'green' : 'red'],
-    ['% vốn thực', `${fmtNum(selected.realPct)}%`, selected.realPct >= 0 ? 'green' : 'red'],
-    ['Tổng hôm nay', fmtNum(selected.dayTotal), selected.dayTotal >= 0 ? 'green' : 'red'],
-    ['DD', `${fmtNum(selected.dd)}%`, selected.dd > 0 ? 'red' : 'blue'],
-    ['Mode', escapeHtml(selected.timeMode), 'blue'],
-    ['Heartbeat', fmtAgo(selected.ts), hb.online ? 'green' : 'yellow'],
-    ['Lý do', escapeHtml(selected.reason || '--'), 'muted'],
-    ['Command path', escapeHtml(state.commandPath || '/panel/command'), 'muted'],
-  ].map(([k,v,cls]) => metricCard(k,v,cls)).join('');
-  els.rawJson.textContent = JSON.stringify(selected.raw, null, 2);
 }
 function setDiagnostic(text){ els.diagnosticText.textContent = text; }
-function renderAll(payload){
-  const items = Array.isArray(payload?.items) ? payload.items.map(normItem) : [];
+function renderAll(){
+  const items = getNormItems();
   updateHistory(items);
   updateHeader(items);
   renderHome(items);
   renderCalendar(selectedItems(items).length ? selectedItems(items) : items);
+  renderBotDetail(items);
   renderCpanel(items);
-  setDiagnostic(`Auto ${state.autoRefresh ? 'ON' : 'OFF'} • Refresh ${state.refreshMs}ms • Kết nối ${isConfigured() ? 'đã lưu' : 'chưa lưu'} • CPanel ${sessionAdmin ? 'mở' : 'khóa'}`);
+  setDiagnostic(`Auto ${state.autoRefresh ? 'ON' : 'OFF'} • Refresh ${state.refreshMs}ms • Kết nối ${isConfigured() ? 'đã lưu' : 'chưa lưu'} • CPanel ${isAdminUnlocked() ? 'mở' : 'khóa'}`);
 }
 async function fetchSummary(){
   if(!isConfigured()){
     fetchEpochSec = Math.floor(Date.now()/1000);
     lastPayload = { items: [] };
-    renderAll(lastPayload);
+    renderAll();
     return;
   }
   const base = state.baseUrl.replace(/\/$/, '');
@@ -794,7 +849,8 @@ async function fetchSummary(){
     const json = await res.json();
     fetchEpochSec = parseTimestamp(json.server_time) || Math.floor(Date.now()/1000);
     lastPayload = json;
-    renderAll(json);
+    await fetchSelectedBotDetail();
+    renderAll();
   } catch(err){
     fetchEpochSec = Math.floor(Date.now()/1000);
     els.globalDot.className = 'dot offline';
@@ -803,30 +859,57 @@ async function fetchSummary(){
     setDiagnostic(`Lỗi: ${err.message}`);
   }
 }
+async function fetchSelectedBotDetail(){
+  if(!isConfigured()) return;
+  const items = Array.isArray(lastPayload?.items) ? lastPayload.items.map(normItem) : [];
+  const selected = getSelectedItem(items);
+  if(!selected) return;
+  const base = state.baseUrl.replace(/\/$/, '');
+  const qs = new URLSearchParams({ token: state.token, id: selected.id || '', bot: selected.bot || '', symbol: selected.symbol || '' });
+  try{
+    const res = await fetch(`${base}/panel/bot?${qs.toString()}&_=${Date.now()}`, { cache:'no-store' });
+    if(!res.ok) return;
+    const json = await res.json();
+    if(json?.item){
+      const key = itemKey(json.item);
+      detailMap.set(key, json.item);
+    }
+  }catch{}
+}
 function restartAuto(){
   if(timer) clearInterval(timer);
   if(!state.autoRefresh) return;
   timer = setInterval(fetchSummary, state.refreshMs);
 }
 function activateTab(tab){
-  if(tab === 'cpanel' && !sessionAdmin) tab = 'settings';
+  if(tab === 'cpanel' && !isAdminUnlocked()) tab = 'settings';
   els.navBtns.forEach(btn => btn.classList.toggle('active', btn.dataset.tab === tab));
   els.views.forEach(view => view.classList.toggle('active', view.id === `view-${tab}`));
 }
+function openBotDetail(key){
+  state.selectedKey = key;
+  persistSettings();
+  fetchSelectedBotDetail().finally(() => {
+    renderAll();
+    activateTab('bot');
+  });
+}
 async function sendCommand(cmd, extras = {}){
-  if(!sessionAdmin){ els.commandResult.textContent = 'CPanel đang khóa.'; return; }
-  const items = Array.isArray(lastPayload?.items) ? lastPayload.items.map(normItem) : [];
-  const bot = items.find(x => x.key === state.selectedKey);
+  if(!isAdminUnlocked()){ els.commandResult.textContent = 'CPanel đang khóa.'; return; }
+  const items = getNormItems();
+  const bot = getSelectedItem(items);
   if(!bot){ els.commandResult.textContent = 'Chưa chọn bot.'; return; }
   const base = state.baseUrl.replace(/\/$/, '');
   const path = String(state.commandPath || '/panel/command').trim();
-  const params = { token: state.token, id: bot.id || '', bot: bot.bot || '', symbol: bot.symbol || '', cmd, ...extras };
-  if(state.adminSecret) params.admin_secret = state.adminSecret;
-  const qs = new URLSearchParams(params);
-  const url = `${base}${path.startsWith('/') ? path : '/' + path}?${qs.toString()}`;
+  const body = { token: state.token, session_token: state.adminSessionToken, id: bot.id || '', bot: bot.bot || '', symbol: bot.symbol || '', cmd, ...extras };
   els.commandResult.textContent = `Đang gửi: ${cmd}`;
   try{
-    const res = await fetch(url, { method:'GET', cache:'no-store' });
+    const res = await fetch(`${base}${path.startsWith('/') ? path : '/' + path}`, {
+      method:'POST',
+      headers:{ 'Content-Type':'application/json' },
+      body: JSON.stringify(body),
+      cache:'no-store'
+    });
     const text = await res.text();
     els.commandResult.textContent = `HTTP ${res.status} • ${text.slice(0, 220) || '(rỗng)'}`;
     fetchSummary();
@@ -834,19 +917,62 @@ async function sendCommand(cmd, extras = {}){
     els.commandResult.textContent = `Lỗi gửi lệnh: ${err.message}`;
   }
 }
-function lockAdmin(){
-  sessionAdmin = false;
+async function unlockAdmin(){
+  if(!isConfigured()){ setDiagnostic('Hãy lưu kết nối trước.'); return; }
+  const pin = els.adminUnlockPin.value.trim();
+  if(!pin){ setDiagnostic('Hãy nhập PIN quản trị.'); return; }
+  const base = state.baseUrl.replace(/\/$/, '');
+  try{
+    const res = await fetch(`${base}/panel/admin/unlock`, {
+      method:'POST',
+      headers:{ 'Content-Type':'application/json' },
+      body: JSON.stringify({ token: state.token, pin }),
+      cache:'no-store'
+    });
+    const json = await res.json();
+    if(!res.ok || !json.ok) throw new Error(json.error || `HTTP ${res.status}`);
+    state.adminSessionToken = json.session_token || '';
+    state.adminSessionExpiresAt = Number(json.expires_at_ms || 0);
+    persistSettings();
+    els.adminUnlockPin.value = '';
+    updateStatusBoxes();
+    activateTab('cpanel');
+    setDiagnostic('Đã mở khóa admin bằng PIN từ server.');
+  }catch(err){
+    setDiagnostic(`Mở khóa thất bại: ${err.message}`);
+  }
+}
+async function lockAdmin(){
+  if(isConfigured() && state.adminSessionToken){
+    const base = state.baseUrl.replace(/\/$/, '');
+    try{
+      await fetch(`${base}/panel/admin/lock`, {
+        method:'POST',
+        headers:{ 'Content-Type':'application/json' },
+        body: JSON.stringify({ token: state.token, session_token: state.adminSessionToken }),
+        cache:'no-store'
+      });
+    }catch{}
+  }
+  state.adminSessionToken = '';
+  state.adminSessionExpiresAt = 0;
+  persistSettings();
   updateStatusBoxes();
   if(document.querySelector('.view.active')?.id === 'view-cpanel') activateTab('home');
+}
+function syncTopPadding(){
+  const h = els.topBar.offsetHeight || 120;
+  document.documentElement.style.setProperty('--top-h', `${h}px`);
 }
 
 els.navBtns.forEach(btn => btn.addEventListener('click', () => activateTab(btn.dataset.tab)));
 els.refreshBtn.addEventListener('click', fetchSummary);
-els.search.addEventListener('input', () => { if(lastPayload) renderAll(lastPayload); });
+els.search.addEventListener('input', () => renderAll());
 els.saveConnectionBtn.addEventListener('click', () => {
   state.baseUrl = els.baseUrl.value.trim();
   state.token = els.token.value.trim();
   state.refreshMs = Math.max(1000, Number(els.refreshMs.value) || 1500);
+  state.commandPath = els.commandPath.value.trim() || '/panel/command';
   persistSettings();
   restartAuto();
   fetchSummary();
@@ -857,7 +983,8 @@ els.toggleAutoBtn.addEventListener('click', () => {
   persistSettings();
   restartAuto();
 });
-els.clearConnectionBtn.addEventListener('click', () => {
+els.clearConnectionBtn.addEventListener('click', async () => {
+  await lockAdmin();
   state.baseUrl = '';
   state.token = '';
   els.baseUrl.value = '';
@@ -868,62 +995,28 @@ els.clearConnectionBtn.addEventListener('click', () => {
 els.clearHistoryBtn.addEventListener('click', () => {
   historyStore = {};
   saveJson(HISTORY_KEY, historyStore);
-  if(lastPayload) renderAll(lastPayload); else fetchSummary();
+  renderAll();
 });
-els.saveAdminBtn.addEventListener('click', async () => {
-  const pin = els.adminPinNew.value.trim();
-  const pin2 = els.adminPinConfirm.value.trim();
-  state.adminSecret = els.adminSecret.value.trim();
-  if(!pin || pin.length < 4){ setDiagnostic('PIN admin cần ít nhất 4 ký tự.'); persistSettings(); return; }
-  if(pin !== pin2){ setDiagnostic('PIN admin nhập lại chưa khớp.'); return; }
-  state.adminPinHash = await sha256(pin);
-  persistSettings();
-  els.adminPinNew.value = '';
-  els.adminPinConfirm.value = '';
-  setDiagnostic('Đã lưu PIN admin và admin secret cục bộ.');
-});
-els.removeAdminBtn.addEventListener('click', () => {
-  state.adminPinHash = '';
-  state.adminSecret = '';
-  els.adminSecret.value = '';
-  lockAdmin();
-  persistSettings();
-  setDiagnostic('Đã xóa PIN admin trên thiết bị này.');
-});
-els.unlockAdminBtn.addEventListener('click', async () => {
-  const pin = els.adminUnlockPin.value.trim();
-  if(!state.adminPinHash){ setDiagnostic('Chưa có PIN admin để mở khóa.'); return; }
-  const hash = await sha256(pin);
-  if(hash !== state.adminPinHash){ setDiagnostic('PIN admin không đúng.'); return; }
-  sessionAdmin = true;
-  state.adminSecret = els.adminSecret.value.trim();
-  persistSettings();
-  els.adminUnlockPin.value = '';
-  updateStatusBoxes();
-  if(lastPayload) renderCpanel(lastPayload.items ? lastPayload.items.map(normItem) : []);
-  activateTab('cpanel');
-  setDiagnostic('Đã mở khóa CPanel trên thiết bị này.');
-});
-els.lockSettingsBtn.addEventListener('click', () => { lockAdmin(); setDiagnostic('Đã khóa lại admin.'); });
-els.lockAdminBtn.addEventListener('click', () => { lockAdmin(); setDiagnostic('Đã khóa lại admin.'); });
+els.unlockAdminBtn.addEventListener('click', unlockAdmin);
+els.lockSettingsBtn.addEventListener('click', async () => { await lockAdmin(); setDiagnostic('Đã khóa lại admin.'); });
+els.lockAdminBtn.addEventListener('click', async () => { await lockAdmin(); setDiagnostic('Đã khóa lại admin.'); });
 els.useSearchBtn.addEventListener('click', () => {
-  const items = Array.isArray(lastPayload?.items) ? lastPayload.items.map(normItem) : [];
+  const items = getNormItems();
   const filtered = selectedItems(items);
-  if(filtered[0]){
-    state.selectedKey = filtered[0].key;
-    persistSettings();
-    renderCpanel(items);
-  }
+  if(filtered[0]) openBotDetail(filtered[0].key);
 });
-els.botSelect.addEventListener('change', () => { state.selectedKey = els.botSelect.value; persistSettings(); renderCpanel(lastPayload?.items ? lastPayload.items.map(normItem) : []); });
+els.botSelect.addEventListener('change', () => { state.selectedKey = els.botSelect.value; persistSettings(); fetchSelectedBotDetail().finally(renderAll); });
 els.cmdBtns.forEach(btn => btn.addEventListener('click', () => sendCommand(btn.dataset.cmd)));
 els.applyLotsBtn.addEventListener('click', () => {
   const extras = {};
   els.lotInputs.forEach(input => { if(input.value.trim()) extras[input.dataset.lot] = input.value.trim(); });
   sendCommand('apply_lots', extras);
 });
+window.addEventListener('resize', syncTopPadding);
+window.addEventListener('orientationchange', syncTopPadding);
 
 loadSettings();
+syncTopPadding();
 updateStatusBoxes();
 fetchSummary();
 restartAuto();
