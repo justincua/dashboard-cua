@@ -3,692 +3,852 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-  <title>JustinCua App Monitor</title>
+  <title>JustinCua Bot</title>
   <style>
     :root{
       --bg:#07101f;
-      --bg2:#0b1428;
+      --bg2:#0d1730;
       --panel:#111b31;
-      --panel-2:#162340;
+      --panel2:#162547;
       --card:#0f1830;
       --text:#eff5ff;
-      --muted:#8ea1c8;
+      --muted:#90a3ca;
       --line:rgba(255,255,255,.08);
-      --line2:rgba(255,255,255,.06);
-      --blue:#52a7ff;
+      --line2:rgba(255,255,255,.05);
+      --blue:#5aa8ff;
       --cyan:#47d9ff;
-      --green:#25d07b;
-      --red:#ff6678;
+      --green:#29d07d;
+      --red:#ff6b7b;
       --yellow:#ffc857;
-      --shadow:0 16px 44px rgba(0,0,0,.36);
-      --radius:24px;
-      --safe-bottom: max(18px, env(safe-area-inset-bottom));
+      --shadow:0 18px 48px rgba(0,0,0,.35);
+      --safe-bottom:max(14px, env(safe-area-inset-bottom));
     }
     *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-    html,body{margin:0;padding:0;background:radial-gradient(circle at top,#16274a 0%,#0b1325 34%,var(--bg) 100%);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;overflow:hidden}
+    html,body{margin:0;padding:0;background:radial-gradient(circle at top,#182b55 0%,#0b1327 36%,var(--bg) 100%);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;overflow:hidden}
     body{min-height:100vh;display:grid;place-items:center}
-    .shell{
-      width:min(430px,100vw);
-      height:min(900px,100vh);
-      background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.015));
-      border:1px solid rgba(255,255,255,.07);
-      border-radius:32px;
-      overflow:hidden;
-      position:relative;
-      box-shadow:var(--shadow);
-      backdrop-filter: blur(14px);
-      isolation:isolate;
-    }
-    @media (max-width: 520px){
-      .shell{width:100vw;height:100vh;border-radius:0;border:none}
-      body{display:block}
-    }
-    .shell::before{
-      content:"";position:absolute;inset:auto -25% 58% auto;width:220px;height:220px;
-      background:radial-gradient(circle,rgba(71,217,255,.18),rgba(71,217,255,0));pointer-events:none;
-    }
-    .shell::after{
-      content:"";position:absolute;inset:-10% auto auto -30%;width:240px;height:240px;
-      background:radial-gradient(circle,rgba(82,167,255,.18),rgba(82,167,255,0));pointer-events:none;
-    }
-
-    .screen{position:absolute;inset:0;display:flex;flex-direction:column;background:linear-gradient(180deg,rgba(9,15,30,.6),rgba(9,15,30,.98));}
-    .top{
-      padding:18px 18px 12px;
-      border-bottom:1px solid var(--line2);
-      background:linear-gradient(180deg,rgba(255,255,255,.045),rgba(255,255,255,.015));
-      backdrop-filter: blur(14px);
-      z-index:3;
-    }
+    .shell{width:min(440px,100vw);height:min(920px,100vh);position:relative;overflow:hidden;background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.015));border:1px solid rgba(255,255,255,.07);border-radius:32px;box-shadow:var(--shadow);backdrop-filter:blur(16px)}
+    @media (max-width:520px){body{display:block}.shell{width:100vw;height:100vh;border:none;border-radius:0}}
+    .shell:before{content:"";position:absolute;right:-24%;top:-6%;width:220px;height:220px;background:radial-gradient(circle,rgba(71,217,255,.18),rgba(71,217,255,0));pointer-events:none}
+    .shell:after{content:"";position:absolute;left:-26%;bottom:40%;width:230px;height:230px;background:radial-gradient(circle,rgba(90,168,255,.18),rgba(90,168,255,0));pointer-events:none}
+    .screen{position:absolute;inset:0;display:flex;flex-direction:column;background:linear-gradient(180deg,rgba(8,12,24,.58),rgba(8,12,24,.98))}
+    .top{padding:18px 16px 12px;border-bottom:1px solid var(--line2);background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.015));backdrop-filter:blur(15px);z-index:3}
     .head{display:flex;align-items:center;justify-content:space-between;gap:12px}
     .brand{min-width:0}
-    .title{font-size:20px;font-weight:900;letter-spacing:.25px}
+    .title{font-size:20px;font-weight:900;letter-spacing:.3px}
     .sub{font-size:12px;color:var(--muted);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
     .top-actions{display:flex;gap:10px;align-items:center}
-    .circle-btn{
-      width:40px;height:40px;border-radius:999px;border:1px solid var(--line);background:rgba(255,255,255,.05);color:var(--text);
-      display:grid;place-items:center;cursor:pointer;font-size:16px
-    }
-    .pill{
-      display:inline-flex;align-items:center;gap:8px;height:34px;padding:0 12px;border-radius:999px;
-      border:1px solid var(--line);background:rgba(255,255,255,.05);font-size:12px;font-weight:800
-    }
+    .pill{display:inline-flex;align-items:center;gap:8px;min-height:34px;padding:0 12px;border-radius:999px;border:1px solid var(--line);background:rgba(255,255,255,.05);font-size:12px;font-weight:800}
     .dot{width:8px;height:8px;border-radius:50%}
-    .dot.online{background:var(--green)}
-    .dot.offline{background:var(--red)}
-    .dot.warn{background:var(--yellow)}
-
+    .dot.online{background:var(--green)} .dot.warn{background:var(--yellow)} .dot.offline{background:var(--red)}
+    .circle-btn{width:40px;height:40px;border-radius:999px;border:1px solid var(--line);background:rgba(255,255,255,.05);display:grid;place-items:center;color:var(--text);cursor:pointer}
     .searchbar{margin-top:12px;display:flex;gap:10px}
-    .input{
-      width:100%;height:46px;border-radius:16px;border:1px solid var(--line);outline:none;background:rgba(255,255,255,.045);
-      color:var(--text);padding:0 14px;font-size:14px
-    }
-    .content{flex:1;overflow:auto;padding:14px 14px calc(92px + var(--safe-bottom));scrollbar-width:none}
+    .input,.select,textarea{width:100%;border-radius:16px;border:1px solid var(--line);background:rgba(255,255,255,.045);color:var(--text);outline:none}
+    .input,.select{height:46px;padding:0 14px;font-size:14px}
+    textarea{min-height:170px;padding:14px;font-size:12px;resize:vertical}
+    .content{flex:1;overflow:auto;padding:14px 14px calc(96px + var(--safe-bottom));scrollbar-width:none}
     .content::-webkit-scrollbar{display:none}
     .view{display:none;animation:fade .18s ease}
     .view.active{display:block}
-    @keyframes fade{from{opacity:.3;transform:translateY(4px)}to{opacity:1;transform:none}}
+    @keyframes fade{from{opacity:.35;transform:translateY(4px)}to{opacity:1;transform:none}}
 
-    .hero-card, .panel, .bot-card, .list-card, .settings-card{
-      background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.025));
-      border:1px solid var(--line);
-      border-radius:24px;
-      box-shadow:var(--shadow);
-    }
-    .hero-card{padding:16px 16px 14px;position:relative;overflow:hidden}
-    .hero-card::after{content:"";position:absolute;inset:auto -16% -52% auto;width:190px;height:190px;background:radial-gradient(circle,rgba(82,167,255,.18),rgba(82,167,255,0));pointer-events:none}
-    .hero-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
-    .hero-name{font-size:22px;font-weight:900;line-height:1.1}
+    .card,.panel,.hero,.bot-card,.calendar-wrap,.raw-wrap{background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.025));border:1px solid var(--line);border-radius:24px;box-shadow:var(--shadow)}
+    .hero{padding:16px;position:relative;overflow:hidden}
+    .hero:after{content:"";position:absolute;right:-20%;bottom:-40%;width:180px;height:180px;background:radial-gradient(circle,rgba(90,168,255,.18),rgba(90,168,255,0));pointer-events:none}
+    .hero-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+    .hero-name{font-size:22px;font-weight:900;line-height:1.08}
     .hero-meta{font-size:12px;color:var(--muted);margin-top:6px}
-    .status-badge{padding:10px 12px;border-radius:999px;border:1px solid var(--line);font-size:12px;font-weight:900;white-space:nowrap}
-    .status-badge.running{background:rgba(37,208,123,.12);color:var(--green)}
-    .status-badge.paused{background:rgba(255,102,120,.12);color:var(--red)}
-    .status-badge.stale{background:rgba(255,200,87,.12);color:var(--yellow)}
+    .badge{padding:9px 12px;border-radius:999px;border:1px solid var(--line);font-size:12px;font-weight:900;white-space:nowrap}
+    .badge.running{background:rgba(41,208,125,.12);color:var(--green)}
+    .badge.paused{background:rgba(255,107,123,.12);color:var(--red)}
+    .badge.stale{background:rgba(255,200,87,.12);color:var(--yellow)}
+    .badge.info{background:rgba(90,168,255,.14);color:var(--blue)}
 
-    .stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
-    .mini{
-      padding:12px;border-radius:18px;background:rgba(255,255,255,.03);border:1px solid var(--line2);min-height:86px
-    }
+    .grid-2,.grid-3,.grid-4{display:grid;gap:10px}
+    .grid-2{grid-template-columns:repeat(2,1fr)}
+    .grid-3{grid-template-columns:repeat(3,1fr)}
+    .grid-4{grid-template-columns:repeat(2,1fr)}
+    .mini{padding:12px;border-radius:18px;background:rgba(255,255,255,.03);border:1px solid var(--line2);min-height:86px}
     .mini .k{font-size:11px;color:var(--muted);margin-bottom:8px}
-    .mini .v{font-size:14px;font-weight:800;line-height:1.2}
-    .mini .big{font-size:30px;font-weight:900;line-height:1}
+    .mini .v{font-size:16px;font-weight:800;line-height:1.2}
+    .mini .big{font-size:28px;font-weight:900;line-height:1}
     .green{color:var(--green)} .red{color:var(--red)} .yellow{color:var(--yellow)} .blue{color:var(--blue)} .muted{color:var(--muted)}
 
     .section{margin-top:14px}
-    .section-head{display:flex;align-items:center;justify-content:space-between;margin:0 4px 10px}
-    .section-title{font-size:13px;font-weight:900;letter-spacing:.5px;color:#d8e8ff}
-    .section-note{font-size:11px;color:var(--muted)}
-
+    .section-head{display:flex;align-items:center;justify-content:space-between;margin:0 4px 10px;gap:10px}
+    .section-title{font-size:13px;font-weight:900;letter-spacing:.45px;color:#dbe8ff}
+    .section-note{font-size:11px;color:var(--muted);text-align:right}
+    .panel{padding:14px}
     .chips{display:flex;gap:8px;flex-wrap:wrap}
-    .chip{padding:8px 12px;border-radius:999px;background:rgba(255,255,255,.04);border:1px solid var(--line);font-size:12px;color:var(--muted)}
+    .chip{padding:8px 12px;border-radius:999px;border:1px solid var(--line);background:rgba(255,255,255,.04);font-size:12px;color:var(--muted)}
     .chip strong{color:var(--text)}
 
-    .panel{padding:14px}
-    .summary-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+    .calendar-wrap{padding:14px}
+    .month-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
+    .month-name{font-size:15px;font-weight:900}
+    .calendar-weekdays,.calendar-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:8px}
+    .calendar-weekdays div{font-size:11px;color:var(--muted);text-align:center;padding-bottom:2px}
+    .day{min-height:78px;border-radius:16px;border:1px solid var(--line2);background:rgba(255,255,255,.03);padding:8px;display:flex;flex-direction:column;gap:6px;justify-content:flex-start}
+    .day.empty{background:transparent;border:1px dashed transparent}
+    .day.today{box-shadow:inset 0 0 0 1px rgba(90,168,255,.35)}
+    .day-num{font-size:11px;color:#dfe9ff;font-weight:800}
+    .day-profit{font-size:11px;font-weight:900;line-height:1.2}
+    .day-base{font-size:10px;color:var(--muted);line-height:1.2}
 
     .bot-list{display:grid;gap:10px}
     .bot-card{padding:14px}
-    .bot-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+    .bot-top{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
     .bot-name{font-size:17px;font-weight:900}
     .bot-meta{font-size:12px;color:var(--muted);margin-top:4px}
-    .kv{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
-    .kv .mini{min-height:0;padding:10px;border-radius:16px}
-    .kv .v{font-size:16px}
+    .bot-kv{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
+    .bot-kv .mini{min-height:0;padding:10px}
+    .bot-kv .v{font-size:15px}
 
-    .rank-list{display:grid;gap:10px}
-    .rank-item,.log-item{display:flex;gap:12px;align-items:flex-start;padding:12px;border-radius:18px;background:rgba(255,255,255,.035);border:1px solid var(--line2)}
-    .rank-num{width:34px;height:34px;border-radius:14px;display:grid;place-items:center;background:rgba(255,255,255,.06);font-weight:900}
-    .rank-main{flex:1;min-width:0}
-    .rank-title{font-size:14px;font-weight:900}
-    .rank-sub{font-size:12px;color:var(--muted);margin-top:3px}
-    .rank-val{text-align:right;font-size:14px;font-weight:900}
-
-    .log-item{display:block;font-size:13px;line-height:1.45}
-    .log-time{font-size:11px;color:var(--muted);margin-bottom:6px}
-
-    .settings-card{padding:14px;display:grid;gap:12px}
-    .field{display:grid;gap:7px}
+    .field{display:grid;gap:8px}
     .field label{font-size:12px;color:var(--muted)}
-    .setting-row{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center}
-    .btn{
-      height:44px;padding:0 16px;border-radius:16px;border:1px solid var(--line);background:linear-gradient(135deg,#2d8cff,#1ec7ff);color:white;font-weight:800;cursor:pointer
-    }
+    .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .row-3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+    .btn{height:44px;padding:0 14px;border-radius:16px;border:1px solid var(--line);background:linear-gradient(135deg,#2d8cff,#1ec7ff);color:white;font-weight:800;cursor:pointer}
     .btn.secondary{background:rgba(255,255,255,.04);color:var(--text)}
+    .btn.danger{background:linear-gradient(135deg,#f05b72,#ff7c6b)}
+    .btn.warn{background:linear-gradient(135deg,#eab43d,#ffcf5e);color:#322300}
     .btn.ghost{background:rgba(255,255,255,.03);color:var(--muted)}
-    .btn-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .btn:disabled{opacity:.45;cursor:not-allowed}
+
+    .cmd-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
     .tiny{font-size:11px;color:var(--muted);line-height:1.5}
     .empty{padding:18px;text-align:center;border-radius:18px;background:rgba(255,255,255,.03);border:1px dashed var(--line);color:var(--muted)}
+    .raw-wrap{padding:14px}
+    pre{margin:0;white-space:pre-wrap;word-break:break-word;font-size:12px;line-height:1.48;color:#dfeaff}
 
-    .nav{
-      position:absolute;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom));
-      display:grid;grid-template-columns:repeat(5,1fr);gap:8px;padding:10px;border-radius:24px;
-      background:rgba(10,16,31,.92);border:1px solid var(--line);backdrop-filter:blur(18px);z-index:5
-    }
-    .nav-btn{
-      border:none;background:transparent;color:var(--muted);padding:8px 4px;border-radius:16px;cursor:pointer;
-      display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;font-size:11px;font-weight:800
-    }
+    .nav{position:absolute;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom));display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:10px;border-radius:24px;background:rgba(10,16,31,.93);border:1px solid var(--line);backdrop-filter:blur(18px);z-index:5}
+    .nav-btn{border:none;background:transparent;color:var(--muted);padding:8px 4px;border-radius:16px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;font-size:11px;font-weight:800}
     .nav-btn .icon{font-size:17px;line-height:1}
-    .nav-btn.active{background:rgba(82,167,255,.14);color:var(--text);box-shadow:inset 0 0 0 1px rgba(82,167,255,.16)}
-    .hidden{display:none !important}
+    .nav-btn.active{background:rgba(90,168,255,.14);color:var(--text);box-shadow:inset 0 0 0 1px rgba(90,168,255,.16)}
   </style>
 </head>
 <body>
-  <div class="shell">
-    <div class="screen">
-      <div class="top">
-        <div class="head">
-          <div class="brand">
-            <div class="title">JUSTINCUA APP</div>
-            <div class="sub" id="metaText">Đang tải dữ liệu realtime...</div>
-          </div>
-          <div class="top-actions">
-            <div class="pill"><span class="dot warn" id="globalDot"></span><span id="globalState">Đang đồng bộ</span></div>
-            <button class="circle-btn" id="refreshBtn" aria-label="Làm mới">↻</button>
-          </div>
+<div class="shell">
+  <div class="screen">
+    <div class="top">
+      <div class="head">
+        <div class="brand">
+          <div class="title">JUSTINCUA BOT APP</div>
+          <div class="sub" id="metaText">Đang tải dữ liệu realtime...</div>
         </div>
-        <div class="searchbar">
-          <input class="input" id="search" placeholder="Tìm ID, bot, symbol..." />
+        <div class="top-actions">
+          <div class="pill"><span class="dot warn" id="globalDot"></span><span id="globalState">Đang đồng bộ</span></div>
+          <button class="circle-btn" id="refreshBtn" aria-label="Làm mới">↻</button>
         </div>
       </div>
+      <div class="searchbar">
+        <input class="input" id="search" placeholder="Nhập ID hoặc tên bot để lọc..." />
+      </div>
+    </div>
 
-      <div class="content">
-        <section class="view active" id="view-home">
-          <div class="hero-card" id="heroCard"></div>
+    <div class="content">
+      <section class="view active" id="view-home">
+        <div class="hero" id="heroCard"></div>
 
-          <div class="section">
-            <div class="section-head">
-              <div class="section-title">TỔNG QUAN</div>
-              <div class="section-note" id="summaryTime">--</div>
-            </div>
-            <div class="panel">
-              <div class="summary-grid" id="summaryGrid"></div>
-            </div>
-          </div>
-
-          <div class="section">
-            <div class="section-head">
-              <div class="section-title">TRẠNG THÁI NHANH</div>
-              <div class="section-note">1 khung hình, kiểu app</div>
-            </div>
-            <div class="chips" id="quickChips"></div>
-          </div>
-        </section>
-
-        <section class="view" id="view-bots">
+        <div class="section">
           <div class="section-head">
-            <div class="section-title">DANH SÁCH BOT</div>
+            <div class="section-title">TỔNG QUAN THÁNG</div>
+            <div class="section-note" id="summaryTime">--</div>
+          </div>
+          <div class="panel">
+            <div class="grid-4" id="summaryGrid"></div>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-head">
+            <div class="section-title">LỌC HIỆN TẠI</div>
+            <div class="section-note" id="filterNote">Tất cả bot</div>
+          </div>
+          <div class="chips" id="quickChips"></div>
+        </div>
+
+        <div class="section">
+          <div class="section-head">
+            <div class="section-title">PROFIT THÁNG DẠNG LỊCH</div>
+            <div class="section-note">Dùng số dư đầu ngày và equity hiện tại</div>
+          </div>
+          <div class="calendar-wrap">
+            <div class="month-head">
+              <div class="month-name" id="monthName">--</div>
+              <div class="badge info" id="monthTotalBadge">--</div>
+            </div>
+            <div class="calendar-weekdays">
+              <div>CN</div><div>2</div><div>3</div><div>4</div><div>5</div><div>6</div><div>7</div>
+            </div>
+            <div class="calendar-grid" id="calendarGrid"></div>
+            <div class="tiny" style="margin-top:10px" id="calendarHint"></div>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-head">
+            <div class="section-title">BOT KHỚP TÌM KIẾM</div>
             <div class="section-note" id="botsCount">0 bot</div>
           </div>
           <div class="bot-list" id="botList"></div>
-        </section>
+        </div>
+      </section>
 
-        <section class="view" id="view-profit">
-          <div class="section">
-            <div class="section-head">
-              <div class="section-title">TOP % VỐN THỰC</div>
-              <div class="section-note">xếp hạng realtime</div>
-            </div>
-            <div class="panel">
-              <div class="rank-list" id="rankPct"></div>
-            </div>
-          </div>
-          <div class="section">
-            <div class="section-head">
-              <div class="section-title">TOP LÃI VỐN THỰC</div>
-              <div class="section-note">profit thực</div>
-            </div>
-            <div class="panel">
-              <div class="rank-list" id="rankProfit"></div>
-            </div>
-          </div>
-        </section>
-
-        <section class="view" id="view-logs">
-          <div class="section-head">
-            <div class="section-title">LOG / NHẬT KÝ CẦU NỐI</div>
-            <div class="section-note">server + trạng thái web</div>
-          </div>
-          <div class="panel">
-            <div class="rank-list" id="logList"></div>
-          </div>
-        </section>
-
-        <section class="view" id="view-settings">
-          <div class="settings-card">
+      <section class="view" id="view-cpanel">
+        <div class="panel">
+          <div class="row">
             <div class="field">
-              <label>Bridge URL</label>
-              <input class="input" id="baseUrl" value="https://cpanel-production.up.railway.app" />
+              <label>Link heartbeat / panel</label>
+              <input class="input" id="baseUrl" value="" />
             </div>
             <div class="field">
               <label>Token</label>
               <input class="input" id="token" value="cua" />
             </div>
-            <div class="setting-row">
-              <div>
-                <div style="font-size:14px;font-weight:900">Tự làm mới</div>
-                <div class="tiny">Dùng cho giao diện app realtime.</div>
-              </div>
-              <button class="btn secondary" id="toggleAutoBtn">Tắt auto</button>
+          </div>
+          <div class="row" style="margin-top:10px">
+            <div class="field">
+              <label>Bot đang chọn</label>
+              <select class="select" id="botSelect"></select>
             </div>
             <div class="field">
-              <label>Chu kỳ làm mới (ms)</label>
-              <input class="input" id="refreshMs" type="number" min="500" step="500" value="1000" />
+              <label>Command path</label>
+              <input class="input" id="commandPath" value="/panel/command" />
             </div>
-            <div class="btn-row">
-              <button class="btn" id="applyBtn">Áp dụng</button>
-              <button class="btn ghost" id="resetBtn">Mặc định</button>
-            </div>
-            <div class="tiny" id="diagnosticText">Chưa có dữ liệu.</div>
           </div>
-        </section>
-      </div>
-
-      <nav class="nav">
-        <button class="nav-btn active" data-tab="home"><span class="icon">⌂</span><span>Home</span></button>
-        <button class="nav-btn" data-tab="bots"><span class="icon">◫</span><span>Bots</span></button>
-        <button class="nav-btn" data-tab="profit"><span class="icon">↗</span><span>Profit</span></button>
-        <button class="nav-btn" data-tab="logs"><span class="icon">☰</span><span>Logs</span></button>
-        <button class="nav-btn" data-tab="settings"><span class="icon">⚙</span><span>Menu</span></button>
-      </nav>
-    </div>
-  </div>
-
-  <script>
-    const els = {
-      baseUrl: document.getElementById('baseUrl'),
-      token: document.getElementById('token'),
-      search: document.getElementById('search'),
-      refreshBtn: document.getElementById('refreshBtn'),
-      toggleAutoBtn: document.getElementById('toggleAutoBtn'),
-      refreshMs: document.getElementById('refreshMs'),
-      applyBtn: document.getElementById('applyBtn'),
-      resetBtn: document.getElementById('resetBtn'),
-      metaText: document.getElementById('metaText'),
-      globalDot: document.getElementById('globalDot'),
-      globalState: document.getElementById('globalState'),
-      summaryTime: document.getElementById('summaryTime'),
-      heroCard: document.getElementById('heroCard'),
-      summaryGrid: document.getElementById('summaryGrid'),
-      quickChips: document.getElementById('quickChips'),
-      botsCount: document.getElementById('botsCount'),
-      botList: document.getElementById('botList'),
-      rankPct: document.getElementById('rankPct'),
-      rankProfit: document.getElementById('rankProfit'),
-      logList: document.getElementById('logList'),
-      diagnosticText: document.getElementById('diagnosticText'),
-      navBtns: [...document.querySelectorAll('.nav-btn')],
-      views: [...document.querySelectorAll('.view')],
-    };
-
-    let autoRefresh = true;
-    let timer = null;
-    let refreshInterval = 1000;
-    let lastPayload = null;
-    let fetchEpochSec = 0;
-    const seenMap = new Map();
-    const snapshotMap = new Map();
-
-    function escapeHtml(s){
-      return String(s ?? '')
-        .replaceAll('&','&amp;')
-        .replaceAll('<','&lt;')
-        .replaceAll('>','&gt;')
-        .replaceAll('"','&quot;')
-        .replaceAll("'",'&#39;');
-    }
-
-    function fmtNum(v, digits=2){
-      const n = Number(v);
-      if(!Number.isFinite(n)) return '--';
-      return n.toLocaleString('en-US',{minimumFractionDigits:digits,maximumFractionDigits:digits});
-    }
-
-    function fmtAgo(tsSec){
-      const t = Number(tsSec);
-      if(!Number.isFinite(t) || t <= 0) return 'không rõ';
-      const diff = Math.max(0, fetchEpochSec - t);
-      if(diff < 2) return 'vừa xong';
-      if(diff < 60) return `${diff}s trước`;
-      if(diff < 3600) return `${Math.floor(diff/60)}m trước`;
-      return `${Math.floor(diff/3600)}h trước`;
-    }
-
-    function parseTimestamp(v){
-      if(v == null || v === '') return 0;
-      if(typeof v === 'number'){
-        if(v > 1e12) return Math.floor(v/1000);
-        if(v > 1e9) return Math.floor(v);
-        return 0;
-      }
-      const s = String(v).trim();
-      if(!s) return 0;
-      if(/^\d+$/.test(s)){
-        const n = Number(s);
-        if(n > 1e12) return Math.floor(n/1000);
-        if(n > 1e9) return Math.floor(n);
-      }
-      const iso = Date.parse(s);
-      if(Number.isFinite(iso)) return Math.floor(iso/1000);
-      return 0;
-    }
-
-    function normMode(v){
-      const s = String(v ?? '--').trim();
-      if(!s) return '--';
-      if(s === 'mode_247') return '24/7';
-      return s;
-    }
-
-    function itemKey(raw){
-      const id = raw.id ?? raw.accountID ?? raw.accountId ?? raw.login ?? '';
-      const bot = raw.bot ?? raw.botName ?? raw.name ?? 'Unknown';
-      const symbol = raw.symbol ?? '--';
-      return `${id}|${bot}|${symbol}`;
-    }
-
-    function keepAliveByChange(key, core){
-      const prev = snapshotMap.get(key);
-      const serialized = JSON.stringify(core);
-      if(prev !== serialized){
-        snapshotMap.set(key, serialized);
-        seenMap.set(key, fetchEpochSec);
-      }
-    }
-
-    function normItem(raw){
-      const key = itemKey(raw);
-      const id = raw.id ?? raw.accountID ?? raw.accountId ?? raw.login ?? '';
-      const bot = raw.bot ?? raw.botName ?? raw.name ?? 'Unknown';
-      const symbol = raw.symbol ?? '--';
-      const balance = Number(raw.balance ?? raw.totalcapital ?? 0);
-      const equity = Number(raw.equity ?? raw.aftercapital ?? 0);
-      const realProfit = Number(raw.realProfit ?? raw.realprofit ?? 0);
-      const realPct = Number(raw.realPct ?? raw.realpct ?? 0);
-      const dayTotal = Number(raw.dayTotal ?? raw.afterprofit ?? raw.daytotal ?? 0);
-      const dd = Number(raw.dd ?? raw.maxdd ?? 0);
-      const status = String(raw.status ?? raw.statusvi ?? 'UNKNOWN').toUpperCase();
-      const timeMode = normMode(raw.timeMode ?? raw.timemode ?? '--');
-      const tsRaw = raw.ts ?? raw.lastTs ?? raw.lastSeenTs ?? raw.updatedAtTs ?? raw.updated_at_ts ?? raw.heartbeat_ts ?? raw.eaupdate ?? raw.updatedAt ?? raw.server_time ?? raw.last_seen;
-      const parsedTs = parseTimestamp(tsRaw);
-      const reason = raw.reason ?? raw.statusreason ?? raw.note ?? '';
-
-      keepAliveByChange(key, { balance, equity, realProfit, realPct, dayTotal, dd, status, timeMode });
-      if(parsedTs > 0) seenMap.set(key, parsedTs);
-      const ts = Math.max(parsedTs, seenMap.get(key) || 0);
-
-      return { key, id, bot, symbol, balance, equity, realProfit, realPct, dayTotal, dd, status, timeMode, ts, reason, raw };
-    }
-
-    function heartbeatState(item){
-      const age = item.ts > 0 ? Math.max(0, fetchEpochSec - item.ts) : 999999;
-      const run = item.status.includes('RUN');
-      const pause = item.status.includes('PAUSE');
-      if(age <= 15) return { label: run ? 'Đang online' : (pause ? 'Online / Pause' : 'Online'), cls: run ? 'running' : 'paused', online:true };
-      if(age <= 45) return { label: 'Heartbeat chậm', cls: 'stale', online:true };
-      return { label: 'Mất heartbeat', cls: 'stale', online:false };
-    }
-
-    function filterItems(items){
-      const q = els.search.value.trim().toLowerCase();
-      if(!q) return items;
-      return items.filter(x =>
-        String(x.id).toLowerCase().includes(q) ||
-        String(x.bot).toLowerCase().includes(q) ||
-        String(x.symbol).toLowerCase().includes(q)
-      );
-    }
-
-    function bestHero(items){
-      if(!items.length) return null;
-      return [...items].sort((a,b) => {
-        const ah = heartbeatState(a).online ? 1 : 0;
-        const bh = heartbeatState(b).online ? 1 : 0;
-        if(bh !== ah) return bh - ah;
-        return b.realPct - a.realPct;
-      })[0];
-    }
-
-    function metricCard(k,v,cls=''){ return `<div class="mini"><div class="k">${k}</div><div class="v ${cls}">${v}</div></div>`; }
-
-    function renderHome(items){
-      const hero = bestHero(items);
-      if(!hero){
-        els.heroCard.innerHTML = '<div class="empty">Chưa có bot nào để hiển thị.</div>';
-      } else {
-        const hb = heartbeatState(hero);
-        const pCls = hero.realProfit >= 0 ? 'green' : 'red';
-        const pctCls = hero.realPct >= 0 ? 'green' : 'red';
-        const dayCls = hero.dayTotal >= 0 ? 'green' : 'red';
-        els.heroCard.innerHTML = `
-          <div class="hero-top">
-            <div>
-              <div class="hero-name">${escapeHtml(hero.bot)}</div>
-              <div class="hero-meta">ID ${escapeHtml(hero.id || '--')} • ${escapeHtml(hero.symbol)} • ${escapeHtml(hero.timeMode)}</div>
-            </div>
-            <div class="status-badge ${hb.cls}">${hb.label}</div>
+          <div class="tiny" style="margin-top:10px">Phần hiển thị lấy từ heartbeat hiện tại. Nút điều khiển dùng command path bạn nhập.</div>
+          <div class="row" style="margin-top:10px">
+            <button class="btn" id="applyConnectionBtn">Kết nối</button>
+            <button class="btn secondary" id="useSearchBtn">Chọn theo ô tìm kiếm</button>
           </div>
-          <div class="stats-grid">
-            <div class="mini"><div class="k">Lãi vốn thực</div><div class="big ${pCls}">${fmtNum(hero.realProfit)}</div></div>
-            <div class="mini"><div class="k">% vốn thực</div><div class="big ${pctCls}">${fmtNum(hero.realPct)}%</div></div>
-            ${metricCard('Balance', fmtNum(hero.balance))}
-            ${metricCard('Equity', fmtNum(hero.equity))}
-            ${metricCard('Tổng hôm nay', `<span class="${dayCls}">${fmtNum(hero.dayTotal)}</span>`)}
-            ${metricCard('DD', `<span class="${hero.dd > 0 ? 'red' : 'blue'}">${fmtNum(hero.dd)}%</span>`)}
-          </div>
-        `;
-      }
-
-      const online = items.filter(x => heartbeatState(x).online).length;
-      const running = items.filter(x => x.status.includes('RUN')).length;
-      const paused = items.filter(x => x.status.includes('PAUSE')).length;
-      const totalProfit = items.reduce((sum, x) => sum + (Number.isFinite(x.realProfit) ? x.realProfit : 0), 0);
-      const avgPct = items.length ? (items.reduce((sum, x) => sum + (Number.isFinite(x.realPct) ? x.realPct : 0), 0) / items.length) : 0;
-      const sumEquity = items.reduce((sum, x) => sum + (Number.isFinite(x.equity) ? x.equity : 0), 0);
-
-      els.summaryGrid.innerHTML = [
-        ['Tổng bot', items.length, 'blue'],
-        ['Bot online', online, online ? 'green' : 'red'],
-        ['RUNNING', running, running ? 'green' : 'yellow'],
-        ['PAUSED', paused, paused ? 'red' : 'blue'],
-        ['Tổng equity', fmtNum(sumEquity), 'blue'],
-        ['Tổng lãi vốn thực', fmtNum(totalProfit), totalProfit >= 0 ? 'green' : 'red'],
-        ['TB % vốn thực', `${fmtNum(avgPct)}%`, avgPct >= 0 ? 'green' : 'red'],
-        ['Cập nhật', fetchEpochSec ? new Date(fetchEpochSec * 1000).toLocaleTimeString('vi-VN') : '--', 'muted'],
-      ].map(([k,v,cls]) => metricCard(k, v, cls)).join('');
-
-      const chips = [
-        `<span class="chip"><strong>${online}</strong> bot còn heartbeat</span>`,
-        `<span class="chip"><strong>${running}</strong> bot đang RUNNING</span>`,
-        `<span class="chip"><strong>${paused}</strong> bot đang PAUSED</span>`,
-        `<span class="chip"><strong>${items.length ? bestHero(items).bot : '--'}</strong> đang nổi bật</span>`,
-      ];
-      els.quickChips.innerHTML = chips.join('');
-      els.summaryTime.textContent = fetchEpochSec ? `Server ${new Date(fetchEpochSec * 1000).toLocaleTimeString('vi-VN')}` : '--';
-    }
-
-    function renderBots(items){
-      els.botsCount.textContent = `${items.length} bot`;
-      if(!items.length){
-        els.botList.innerHTML = '<div class="empty">Không có bot nào khớp từ khóa.</div>';
-        return;
-      }
-      const rows = [...items].sort((a,b) => {
-        const ah = heartbeatState(a).online ? 1 : 0;
-        const bh = heartbeatState(b).online ? 1 : 0;
-        if(bh !== ah) return bh - ah;
-        return b.realPct - a.realPct;
-      });
-      els.botList.innerHTML = rows.map((x) => {
-        const hb = heartbeatState(x);
-        const pCls = x.realProfit >= 0 ? 'green' : 'red';
-        const pctCls = x.realPct >= 0 ? 'green' : 'red';
-        const dayCls = x.dayTotal >= 0 ? 'green' : 'red';
-        return `
-          <div class="bot-card">
-            <div class="bot-top">
-              <div>
-                <div class="bot-name">${escapeHtml(x.bot)}</div>
-                <div class="bot-meta">ID ${escapeHtml(x.id || '--')} • ${escapeHtml(x.symbol)} • ${escapeHtml(x.timeMode)}</div>
-              </div>
-              <div class="status-badge ${hb.cls}">${hb.label}</div>
-            </div>
-            <div class="kv">
-              <div class="mini"><div class="k">Balance</div><div class="v">${fmtNum(x.balance)}</div></div>
-              <div class="mini"><div class="k">Equity</div><div class="v">${fmtNum(x.equity)}</div></div>
-              <div class="mini"><div class="k">DD</div><div class="v ${x.dd > 0 ? 'red' : 'blue'}">${fmtNum(x.dd)}%</div></div>
-              <div class="mini"><div class="k">Lãi vốn thực</div><div class="v ${pCls}">${fmtNum(x.realProfit)}</div></div>
-              <div class="mini"><div class="k">% vốn thực</div><div class="v ${pctCls}">${fmtNum(x.realPct)}%</div></div>
-              <div class="mini"><div class="k">Tổng hôm nay</div><div class="v ${dayCls}">${fmtNum(x.dayTotal)}</div></div>
-            </div>
-            <div class="bot-meta" style="margin-top:10px">Cập nhật ${fmtAgo(x.ts)}${x.reason ? ' • ' + escapeHtml(x.reason) : ''}</div>
-          </div>
-        `;
-      }).join('');
-    }
-
-    function renderRank(listEl, items, field, suffix=''){
-      if(!items.length){
-        listEl.innerHTML = '<div class="empty">Chưa có dữ liệu xếp hạng.</div>';
-        return;
-      }
-      const rows = [...items].sort((a,b) => (Number(b[field])||0) - (Number(a[field])||0)).slice(0, 10);
-      listEl.innerHTML = rows.map((x, i) => {
-        const val = Number(x[field]) || 0;
-        return `
-          <div class="rank-item">
-            <div class="rank-num">${i + 1}</div>
-            <div class="rank-main">
-              <div class="rank-title">${escapeHtml(x.bot)}</div>
-              <div class="rank-sub">ID ${escapeHtml(x.id || '--')} • ${escapeHtml(x.symbol)} • ${heartbeatState(x).label}</div>
-            </div>
-            <div class="rank-val ${val >= 0 ? 'green' : 'red'}">${fmtNum(val)}${suffix}</div>
-          </div>
-        `;
-      }).join('');
-    }
-
-    function renderLogs(payload, items){
-      const logs = Array.isArray(payload?.logs) ? payload.logs.slice(0, 16) : [];
-      const entries = [];
-      entries.push(`Web fetch OK • ${items.length} bot • ${new Date(fetchEpochSec * 1000).toLocaleTimeString('vi-VN')}`);
-      if(payload?.server_time) entries.push(`Server time: ${payload.server_time}`);
-      if(logs.length) entries.push(...logs.map(x => typeof x === 'string' ? x : JSON.stringify(x)));
-      els.logList.innerHTML = entries.length ? entries.map((x, i) => `
-        <div class="log-item">
-          <div class="log-time">#${i + 1}</div>
-          ${escapeHtml(x)}
         </div>
-      `).join('') : '<div class="empty">Chưa có logs.</div>';
+
+        <div class="section">
+          <div class="section-head">
+            <div class="section-title">THÔNG TIN BOT FULL</div>
+            <div class="section-note" id="cpanelState">Chưa chọn bot</div>
+          </div>
+          <div class="panel">
+            <div class="grid-4" id="detailGrid"></div>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-head">
+            <div class="section-title">LỆNH ĐIỀU KHIỂN</div>
+            <div class="section-note">close / time / lots</div>
+          </div>
+          <div class="panel">
+            <div class="cmd-grid">
+              <button class="btn danger" data-cmd="close_all">Đóng hết</button>
+              <button class="btn danger" data-cmd="close_buy">Đóng BUY</button>
+              <button class="btn danger" data-cmd="close_sell">Đóng SELL</button>
+              <button class="btn warn" data-cmd="close_loss">Đóng lệnh âm</button>
+              <button class="btn secondary" data-cmd="time_on">Bật theo giờ</button>
+              <button class="btn secondary" data-cmd="mode_247">Trade 24/7</button>
+            </div>
+            <div class="row-3" style="margin-top:10px">
+              <input class="input lot-input" data-lot="lot1" placeholder="Lot1" />
+              <input class="input lot-input" data-lot="lot2" placeholder="Lot2" />
+              <input class="input lot-input" data-lot="lot3" placeholder="Lot3" />
+            </div>
+            <div class="row-3" style="margin-top:10px">
+              <input class="input lot-input" data-lot="lot4" placeholder="Lot4" />
+              <input class="input lot-input" data-lot="lot5" placeholder="Lot5" />
+              <button class="btn" id="applyLotsBtn">Áp lots</button>
+            </div>
+            <div class="tiny" style="margin-top:10px" id="commandResult">Chưa gửi lệnh.</div>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-head">
+            <div class="section-title">RAW BOT JSON</div>
+            <div class="section-note">để debug nhanh</div>
+          </div>
+          <div class="raw-wrap"><pre id="rawJson">{}</pre></div>
+        </div>
+      </section>
+
+      <section class="view" id="view-logs">
+        <div class="section-head">
+          <div class="section-title">LOG SERVER + APP</div>
+          <div class="section-note">realtime / command</div>
+        </div>
+        <div class="panel"><div class="bot-list" id="logList"></div></div>
+      </section>
+
+      <section class="view" id="view-menu">
+        <div class="panel">
+          <div class="field">
+            <label>Chu kỳ làm mới (ms)</label>
+            <input class="input" id="refreshMs" type="number" min="1000" step="500" value="1500" />
+          </div>
+          <div class="row" style="margin-top:10px">
+            <button class="btn secondary" id="toggleAutoBtn">Tắt auto</button>
+            <button class="btn" id="saveBtn">Lưu thiết lập</button>
+          </div>
+          <div class="row" style="margin-top:10px">
+            <button class="btn ghost" id="clearHistoryBtn">Xóa lịch sử tháng cục bộ</button>
+            <button class="btn ghost" id="exportHistoryBtn">Xuất lịch sử JSON</button>
+          </div>
+          <div class="tiny" style="margin-top:10px" id="diagnosticText">Chưa có dữ liệu.</div>
+        </div>
+      </section>
+    </div>
+
+    <nav class="nav">
+      <button class="nav-btn active" data-tab="home"><span class="icon">⌂</span><span>Home</span></button>
+      <button class="nav-btn" data-tab="cpanel"><span class="icon">⚡</span><span>CPanel</span></button>
+      <button class="nav-btn" data-tab="logs"><span class="icon">☰</span><span>Logs</span></button>
+      <button class="nav-btn" data-tab="menu"><span class="icon">⚙</span><span>Menu</span></button>
+    </nav>
+  </div>
+</div>
+
+<script>
+const STORAGE_KEY = 'jc_bot_app_control_v1';
+const HISTORY_KEY = 'jc_bot_history_v1';
+const ACTION_LOG_KEY = 'jc_bot_action_logs_v1';
+const TZ_OFFSET_HOURS = 8;
+
+const els = {
+  search: document.getElementById('search'),
+  metaText: document.getElementById('metaText'),
+  globalDot: document.getElementById('globalDot'),
+  globalState: document.getElementById('globalState'),
+  refreshBtn: document.getElementById('refreshBtn'),
+  heroCard: document.getElementById('heroCard'),
+  summaryGrid: document.getElementById('summaryGrid'),
+  summaryTime: document.getElementById('summaryTime'),
+  quickChips: document.getElementById('quickChips'),
+  filterNote: document.getElementById('filterNote'),
+  monthName: document.getElementById('monthName'),
+  monthTotalBadge: document.getElementById('monthTotalBadge'),
+  calendarGrid: document.getElementById('calendarGrid'),
+  calendarHint: document.getElementById('calendarHint'),
+  botsCount: document.getElementById('botsCount'),
+  botList: document.getElementById('botList'),
+  baseUrl: document.getElementById('baseUrl'),
+  token: document.getElementById('token'),
+  commandPath: document.getElementById('commandPath'),
+  botSelect: document.getElementById('botSelect'),
+  applyConnectionBtn: document.getElementById('applyConnectionBtn'),
+  useSearchBtn: document.getElementById('useSearchBtn'),
+  detailGrid: document.getElementById('detailGrid'),
+  cpanelState: document.getElementById('cpanelState'),
+  rawJson: document.getElementById('rawJson'),
+  commandResult: document.getElementById('commandResult'),
+  refreshMs: document.getElementById('refreshMs'),
+  toggleAutoBtn: document.getElementById('toggleAutoBtn'),
+  saveBtn: document.getElementById('saveBtn'),
+  clearHistoryBtn: document.getElementById('clearHistoryBtn'),
+  exportHistoryBtn: document.getElementById('exportHistoryBtn'),
+  diagnosticText: document.getElementById('diagnosticText'),
+  logList: document.getElementById('logList'),
+  navBtns: [...document.querySelectorAll('.nav-btn')],
+  views: [...document.querySelectorAll('.view')],
+  cmdBtns: [...document.querySelectorAll('[data-cmd]')],
+  lotInputs: [...document.querySelectorAll('.lot-input')],
+  applyLotsBtn: document.getElementById('applyLotsBtn'),
+};
+
+let state = {
+  baseUrl: 'https://cpanel-production.up.railway.app',
+  token: 'cua',
+  commandPath: '/panel/command',
+  refreshMs: 1500,
+  autoRefresh: true,
+  selectedKey: '',
+};
+let timer = null;
+let fetchEpochSec = 0;
+let lastPayload = null;
+let actionLogs = loadJson(ACTION_LOG_KEY, []);
+let historyStore = loadJson(HISTORY_KEY, {});
+const seenMap = new Map();
+const snapshotMap = new Map();
+
+function loadJson(key, fallback){
+  try{ const raw = localStorage.getItem(key); return raw ? JSON.parse(raw) : fallback; }catch{ return fallback; }
+}
+function saveJson(key, value){ localStorage.setItem(key, JSON.stringify(value)); }
+function loadSettings(){
+  const saved = loadJson(STORAGE_KEY, null);
+  if(saved && typeof saved === 'object') state = { ...state, ...saved };
+  els.baseUrl.value = state.baseUrl;
+  els.token.value = state.token;
+  els.commandPath.value = state.commandPath;
+  els.refreshMs.value = state.refreshMs;
+  els.toggleAutoBtn.textContent = state.autoRefresh ? 'Tắt auto' : 'Bật auto';
+}
+function persistSettings(){
+  saveJson(STORAGE_KEY, state);
+}
+function escapeHtml(s){
+  return String(s ?? '').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#39;');
+}
+function fmtNum(v, digits=2){
+  const n = Number(v); if(!Number.isFinite(n)) return '--';
+  return n.toLocaleString('en-US',{minimumFractionDigits:digits, maximumFractionDigits:digits});
+}
+function parseTimestamp(v){
+  if(v == null || v === '') return 0;
+  if(typeof v === 'number'){
+    if(v > 1e12) return Math.floor(v/1000);
+    if(v > 1e9) return Math.floor(v);
+    return 0;
+  }
+  const s = String(v).trim();
+  if(!s) return 0;
+  if(/^\d+$/.test(s)){
+    const n = Number(s);
+    if(n > 1e12) return Math.floor(n/1000);
+    if(n > 1e9) return Math.floor(n);
+  }
+  const p = Date.parse(s);
+  if(Number.isFinite(p)) return Math.floor(p/1000);
+  return 0;
+}
+function epochToTWDate(epochSec){
+  const d = new Date((epochSec + TZ_OFFSET_HOURS*3600) * 1000);
+  return `${d.getUTCFullYear()}-${String(d.getUTCMonth()+1).padStart(2,'0')}-${String(d.getUTCDate()).padStart(2,'0')}`;
+}
+function currentTWDate(){
+  const now = Math.floor(Date.now()/1000);
+  return epochToTWDate(now);
+}
+function currentTWYearMonth(){
+  const key = currentTWDate();
+  return key.slice(0,7);
+}
+function fmtAgo(tsSec){
+  const t = Number(tsSec); if(!Number.isFinite(t) || t <= 0) return 'không rõ';
+  const diff = Math.max(0, fetchEpochSec - t);
+  if(diff < 2) return 'vừa xong';
+  if(diff < 60) return `${diff}s trước`;
+  if(diff < 3600) return `${Math.floor(diff/60)}m trước`;
+  return `${Math.floor(diff/3600)}h trước`;
+}
+function normMode(v){
+  const s = String(v ?? '--').trim();
+  if(!s) return '--';
+  if(s === 'mode_247') return '24/7';
+  return s;
+}
+function itemKey(raw){
+  const id = raw.id ?? raw.accountID ?? raw.accountId ?? raw.login ?? '';
+  const bot = raw.bot ?? raw.botName ?? raw.name ?? 'Unknown';
+  const symbol = raw.symbol ?? '--';
+  return `${id}|${bot}|${symbol}`;
+}
+function keepAliveByChange(key, core){
+  const prev = snapshotMap.get(key);
+  const now = JSON.stringify(core);
+  if(prev !== now){ snapshotMap.set(key, now); seenMap.set(key, fetchEpochSec); }
+}
+function normItem(raw){
+  const key = itemKey(raw);
+  const id = raw.id ?? raw.accountID ?? raw.accountId ?? raw.login ?? '';
+  const bot = raw.bot ?? raw.botName ?? raw.name ?? 'Unknown';
+  const symbol = raw.symbol ?? '--';
+  const balance = Number(raw.balance ?? raw.totalcapital ?? 0);
+  const equity = Number(raw.equity ?? raw.aftercapital ?? raw.afterCapital ?? 0);
+  const realProfit = Number(raw.realProfit ?? raw.realprofit ?? 0);
+  const realPct = Number(raw.realPct ?? raw.realpct ?? 0);
+  const dayTotal = Number(raw.dayTotal ?? raw.afterprofit ?? raw.daytotal ?? 0);
+  const dd = Number(raw.dd ?? raw.maxdd ?? 0);
+  const status = String(raw.status ?? raw.statusvi ?? 'UNKNOWN').toUpperCase();
+  const timeMode = normMode(raw.timeMode ?? raw.timemode ?? '--');
+  const tsRaw = raw.ts ?? raw.lastTs ?? raw.updatedAtTs ?? raw.updated_at_ts ?? raw.heartbeat_ts ?? raw.eaupdate ?? raw.updatedAt ?? raw.server_time ?? raw.last_seen;
+  const parsedTs = parseTimestamp(tsRaw);
+  keepAliveByChange(key, { balance, equity, realProfit, realPct, dayTotal, dd, status, timeMode });
+  if(parsedTs > 0) seenMap.set(key, parsedTs);
+  const ts = Math.max(parsedTs, seenMap.get(key) || 0);
+  const reason = raw.reason ?? raw.statusreason ?? raw.note ?? '';
+  return { key, id, bot, symbol, balance, equity, realProfit, realPct, dayTotal, dd, status, timeMode, ts, reason, raw };
+}
+function heartbeatState(item){
+  const age = item.ts > 0 ? Math.max(0, fetchEpochSec - item.ts) : 999999;
+  const run = item.status.includes('RUN');
+  const pause = item.status.includes('PAUSE');
+  if(age <= 15) return { label: run ? 'Đang online' : (pause ? 'Online / Pause' : 'Online'), cls: run ? 'running' : 'paused', online:true };
+  if(age <= 45) return { label:'Heartbeat chậm', cls:'stale', online:true };
+  return { label:'Mất heartbeat', cls:'stale', online:false };
+}
+function filterItems(items){
+  const q = els.search.value.trim().toLowerCase();
+  if(!q) return items;
+  return items.filter(x => String(x.id).toLowerCase().includes(q) || String(x.bot).toLowerCase().includes(q));
+}
+function historyKey(item){ return item.key; }
+function updateHistory(items){
+  const dayKey = epochToTWDate(fetchEpochSec || Math.floor(Date.now()/1000));
+  for(const item of items){
+    const key = historyKey(item);
+    if(!historyStore[key]) historyStore[key] = {};
+    if(!historyStore[key][dayKey]){
+      historyStore[key][dayKey] = {
+        id:item.id, bot:item.bot, symbol:item.symbol,
+        openBalance:Number.isFinite(item.balance) ? item.balance : 0,
+        openEquity:Number.isFinite(item.equity) ? item.equity : 0,
+        lastBalance:Number.isFinite(item.balance) ? item.balance : 0,
+        lastEquity:Number.isFinite(item.equity) ? item.equity : 0,
+        lastTs:item.ts || fetchEpochSec || Math.floor(Date.now()/1000)
+      };
+    } else {
+      historyStore[key][dayKey].lastBalance = Number.isFinite(item.balance) ? item.balance : historyStore[key][dayKey].lastBalance;
+      historyStore[key][dayKey].lastEquity = Number.isFinite(item.equity) ? item.equity : historyStore[key][dayKey].lastEquity;
+      historyStore[key][dayKey].lastTs = item.ts || fetchEpochSec || historyStore[key][dayKey].lastTs;
+      historyStore[key][dayKey].id = item.id;
+      historyStore[key][dayKey].bot = item.bot;
+      historyStore[key][dayKey].symbol = item.symbol;
     }
-
-    function updateHeader(items){
-      const online = items.filter(x => heartbeatState(x).online).length;
-      const total = items.length;
-      const serverText = fetchEpochSec ? new Date(fetchEpochSec * 1000).toLocaleTimeString('vi-VN') : '--';
-      els.metaText.textContent = `Realtime ${online}/${total} bot • ${serverText}`;
-      if(total === 0){
-        els.globalDot.className = 'dot warn';
-        els.globalState.textContent = 'Chưa có bot';
-        return;
-      }
-      if(online > 0){
-        els.globalDot.className = 'dot online';
-        els.globalState.textContent = `${online} online`;
-      } else {
-        els.globalDot.className = 'dot offline';
-        els.globalState.textContent = 'Không có heartbeat';
-      }
+  }
+  saveJson(HISTORY_KEY, historyStore);
+}
+function selectedItems(allItems){
+  const filtered = filterItems(allItems);
+  return filtered;
+}
+function metricCard(k, v, cls=''){ return `<div class="mini"><div class="k">${k}</div><div class="v ${cls}">${v}</div></div>`; }
+function aggregateMonth(items){
+  const ym = currentTWYearMonth();
+  let totalProfit = 0;
+  let totalBase = 0;
+  const days = {};
+  const allowedKeys = new Set((items.length ? items : []).map(x => x.key));
+  for(const [key, perDay] of Object.entries(historyStore)){
+    if(items.length && !allowedKeys.has(key)) continue;
+    for(const [day, rec] of Object.entries(perDay)){
+      if(!day.startsWith(ym)) continue;
+      const pnl = (Number(rec.lastEquity) || 0) - (Number(rec.openBalance) || 0);
+      const base = Number(rec.openBalance) || 0;
+      totalProfit += pnl;
+      totalBase += base;
+      if(!days[day]) days[day] = { pnl:0, base:0, bots:0 };
+      days[day].pnl += pnl;
+      days[day].base += base;
+      days[day].bots += 1;
     }
+  }
+  const pct = totalBase > 0 ? (totalProfit/totalBase)*100 : 0;
+  return { totalProfit, pct, days };
+}
+function renderHome(allItems){
+  const filtered = selectedItems(allItems);
+  const hero = filtered[0] || allItems[0] || null;
+  els.filterNote.textContent = els.search.value.trim() ? `Đang lọc: ${els.search.value.trim()}` : 'Tất cả bot';
 
-    function setDiagnostic(text){
-      els.diagnosticText.textContent = text;
-    }
+  if(!hero){
+    els.heroCard.innerHTML = '<div class="empty">Chưa có bot nào để hiển thị.</div>';
+  } else {
+    const hb = heartbeatState(hero);
+    els.heroCard.innerHTML = `
+      <div class="hero-top">
+        <div>
+          <div class="hero-name">${escapeHtml(hero.bot)}</div>
+          <div class="hero-meta">ID ${escapeHtml(hero.id || '--')} • ${escapeHtml(hero.symbol)} • ${escapeHtml(hero.timeMode)} • ${fmtAgo(hero.ts)}</div>
+        </div>
+        <div class="badge ${hb.cls}">${hb.label}</div>
+      </div>
+      <div class="grid-2" style="margin-top:14px">
+        <div class="mini"><div class="k">Balance</div><div class="big">${fmtNum(hero.balance)}</div></div>
+        <div class="mini"><div class="k">Equity</div><div class="big">${fmtNum(hero.equity)}</div></div>
+        <div class="mini"><div class="k">Lãi vốn thực</div><div class="v ${hero.realProfit >= 0 ? 'green' : 'red'}">${fmtNum(hero.realProfit)}</div></div>
+        <div class="mini"><div class="k">Tổng hôm nay</div><div class="v ${hero.dayTotal >= 0 ? 'green' : 'red'}">${fmtNum(hero.dayTotal)}</div></div>
+      </div>`;
+  }
 
-    function renderAll(payload){
-      const rawItems = Array.isArray(payload?.items) ? payload.items : [];
-      const items = filterItems(rawItems.map(normItem));
-      updateHeader(items);
-      renderHome(items);
-      renderBots(items);
-      renderRank(els.rankPct, items, 'realPct', '%');
-      renderRank(els.rankProfit, items, 'realProfit', '');
-      renderLogs(payload, items);
-      setDiagnostic(`Auto ${autoRefresh ? 'ON' : 'OFF'} • Refresh ${refreshInterval}ms • Bot hiển thị ${items.length}`);
-    }
+  const online = allItems.filter(x => heartbeatState(x).online).length;
+  const running = allItems.filter(x => x.status.includes('RUN')).length;
+  const paused = allItems.filter(x => x.status.includes('PAUSE')).length;
+  const month = aggregateMonth(filtered.length ? filtered : allItems);
 
-    async function fetchSummary(){
-      const base = els.baseUrl.value.trim().replace(/\/$/, '');
-      const token = els.token.value.trim();
-      if(!base || !token) return;
-      try{
-        const url = `${base}/panel/summary?token=${encodeURIComponent(token)}&_=${Date.now()}`;
-        const res = await fetch(url, { cache: 'no-store' });
-        if(!res.ok) throw new Error(`HTTP ${res.status}`);
-        const json = await res.json();
-        fetchEpochSec = parseTimestamp(json?.server_time) || Math.floor(Date.now() / 1000);
-        lastPayload = json;
-        renderAll(json);
-      } catch(err){
-        fetchEpochSec = Math.floor(Date.now() / 1000);
-        els.globalDot.className = 'dot offline';
-        els.globalState.textContent = 'Lỗi tải';
-        els.metaText.textContent = `Lỗi tải dữ liệu: ${err.message}`;
-        const html = `<div class="empty">Không lấy được dữ liệu từ server.<br>${escapeHtml(err.message)}</div>`;
-        els.heroCard.innerHTML = html;
-        els.summaryGrid.innerHTML = html;
-        els.quickChips.innerHTML = '';
-        els.botList.innerHTML = html;
-        els.rankPct.innerHTML = html;
-        els.rankProfit.innerHTML = html;
-        els.logList.innerHTML = html;
-        setDiagnostic(`Lỗi: ${err.message}`);
-      }
-    }
+  els.summaryGrid.innerHTML = [
+    ['Tổng bot', allItems.length, 'blue'],
+    ['Đang chạy', running, running ? 'green' : 'muted'],
+    ['Đang tắt', paused, paused ? 'red' : 'muted'],
+    ['Bot online', online, online ? 'green' : 'red'],
+    ['Tổng lãi bot tháng', fmtNum(month.totalProfit), month.totalProfit >= 0 ? 'green' : 'red'],
+    ['Tổng % bot tháng', `${fmtNum(month.pct)}%`, month.pct >= 0 ? 'green' : 'red'],
+    ['Lọc hiện tại', filtered.length || allItems.length, 'blue'],
+    ['Cập nhật', fetchEpochSec ? new Date(fetchEpochSec * 1000).toLocaleTimeString('vi-VN') : '--', 'muted'],
+  ].map(([k,v,cls]) => metricCard(k,v,cls)).join('');
 
-    function restartAuto(){
-      if(timer) clearInterval(timer);
-      if(!autoRefresh) return;
-      timer = setInterval(fetchSummary, refreshInterval);
-    }
+  els.quickChips.innerHTML = [
+    `<span class="chip"><strong>${allItems.length}</strong> bot trên server</span>`,
+    `<span class="chip"><strong>${running}</strong> bot đang chạy</span>`,
+    `<span class="chip"><strong>${paused}</strong> bot đang tắt</span>`,
+    `<span class="chip"><strong>${filtered.length || allItems.length}</strong> bot đang hiển thị</span>`
+  ].join('');
 
-    function activateTab(tab){
-      els.navBtns.forEach(btn => btn.classList.toggle('active', btn.dataset.tab === tab));
-      els.views.forEach(view => view.classList.toggle('active', view.id === `view-${tab}`));
-    }
-
-    els.navBtns.forEach(btn => btn.addEventListener('click', () => activateTab(btn.dataset.tab)));
-    els.refreshBtn.addEventListener('click', fetchSummary);
-    els.toggleAutoBtn.addEventListener('click', () => {
-      autoRefresh = !autoRefresh;
-      els.toggleAutoBtn.textContent = autoRefresh ? 'Tắt auto' : 'Bật auto';
-      restartAuto();
-      setDiagnostic(`Auto ${autoRefresh ? 'ON' : 'OFF'} • Refresh ${refreshInterval}ms`);
-    });
-    els.applyBtn.addEventListener('click', () => {
-      refreshInterval = Math.max(500, Number(els.refreshMs.value) || 1000);
-      restartAuto();
-      fetchSummary();
-      setDiagnostic(`Đã áp dụng • ${refreshInterval}ms`);
-    });
-    els.resetBtn.addEventListener('click', () => {
-      els.baseUrl.value = 'https://cpanel-production.up.railway.app';
-      els.token.value = 'cua';
-      els.refreshMs.value = 1000;
-      refreshInterval = 1000;
-      autoRefresh = true;
-      els.toggleAutoBtn.textContent = 'Tắt auto';
-      restartAuto();
-      fetchSummary();
-      setDiagnostic('Đã về mặc định.');
-    });
-    els.search.addEventListener('input', () => {
-      if(lastPayload) renderAll(lastPayload);
-    });
-    [els.baseUrl, els.token].forEach(el => el.addEventListener('change', fetchSummary));
-
+  els.summaryTime.textContent = fetchEpochSec ? `Server ${new Date(fetchEpochSec * 1000).toLocaleTimeString('vi-VN')}` : '--';
+  renderCalendar(filtered.length ? filtered : allItems);
+  renderBotList(filtered);
+}
+function renderBotList(items){
+  els.botsCount.textContent = `${items.length} bot`;
+  if(!items.length){
+    els.botList.innerHTML = '<div class="empty">Không có bot nào khớp ID hoặc tên bot.</div>';
+    return;
+  }
+  els.botList.innerHTML = items.map(x => {
+    const hb = heartbeatState(x);
+    return `
+      <div class="bot-card" data-select-key="${escapeHtml(x.key)}">
+        <div class="bot-top">
+          <div>
+            <div class="bot-name">${escapeHtml(x.bot)}</div>
+            <div class="bot-meta">ID ${escapeHtml(x.id || '--')} • ${escapeHtml(x.symbol)} • ${escapeHtml(x.timeMode)} • ${fmtAgo(x.ts)}</div>
+          </div>
+          <div class="badge ${hb.cls}">${hb.label}</div>
+        </div>
+        <div class="bot-kv">
+          <div class="mini"><div class="k">Balance</div><div class="v">${fmtNum(x.balance)}</div></div>
+          <div class="mini"><div class="k">Equity</div><div class="v">${fmtNum(x.equity)}</div></div>
+          <div class="mini"><div class="k">DD</div><div class="v ${x.dd > 0 ? 'red' : 'blue'}">${fmtNum(x.dd)}%</div></div>
+          <div class="mini"><div class="k">Lãi vốn thực</div><div class="v ${x.realProfit >= 0 ? 'green' : 'red'}">${fmtNum(x.realProfit)}</div></div>
+          <div class="mini"><div class="k">% vốn thực</div><div class="v ${x.realPct >= 0 ? 'green' : 'red'}">${fmtNum(x.realPct)}%</div></div>
+          <div class="mini"><div class="k">Tổng hôm nay</div><div class="v ${x.dayTotal >= 0 ? 'green' : 'red'}">${fmtNum(x.dayTotal)}</div></div>
+        </div>
+      </div>`;
+  }).join('');
+  document.querySelectorAll('[data-select-key]').forEach(node => node.addEventListener('click', () => {
+    state.selectedKey = node.getAttribute('data-select-key');
+    persistSettings();
+    populateBotSelect(lastPayload?.items ? lastPayload.items.map(normItem) : []);
+    activateTab('cpanel');
+    renderCpanel(lastPayload?.items ? lastPayload.items.map(normItem) : []);
+  }));
+}
+function renderCalendar(items){
+  const month = aggregateMonth(items);
+  const ym = currentTWYearMonth();
+  const [year, mon] = ym.split('-').map(Number);
+  const first = new Date(year, mon - 1, 1);
+  const startDay = first.getDay();
+  const daysInMonth = new Date(year, mon, 0).getDate();
+  const today = currentTWDate();
+  const monthLabel = new Date(year, mon - 1, 1).toLocaleDateString('vi-VN', { month:'long', year:'numeric' });
+  els.monthName.textContent = monthLabel;
+  els.monthTotalBadge.className = `badge ${month.totalProfit >= 0 ? 'running' : 'paused'}`;
+  els.monthTotalBadge.textContent = `${fmtNum(month.totalProfit)} • ${fmtNum(month.pct)}%`;
+  const cells = [];
+  for(let i = 0; i < startDay; i++) cells.push('<div class="day empty"></div>');
+  for(let d = 1; d <= daysInMonth; d++){
+    const key = `${ym}-${String(d).padStart(2,'0')}`;
+    const rec = month.days[key];
+    const pnl = rec ? rec.pnl : 0;
+    const cls = pnl > 0 ? 'green' : (pnl < 0 ? 'red' : 'muted');
+    cells.push(`
+      <div class="day ${key === today ? 'today' : ''}">
+        <div class="day-num">${d}</div>
+        <div class="day-profit ${cls}">${rec ? fmtNum(pnl) : '--'}</div>
+        <div class="day-base">${rec ? `${fmtNum(rec.base)} vốn` : 'chưa có'}</div>
+      </div>`);
+  }
+  els.calendarGrid.innerHTML = cells.join('');
+  els.calendarHint.textContent = 'Lịch tháng này đang tính theo: equity hiện tại - số dư đầu ngày đã lưu. Muốn backfill đủ tháng trước, bạn cần giữ app chạy hoặc cấp thêm nguồn lịch sử.';
+}
+function updateHeader(items){
+  const online = items.filter(x => heartbeatState(x).online).length;
+  els.metaText.textContent = `Realtime ${online}/${items.length} bot • ${fetchEpochSec ? new Date(fetchEpochSec * 1000).toLocaleTimeString('vi-VN') : '--'}`;
+  if(!items.length){
+    els.globalDot.className = 'dot warn';
+    els.globalState.textContent = 'Chưa có bot';
+  } else if(online > 0){
+    els.globalDot.className = 'dot online';
+    els.globalState.textContent = `${online} online`;
+  } else {
+    els.globalDot.className = 'dot offline';
+    els.globalState.textContent = 'Không có heartbeat';
+  }
+}
+function populateBotSelect(items){
+  const filtered = selectedItems(items);
+  const source = filtered.length ? filtered : items;
+  if(!source.length){
+    els.botSelect.innerHTML = '<option value="">Chưa có bot</option>';
+    return;
+  }
+  if(!state.selectedKey || !source.some(x => x.key === state.selectedKey)) state.selectedKey = source[0].key;
+  els.botSelect.innerHTML = source.map(x => `<option value="${escapeHtml(x.key)}">${escapeHtml(x.bot)} • ${escapeHtml(x.id || '--')} • ${escapeHtml(x.symbol)}</option>`).join('');
+  els.botSelect.value = state.selectedKey;
+}
+function renderCpanel(items){
+  populateBotSelect(items);
+  const selected = items.find(x => x.key === state.selectedKey) || items[0] || null;
+  if(!selected){
+    els.detailGrid.innerHTML = '<div class="empty">Chưa có bot để điều khiển.</div>';
+    els.rawJson.textContent = '{}';
+    els.cpanelState.textContent = 'Chưa chọn bot';
+    return;
+  }
+  const hb = heartbeatState(selected);
+  els.cpanelState.textContent = `${selected.bot} • ${hb.label}`;
+  els.detailGrid.innerHTML = [
+    ['Bot', escapeHtml(selected.bot), 'blue'],
+    ['ID', escapeHtml(selected.id || '--'), 'blue'],
+    ['Symbol', escapeHtml(selected.symbol), 'blue'],
+    ['Status', escapeHtml(selected.status || '--'), hb.online ? 'green' : 'red'],
+    ['Balance', fmtNum(selected.balance), 'blue'],
+    ['Equity', fmtNum(selected.equity), 'blue'],
+    ['Lãi vốn thực', fmtNum(selected.realProfit), selected.realProfit >= 0 ? 'green' : 'red'],
+    ['% vốn thực', `${fmtNum(selected.realPct)}%`, selected.realPct >= 0 ? 'green' : 'red'],
+    ['Tổng hôm nay', fmtNum(selected.dayTotal), selected.dayTotal >= 0 ? 'green' : 'red'],
+    ['DD', `${fmtNum(selected.dd)}%`, selected.dd > 0 ? 'red' : 'blue'],
+    ['Mode', escapeHtml(selected.timeMode), 'blue'],
+    ['Heartbeat', fmtAgo(selected.ts), hb.online ? 'green' : 'yellow'],
+  ].map(([k,v,cls]) => metricCard(k,v,cls)).join('');
+  els.rawJson.textContent = JSON.stringify(selected.raw, null, 2);
+}
+function pushActionLog(text){
+  const stamp = new Date().toLocaleString('vi-VN');
+  actionLogs.unshift({ time: stamp, text });
+  actionLogs = actionLogs.slice(0, 50);
+  saveJson(ACTION_LOG_KEY, actionLogs);
+  renderLogs(lastPayload?.items ? lastPayload.items.map(normItem) : []);
+}
+function renderLogs(items){
+  const serverLogs = Array.isArray(lastPayload?.logs) ? lastPayload.logs.map(x => typeof x === 'string' ? x : JSON.stringify(x)) : [];
+  const rows = [];
+  rows.push(...actionLogs.map(x => ({ type:'App', time:x.time, text:x.text })));
+  rows.push(...serverLogs.slice(0, 20).map((x, i) => ({ type:'Server', time:`#${i+1}`, text:x })));
+  if(!rows.length){
+    els.logList.innerHTML = '<div class="empty">Chưa có log.</div>';
+    return;
+  }
+  els.logList.innerHTML = rows.map(x => `
+    <div class="bot-card">
+      <div class="bot-meta">${escapeHtml(x.type)} • ${escapeHtml(x.time)}</div>
+      <div style="margin-top:8px;font-size:13px;line-height:1.5">${escapeHtml(x.text)}</div>
+    </div>`).join('');
+}
+function setDiagnostic(text){ els.diagnosticText.textContent = text; }
+function renderAll(payload){
+  const items = Array.isArray(payload?.items) ? payload.items.map(normItem) : [];
+  updateHistory(items);
+  updateHeader(items);
+  renderHome(items);
+  renderCpanel(items);
+  renderLogs(items);
+  setDiagnostic(`Auto ${state.autoRefresh ? 'ON' : 'OFF'} • Refresh ${state.refreshMs}ms • Lưu lịch sử tháng cục bộ: ${Object.keys(historyStore).length} bot`);
+}
+async function fetchSummary(){
+  const base = state.baseUrl.replace(/\/$/, '');
+  const token = state.token.trim();
+  if(!base || !token) return;
+  try{
+    const url = `${base}/panel/summary?token=${encodeURIComponent(token)}&_=${Date.now()}`;
+    const res = await fetch(url, { cache:'no-store' });
+    if(!res.ok) throw new Error(`HTTP ${res.status}`);
+    const json = await res.json();
+    fetchEpochSec = parseTimestamp(json.server_time) || Math.floor(Date.now()/1000);
+    lastPayload = json;
+    renderAll(json);
+  } catch(err){
+    fetchEpochSec = Math.floor(Date.now()/1000);
+    els.globalDot.className = 'dot offline';
+    els.globalState.textContent = 'Lỗi tải';
+    els.metaText.textContent = `Lỗi tải dữ liệu: ${err.message}`;
+    setDiagnostic(`Lỗi: ${err.message}`);
+    pushActionLog(`Lỗi fetch summary: ${err.message}`);
+  }
+}
+function restartAuto(){
+  if(timer) clearInterval(timer);
+  if(!state.autoRefresh) return;
+  timer = setInterval(fetchSummary, state.refreshMs);
+}
+function activateTab(tab){
+  els.navBtns.forEach(btn => btn.classList.toggle('active', btn.dataset.tab === tab));
+  els.views.forEach(view => view.classList.toggle('active', view.id === `view-${tab}`));
+}
+async function sendCommand(cmd, extras = {}){
+  const items = Array.isArray(lastPayload?.items) ? lastPayload.items.map(normItem) : [];
+  const bot = items.find(x => x.key === state.selectedKey);
+  if(!bot){ els.commandResult.textContent = 'Chưa chọn bot.'; return; }
+  const base = state.baseUrl.replace(/\/$/, '');
+  const path = String(state.commandPath || '/panel/command').trim();
+  const qs = new URLSearchParams({ token: state.token, id: bot.id || '', bot: bot.bot || '', symbol: bot.symbol || '', cmd, ...extras });
+  const url = `${base}${path.startsWith('/') ? path : '/' + path}?${qs.toString()}`;
+  els.commandResult.textContent = `Đang gửi: ${cmd}`;
+  try{
+    const res = await fetch(url, { method:'GET', cache:'no-store' });
+    const text = await res.text();
+    els.commandResult.textContent = `HTTP ${res.status} • ${text.slice(0, 220) || '(rỗng)'}`;
+    pushActionLog(`Gửi lệnh ${cmd} cho ${bot.bot} • HTTP ${res.status}`);
     fetchSummary();
-    restartAuto();
-  </script>
+  } catch(err){
+    els.commandResult.textContent = `Lỗi gửi lệnh: ${err.message}`;
+    pushActionLog(`Lỗi gửi lệnh ${cmd}: ${err.message}`);
+  }
+}
+
+els.navBtns.forEach(btn => btn.addEventListener('click', () => activateTab(btn.dataset.tab)));
+els.refreshBtn.addEventListener('click', fetchSummary);
+els.search.addEventListener('input', () => { if(lastPayload) renderAll(lastPayload); });
+els.applyConnectionBtn.addEventListener('click', () => {
+  state.baseUrl = els.baseUrl.value.trim();
+  state.token = els.token.value.trim();
+  state.commandPath = els.commandPath.value.trim() || '/panel/command';
+  persistSettings();
+  fetchSummary();
+});
+els.useSearchBtn.addEventListener('click', () => {
+  const items = Array.isArray(lastPayload?.items) ? lastPayload.items.map(normItem) : [];
+  const filtered = selectedItems(items);
+  if(filtered[0]){
+    state.selectedKey = filtered[0].key;
+    persistSettings();
+    renderCpanel(items);
+    pushActionLog(`Đã chọn bot theo ô tìm kiếm: ${filtered[0].bot}`);
+  }
+});
+els.botSelect.addEventListener('change', () => { state.selectedKey = els.botSelect.value; persistSettings(); renderCpanel(lastPayload?.items ? lastPayload.items.map(normItem) : []); });
+els.cmdBtns.forEach(btn => btn.addEventListener('click', () => sendCommand(btn.dataset.cmd)));
+els.applyLotsBtn.addEventListener('click', () => {
+  const extras = { };
+  els.lotInputs.forEach(input => { if(input.value.trim()) extras[input.dataset.lot] = input.value.trim(); });
+  sendCommand('apply_lots', extras);
+});
+els.toggleAutoBtn.addEventListener('click', () => {
+  state.autoRefresh = !state.autoRefresh;
+  els.toggleAutoBtn.textContent = state.autoRefresh ? 'Tắt auto' : 'Bật auto';
+  persistSettings();
+  restartAuto();
+  setDiagnostic(`Auto ${state.autoRefresh ? 'ON' : 'OFF'}`);
+});
+els.saveBtn.addEventListener('click', () => {
+  state.baseUrl = els.baseUrl.value.trim();
+  state.token = els.token.value.trim();
+  state.commandPath = els.commandPath.value.trim() || '/panel/command';
+  state.refreshMs = Math.max(1000, Number(els.refreshMs.value) || 1500);
+  persistSettings();
+  restartAuto();
+  fetchSummary();
+  pushActionLog('Đã lưu thiết lập app');
+});
+els.clearHistoryBtn.addEventListener('click', () => {
+  historyStore = {};
+  saveJson(HISTORY_KEY, historyStore);
+  if(lastPayload) renderAll(lastPayload);
+  pushActionLog('Đã xóa lịch sử tháng cục bộ');
+});
+els.exportHistoryBtn.addEventListener('click', () => {
+  const blob = new Blob([JSON.stringify(historyStore, null, 2)], { type:'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `jc-history-${Date.now()}.json`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+  pushActionLog('Đã xuất lịch sử JSON');
+});
+
+loadSettings();
+fetchSummary();
+restartAuto();
+</script>
 </body>
 </html>
