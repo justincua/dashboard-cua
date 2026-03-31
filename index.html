@@ -148,6 +148,25 @@
       .day{min-height:72px}
       .kv-grid{grid-template-columns:1fr}
     }
+    .month-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
+.month-nav-left,.month-nav-right{display:flex;align-items:center;gap:8px}
+.month-nav-btn{width:38px;height:38px}
+.month-today-btn{height:38px;padding:0 14px;border-radius:999px}
+.month-name-wrap{display:flex;flex-direction:column;gap:4px}
+.month-sub{font-size:11px;color:var(--muted)}
+.day.pos{background:linear-gradient(180deg,rgba(41,208,125,.16),rgba(41,208,125,.05));border-color:rgba(41,208,125,.16)}
+.day.neg{background:linear-gradient(180deg,rgba(255,107,123,.16),rgba(255,107,123,.05));border-color:rgba(255,107,123,.16)}
+.day.zero{background:linear-gradient(180deg,rgba(90,168,255,.09),rgba(255,255,255,.03))}
+.day.weekend{outline:1px dashed rgba(255,255,255,.08)}
+.day-note{font-size:10px;color:var(--muted);line-height:1.2}
+.status-reason{margin-top:10px;font-size:12px;color:var(--muted);line-height:1.45}
+.firebase-state-ok{color:var(--green)}
+.firebase-state-off{color:var(--red)}
+.firebase-state-warn{color:var(--yellow)}
+@media (max-width:430px){
+  .month-head{align-items:flex-start;flex-direction:column}
+  .month-nav-left,.month-nav-right{width:100%;justify-content:space-between}
+}
   </style>
 </head>
 <body>
@@ -209,9 +228,19 @@
           </div>
           <div class="calendar-wrap">
             <div class="month-head">
-              <div class="month-name" id="monthName">--</div>
-              <div class="badge info" id="monthTotalBadge">--</div>
-            </div>
+  <div class="month-nav-left">
+    <button class="circle-btn month-nav-btn" id="monthPrevBtn" type="button">‹</button>
+    <div class="month-name-wrap">
+      <div class="month-name" id="monthName">--</div>
+      <div class="month-sub" id="monthSubText">--</div>
+    </div>
+  </div>
+  <div class="month-nav-right">
+    <button class="btn ghost month-today-btn" id="monthTodayBtn" type="button">Hiện tại</button>
+    <div class="badge info" id="monthTotalBadge">--</div>
+    <button class="circle-btn month-nav-btn" id="monthNextBtn" type="button">›</button>
+  </div>
+</div>
             <div class="calendar-weekdays">
               <div>CN</div><div>2</div><div>3</div><div>4</div><div>5</div><div>6</div><div>7</div>
             </div>
@@ -331,7 +360,36 @@
           </div>
           <div class="helper" style="margin-top:10px">Mặc định app không gắn sẵn link hay token. Sau khi nhập và lưu, lần sau mở lại trên chính thiết bị này sẽ tự nhớ.</div>
         </div>
+<div class="settings-box section">
+  <div class="section-head" style="margin:0 0 10px 0">
+    <div class="section-title">FIREBASE LỊCH PROFIT</div>
+    <div class="section-note" id="firebaseState">Chưa bật</div>
+  </div>
 
+  <div class="field">
+    <label>Workspace / Nhóm dữ liệu</label>
+    <input class="input" id="firebaseWorkspace" placeholder="Ví dụ: justincua-main" autocomplete="off" spellcheck="false" />
+  </div>
+
+  <div class="field" style="margin-top:10px">
+    <label>Firebase config JSON</label>
+    <textarea id="firebaseConfigText" placeholder='{"apiKey":"...","authDomain":"...","projectId":"...","storageBucket":"...","messagingSenderId":"...","appId":"..."}'></textarea>
+  </div>
+
+  <div class="row" style="margin-top:10px">
+    <button class="btn" id="saveFirebaseBtn" type="button">Lưu Firebase</button>
+    <button class="btn secondary" id="toggleFirebaseBtn" type="button">Bật Firebase</button>
+  </div>
+
+  <div class="row" style="margin-top:10px">
+    <button class="btn ghost" id="testFirebaseBtn" type="button">Test kết nối</button>
+    <button class="btn ghost" id="clearFirebaseBtn" type="button">Xóa Firebase</button>
+  </div>
+
+  <div class="helper" style="margin-top:10px">
+    Khi bật Firebase, lịch profit sẽ lưu chung lên Firestore nên đổi trình duyệt cũng không reset về 0 nữa.
+  </div>
+</div>
         <div class="settings-box section">
           <div class="section-head" style="margin:0 0 10px 0">
             <div class="section-title">QUẢN TRỊ</div>
@@ -369,19 +427,117 @@
 </div>
 </div>
 
-<script>
-const STORAGE_KEY = 'jc_bot_app_secure_v2';
-const HISTORY_KEY = 'jc_bot_history_secure_v2';
+<script type="module">
+import { initializeApp, getApps, deleteApp } from 'https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js';
+import {
+  getFirestore,
+  collection,
+  doc,
+  setDoc,
+  query,
+  where,
+  onSnapshot,
+  serverTimestamp
+} from 'https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js';
+
+const STORAGE_KEY = 'jc_bot_app_secure_v3';
+const HISTORY_KEY = 'jc_bot_history_secure_v3_local';
 const TZ_OFFSET_HOURS = 8;
+
+function loadJson(key, fallback){
+  try{
+    const raw = localStorage.getItem(key);
+    return raw ? JSON.parse(raw) : fallback;
+  }catch{
+    return fallback;
+  }
+}
+function saveJson(key, value){
+  localStorage.setItem(key, JSON.stringify(value));
+}
+function escapeHtml(s){
+  return String(s ?? '')
+    .replaceAll('&','&amp;')
+    .replaceAll('<','&lt;')
+    .replaceAll('>','&gt;')
+    .replaceAll('"','&quot;')
+    .replaceAll("'",'&#39;');
+}
+function fmtNum(v, digits=2){
+  const n = Number(v);
+  if(!Number.isFinite(n)) return '--';
+  return n.toLocaleString('en-US', {
+    minimumFractionDigits: digits,
+    maximumFractionDigits: digits
+  });
+}
+function parseTimestamp(v){
+  if(v == null || v === '') return 0;
+  if(typeof v === 'number'){
+    if(v > 1e12) return Math.floor(v/1000);
+    if(v > 1e9) return Math.floor(v);
+    return 0;
+  }
+  const s = String(v).trim();
+  if(!s) return 0;
+  if(/^\d+$/.test(s)){
+    const n = Number(s);
+    if(n > 1e12) return Math.floor(n/1000);
+    if(n > 1e9) return Math.floor(n);
+  }
+  const p = Date.parse(s);
+  return Number.isFinite(p) ? Math.floor(p/1000) : 0;
+}
+function epochToTWDate(epochSec){
+  const d = new Date((epochSec + TZ_OFFSET_HOURS * 3600) * 1000);
+  return `${d.getUTCFullYear()}-${String(d.getUTCMonth()+1).padStart(2,'0')}-${String(d.getUTCDate()).padStart(2,'0')}`;
+}
+function currentTWDate(){
+  return epochToTWDate(Math.floor(Date.now()/1000));
+}
+function currentTWYearMonth(){
+  return currentTWDate().slice(0, 7);
+}
+function fmtAgo(tsSec){
+  const t = Number(tsSec);
+  if(!Number.isFinite(t) || t <= 0) return 'không rõ';
+  const diff = Math.max(0, fetchEpochSec - t);
+  if(diff < 2) return 'vừa xong';
+  if(diff < 60) return `${diff}s trước`;
+  if(diff < 3600) return `${Math.floor(diff/60)}m trước`;
+  return `${Math.floor(diff/3600)}h trước`;
+}
+function normMode(v){
+  const s = String(v ?? '--').trim();
+  return s === 'mode_247' ? '24/7' : (s || '--');
+}
+function itemKey(raw){
+  return `${raw.id ?? raw.accountID ?? raw.accountId ?? raw.login ?? ''}|${raw.bot ?? raw.botName ?? raw.name ?? 'Unknown'}|${raw.symbol ?? '--'}`;
+}
+function mergeRaw(primary={}, secondary={}){
+  return { ...secondary, ...primary };
+}
+function shiftYM(ym, delta){
+  const [year, month] = String(ym).split('-').map(Number);
+  const d = new Date(Date.UTC(year, (month - 1) + delta, 1));
+  return `${d.getUTCFullYear()}-${String(d.getUTCMonth()+1).padStart(2,'0')}`;
+}
+function safeDocId(text){
+  try{
+    return btoa(unescape(encodeURIComponent(text))).replace(/[+/=]/g, '_').slice(0, 180);
+  }catch{
+    return String(text).replace(/[^a-zA-Z0-9_-]/g, '_').slice(0, 180);
+  }
+}
 
 const els = {
   topBar: document.getElementById('topBar'),
-  contentInner: document.getElementById('contentInner'),
   search: document.getElementById('search'),
   metaText: document.getElementById('metaText'),
   globalDot: document.getElementById('globalDot'),
   globalState: document.getElementById('globalState'),
   refreshBtn: document.getElementById('refreshBtn'),
+
   heroCard: document.getElementById('heroCard'),
   summaryGrid: document.getElementById('summaryGrid'),
   summaryTime: document.getElementById('summaryTime'),
@@ -389,14 +545,21 @@ const els = {
   filterNote: document.getElementById('filterNote'),
   botsCount: document.getElementById('botsCount'),
   botList: document.getElementById('botList'),
+
   monthName: document.getElementById('monthName'),
+  monthSubText: document.getElementById('monthSubText'),
   monthTotalBadge: document.getElementById('monthTotalBadge'),
+  monthPrevBtn: document.getElementById('monthPrevBtn'),
+  monthNextBtn: document.getElementById('monthNextBtn'),
+  monthTodayBtn: document.getElementById('monthTodayBtn'),
   calendarGrid: document.getElementById('calendarGrid'),
   calendarHint: document.getElementById('calendarHint'),
+
   detailHero: document.getElementById('detailHero'),
   detailGrid: document.getElementById('detailGrid'),
   detailUpdated: document.getElementById('detailUpdated'),
   rawJson: document.getElementById('rawJson'),
+
   baseUrl: document.getElementById('baseUrl'),
   token: document.getElementById('token'),
   refreshMs: document.getElementById('refreshMs'),
@@ -405,10 +568,20 @@ const els = {
   clearConnectionBtn: document.getElementById('clearConnectionBtn'),
   clearHistoryBtn: document.getElementById('clearHistoryBtn'),
   connectionState: document.getElementById('connectionState'),
+
+  firebaseWorkspace: document.getElementById('firebaseWorkspace'),
+  firebaseConfigText: document.getElementById('firebaseConfigText'),
+  saveFirebaseBtn: document.getElementById('saveFirebaseBtn'),
+  toggleFirebaseBtn: document.getElementById('toggleFirebaseBtn'),
+  testFirebaseBtn: document.getElementById('testFirebaseBtn'),
+  clearFirebaseBtn: document.getElementById('clearFirebaseBtn'),
+  firebaseState: document.getElementById('firebaseState'),
+
   adminUnlockPin: document.getElementById('adminUnlockPin'),
   unlockAdminBtn: document.getElementById('unlockAdminBtn'),
   lockSettingsBtn: document.getElementById('lockSettingsBtn'),
   adminState: document.getElementById('adminState'),
+
   botSelect: document.getElementById('botSelect'),
   commandPath: document.getElementById('commandPath'),
   useSearchBtn: document.getElementById('useSearchBtn'),
@@ -416,6 +589,7 @@ const els = {
   cpanelState: document.getElementById('cpanelState'),
   commandResult: document.getElementById('commandResult'),
   diagnosticText: document.getElementById('diagnosticText'),
+
   navBar: document.getElementById('navBar'),
   cpanelNavBtn: document.getElementById('cpanelNavBtn'),
   navBtns: [...document.querySelectorAll('.nav-btn')],
@@ -434,7 +608,12 @@ let state = {
   selectedKey: '',
   adminSessionToken: '',
   adminSessionExpiresAt: 0,
+  calendarYM: currentTWYearMonth(),
+  firebaseEnabled: false,
+  firebaseWorkspace: 'justincua-main',
+  firebaseConfigText: ''
 };
+
 let timer = null;
 let fetchEpochSec = 0;
 let lastPayload = { items: [] };
@@ -442,65 +621,49 @@ let historyStore = loadJson(HISTORY_KEY, {});
 const seenMap = new Map();
 const snapshotMap = new Map();
 const detailMap = new Map();
+const syncFingerprintMap = new Map();
 
-function loadJson(key, fallback){
-  try{ const raw = localStorage.getItem(key); return raw ? JSON.parse(raw) : fallback; }catch{ return fallback; }
+let fb = {
+  app: null,
+  db: null,
+  ready: false,
+  monthUnsub: null,
+  monthDocs: {}
+};
+
+function metricCard(k, v, cls=''){
+  return `<div class="mini"><div class="k">${k}</div><div class="v ${cls}">${v}</div></div>`;
 }
-function saveJson(key, value){ localStorage.setItem(key, JSON.stringify(value)); }
-function escapeHtml(s){
-  return String(s ?? '').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#39;');
+function setDiagnostic(text){
+  els.diagnosticText.textContent = text;
 }
-function fmtNum(v, digits=2){
-  const n = Number(v); if(!Number.isFinite(n)) return '--';
-  return n.toLocaleString('en-US',{minimumFractionDigits:digits, maximumFractionDigits:digits});
+function isConfigured(){
+  return !!(state.baseUrl.trim() && state.token.trim());
 }
-function parseTimestamp(v){
-  if(v == null || v === '') return 0;
-  if(typeof v === 'number'){
-    if(v > 1e12) return Math.floor(v/1000);
-    if(v > 1e9) return Math.floor(v);
-    return 0;
-  }
-  const s = String(v).trim();
-  if(!s) return 0;
-  if(/^\d+$/.test(s)){
-    const n = Number(s);
-    if(n > 1e12) return Math.floor(n/1000);
-    if(n > 1e9) return Math.floor(n);
-  }
-  const p = Date.parse(s);
-  if(Number.isFinite(p)) return Math.floor(p/1000);
-  return 0;
+function isAdminUnlocked(){
+  return !!(state.adminSessionToken && Date.now() < Number(state.adminSessionExpiresAt || 0));
 }
-function epochToTWDate(epochSec){
-  const d = new Date((epochSec + TZ_OFFSET_HOURS*3600) * 1000);
-  return `${d.getUTCFullYear()}-${String(d.getUTCMonth()+1).padStart(2,'0')}-${String(d.getUTCDate()).padStart(2,'0')}`;
+function isFirebaseEnabled(){
+  return !!state.firebaseEnabled;
 }
-function currentTWDate(){ return epochToTWDate(Math.floor(Date.now()/1000)); }
-function currentTWYearMonth(){ return currentTWDate().slice(0,7); }
-function fmtAgo(tsSec){
-  const t = Number(tsSec); if(!Number.isFinite(t) || t <= 0) return 'không rõ';
-  const diff = Math.max(0, fetchEpochSec - t);
-  if(diff < 2) return 'vừa xong';
-  if(diff < 60) return `${diff}s trước`;
-  if(diff < 3600) return `${Math.floor(diff/60)}m trước`;
-  return `${Math.floor(diff/3600)}h trước`;
+function firebaseCollectionRef(){
+  if(!fb.ready || !fb.db) return null;
+  const workspace = String(state.firebaseWorkspace || 'justincua-main').trim() || 'justincua-main';
+  return collection(fb.db, 'jc_workspaces', workspace, 'profit_days');
 }
-function normMode(v){ const s = String(v ?? '--').trim(); return s === 'mode_247' ? '24/7' : (s || '--'); }
-function itemKey(raw){ return `${raw.id ?? raw.accountID ?? raw.accountId ?? raw.login ?? ''}|${raw.bot ?? raw.botName ?? raw.name ?? 'Unknown'}|${raw.symbol ?? '--'}`; }
-function historyKey(item){ return item.key; }
 function keepAliveByChange(key, core){
   const prev = snapshotMap.get(key);
   const now = JSON.stringify(core);
-  if(prev !== now){ snapshotMap.set(key, now); seenMap.set(key, fetchEpochSec); }
-}
-function mergeRaw(primary = {}, secondary = {}){
-  return { ...secondary, ...primary };
+  if(prev !== now){
+    snapshotMap.set(key, now);
+    seenMap.set(key, fetchEpochSec);
+  }
 }
 function normItem(raw){
   const key = itemKey(raw);
   const detail = detailMap.get(key) || {};
   const mergedRaw = mergeRaw(raw, detail.raw || detail);
+
   const item = {
     key,
     id: mergedRaw.id ?? mergedRaw.accountID ?? mergedRaw.accountId ?? mergedRaw.login ?? '',
@@ -543,41 +706,133 @@ function normItem(raw){
     reason: mergedRaw.reason ?? mergedRaw.statusreason ?? mergedRaw.note ?? '',
     raw: mergedRaw,
   };
-  const tsRaw = mergedRaw.ts ?? mergedRaw.lastTs ?? mergedRaw.updatedAtTs ?? mergedRaw.updated_at_ts ?? mergedRaw.heartbeat_ts ?? mergedRaw.eaupdate ?? mergedRaw.updatedAt ?? mergedRaw.server_time ?? mergedRaw.last_seen;
+
+  const tsRaw =
+    mergedRaw.ts ??
+    mergedRaw.lastTs ??
+    mergedRaw.updatedAtTs ??
+    mergedRaw.updated_at_ts ??
+    mergedRaw.heartbeat_ts ??
+    mergedRaw.eaupdate ??
+    mergedRaw.updatedAt ??
+    mergedRaw.server_time ??
+    mergedRaw.last_seen;
+
   const parsedTs = parseTimestamp(tsRaw);
-  keepAliveByChange(key, { balance:item.balance, equity:item.equity, realProfit:item.realProfit, realPct:item.realPct, dayTotal:item.dayTotal, dd:item.dd, status:item.status, timeMode:item.timeMode, orders:item.orders, lots:item.lots, score:item.score });
+  keepAliveByChange(key, {
+    balance: item.balance,
+    equity: item.equity,
+    realProfit: item.realProfit,
+    realPct: item.realPct,
+    dayTotal: item.dayTotal,
+    dd: item.dd,
+    status: item.status,
+    timeMode: item.timeMode,
+    orders: item.orders,
+    lots: item.lots,
+    score: item.score
+  });
+
   if(parsedTs > 0) seenMap.set(key, parsedTs);
   item.ts = Math.max(parsedTs, seenMap.get(key) || 0);
   item.updatedAt = mergedRaw.updatedAt || mergedRaw.server_time || '';
   return item;
 }
-function heartbeatState(item){
-  const age = item.ts > 0 ? Math.max(0, fetchEpochSec - item.ts) : 999999;
-  const run = item.status.includes('RUN');
-  const pause = item.status.includes('PAUSE');
-  if(age <= 15) return { label: run ? 'Đang online' : (pause ? 'Online / Pause' : 'Online'), cls: run ? 'running' : 'paused', online:true };
-  if(age <= 45) return { label:'Heartbeat chậm', cls:'stale', online:true };
-  return { label:'Mất heartbeat', cls:'stale', online:false };
+function getNormItems(){
+  return Array.isArray(lastPayload?.items) ? lastPayload.items.map(normItem) : [];
 }
 function filterItems(items){
   const q = els.search.value.trim().toLowerCase();
   if(!q) return items;
-  return items.filter(x => String(x.id).toLowerCase().includes(q) || String(x.bot).toLowerCase().includes(q));
+  return items.filter(x =>
+    String(x.id).toLowerCase().includes(q) ||
+    String(x.bot).toLowerCase().includes(q)
+  );
 }
-function selectedItems(allItems){ return filterItems(allItems); }
-function metricCard(k, v, cls=''){ return `<div class="mini"><div class="k">${k}</div><div class="v ${cls}">${v}</div></div>`; }
-function loadSettings(){
-  const saved = loadJson(STORAGE_KEY, null);
-  if(saved && typeof saved === 'object') state = { ...state, ...saved };
-  els.baseUrl.value = state.baseUrl || '';
-  els.token.value = state.token || '';
-  els.commandPath.value = state.commandPath || '/panel/command';
-  els.refreshMs.value = state.refreshMs || 1500;
-  els.toggleAutoBtn.textContent = state.autoRefresh ? 'Tắt auto' : 'Bật auto';
+function selectedItems(allItems){
+  return filterItems(allItems);
 }
-function persistSettings(){ saveJson(STORAGE_KEY, state); updateStatusBoxes(); }
-function isConfigured(){ return !!(state.baseUrl.trim() && state.token.trim()); }
-function isAdminUnlocked(){ return !!(state.adminSessionToken && Date.now() < Number(state.adminSessionExpiresAt || 0)); }
+function getSelectedItem(items){
+  if(!items.length) return null;
+  if(!state.selectedKey || !items.some(x => x.key === state.selectedKey)){
+    state.selectedKey = items[0].key;
+  }
+  return items.find(x => x.key === state.selectedKey) || items[0] || null;
+}
+function deriveStatusMeta(item){
+  const age = item.ts > 0 ? Math.max(0, fetchEpochSec - item.ts) : 999999;
+  const text = [
+    item.status,
+    item.statusvi,
+    item.statusreason,
+    item.reason,
+    item.autotrade,
+    item.timeMode
+  ].join(' ').toUpperCase();
+
+  if(age > 45){
+    return {
+      label: 'Offline / Mất heartbeat',
+      cls: 'stale',
+      online: false,
+      type: 'offline',
+      reason: 'Không còn heartbeat quá 45 giây'
+    };
+  }
+  if(age > 15){
+    return {
+      label: 'Online / Heartbeat chậm',
+      cls: 'stale',
+      online: true,
+      type: 'slow',
+      reason: 'Bot còn online nhưng heartbeat đang chậm'
+    };
+  }
+  if(/TARGET DONE|ĐỦ TARGET|REACHED TARGET|STOPBOTAFTERTARGET|TARGET/.test(text)){
+    return {
+      label: 'Pause / Đủ target',
+      cls: 'paused',
+      online: true,
+      type: 'target',
+      reason: item.statusreason || item.reason || 'Bot đã dừng vì đạt target'
+    };
+  }
+  if(/PAUSE/.test(text) && /TIME|HOUR|KHUNG GIỜ|NGOÀI GIỜ/.test(text)){
+    return {
+      label: 'Pause / Ngoài giờ',
+      cls: 'paused',
+      online: true,
+      type: 'schedule',
+      reason: item.statusreason || item.reason || 'Bot đang pause theo khung giờ'
+    };
+  }
+  if(/PAUSE/.test(text)){
+    return {
+      label: 'Online / Pause',
+      cls: 'paused',
+      online: true,
+      type: 'pause',
+      reason: item.statusreason || item.reason || 'Bot đang tạm dừng'
+    };
+  }
+  if(/RUN/.test(text)){
+    return {
+      label: 'Online / Đang chạy',
+      cls: 'running',
+      online: true,
+      type: 'running',
+      reason: item.statusreason || item.reason || 'Bot đang giao dịch'
+    };
+  }
+  return {
+    label: 'Online / Chờ tín hiệu',
+    cls: 'info',
+    online: true,
+    type: 'idle',
+    reason: item.statusreason || item.reason || 'Bot online nhưng chưa có tín hiệu vào lệnh'
+  };
+}
+
 function updateStatusBoxes(){
   els.connectionState.textContent = isConfigured() ? 'Đã lưu cục bộ' : 'Chưa cấu hình';
   els.adminState.textContent = isAdminUnlocked() ? 'Đã mở khóa' : 'Đang khóa';
@@ -586,22 +841,133 @@ function updateStatusBoxes(){
   document.getElementById('view-cpanel').classList.toggle('hidden', !isAdminUnlocked());
   els.navBar.classList.toggle('nav-5', isAdminUnlocked());
   els.navBar.classList.toggle('nav-4', !isAdminUnlocked());
+
+  if(!isFirebaseEnabled()){
+    els.firebaseState.textContent = 'Đang tắt';
+    els.firebaseState.className = 'section-note firebase-state-off';
+    els.toggleFirebaseBtn.textContent = 'Bật Firebase';
+  }else if(fb.ready){
+    els.firebaseState.textContent = `Đã bật • ${state.firebaseWorkspace}`;
+    els.firebaseState.className = 'section-note firebase-state-ok';
+    els.toggleFirebaseBtn.textContent = 'Tắt Firebase';
+  }else{
+    els.firebaseState.textContent = 'Chờ kết nối';
+    els.firebaseState.className = 'section-note firebase-state-warn';
+    els.toggleFirebaseBtn.textContent = 'Tắt Firebase';
+  }
 }
-function updateHistory(items){
+function persistSettings(){
+  saveJson(STORAGE_KEY, state);
+  updateStatusBoxes();
+}
+function loadSettings(){
+  const saved = loadJson(STORAGE_KEY, null);
+  if(saved && typeof saved === 'object'){
+    state = { ...state, ...saved };
+  }
+  els.baseUrl.value = state.baseUrl || '';
+  els.token.value = state.token || '';
+  els.commandPath.value = state.commandPath || '/panel/command';
+  els.refreshMs.value = state.refreshMs || 1500;
+  els.firebaseWorkspace.value = state.firebaseWorkspace || 'justincua-main';
+  els.firebaseConfigText.value = state.firebaseConfigText || '';
+  els.toggleAutoBtn.textContent = state.autoRefresh ? 'Tắt auto' : 'Bật auto';
+}
+function teardownFirebase(){
+  try{
+    if(fb.monthUnsub) fb.monthUnsub();
+  }catch{}
+  fb.monthUnsub = null;
+  fb.monthDocs = {};
+  fb.ready = false;
+}
+async function initFirebase(forceReinit = false){
+  if(!isFirebaseEnabled()){
+    teardownFirebase();
+    updateStatusBoxes();
+    return false;
+  }
+
+  let cfg = {};
+  try{
+    cfg = JSON.parse(state.firebaseConfigText || '{}');
+  }catch{
+    throw new Error('Firebase JSON không hợp lệ');
+  }
+  if(!cfg.apiKey || !cfg.projectId || !cfg.appId){
+    throw new Error('Thiếu apiKey / projectId / appId trong Firebase config');
+  }
+
+  if(forceReinit && fb.app){
+    try{
+      if(fb.monthUnsub) fb.monthUnsub();
+      await deleteApp(fb.app);
+    }catch{}
+    fb = { app:null, db:null, ready:false, monthUnsub:null, monthDocs:{} };
+  }
+  if(fb.app && fb.db){
+    fb.ready = true;
+    updateStatusBoxes();
+    return true;
+  }
+
+  const appName = 'jc-bot-web';
+  const exist = getApps().find(a => a.name === appName);
+  fb.app = exist || initializeApp(cfg, appName);
+  fb.db = getFirestore(fb.app);
+  fb.ready = true;
+  updateStatusBoxes();
+  return true;
+}
+function startMonthListener(ym){
+  if(fb.monthUnsub){
+    try{ fb.monthUnsub(); }catch{}
+    fb.monthUnsub = null;
+  }
+  fb.monthDocs = {};
+
+  if(!fb.ready){
+    renderAll();
+    return;
+  }
+
+  const col = firebaseCollectionRef();
+  if(!col){
+    renderAll();
+    return;
+  }
+
+  const q = query(col, where('ym', '==', ym));
+  fb.monthUnsub = onSnapshot(q, (snap) => {
+    const docs = {};
+    snap.forEach(d => {
+      docs[d.id] = d.data();
+    });
+    fb.monthDocs = docs;
+    renderAll();
+  }, (err) => {
+    setDiagnostic(`Firebase tháng lỗi: ${err.message}`);
+  });
+}
+function updateLocalHistory(items){
   const dayKey = epochToTWDate(fetchEpochSec || Math.floor(Date.now()/1000));
   for(const item of items){
-    const key = historyKey(item);
+    const key = item.key;
     if(!historyStore[key]) historyStore[key] = {};
     if(!historyStore[key][dayKey]){
       historyStore[key][dayKey] = {
-        id:item.id, bot:item.bot, symbol:item.symbol,
-        openBalance:Number.isFinite(item.balance) ? item.balance : 0,
-        lastEquity:Number.isFinite(item.equity) ? item.equity : 0,
-        lastTs:item.ts || fetchEpochSec || Math.floor(Date.now()/1000)
+        id: item.id,
+        bot: item.bot,
+        symbol: item.symbol,
+        openBalance: (Number.isFinite(item.startcapital) && item.startcapital > 0) ? item.startcapital : (Number.isFinite(item.balance) ? item.balance : 0),
+        lastEquity: Number.isFinite(item.equity) ? item.equity : 0,
+        lastTs: item.ts || fetchEpochSec || Math.floor(Date.now()/1000),
+        statusText: deriveStatusMeta(item).label
       };
-    } else {
+    }else{
       historyStore[key][dayKey].lastEquity = Number.isFinite(item.equity) ? item.equity : historyStore[key][dayKey].lastEquity;
       historyStore[key][dayKey].lastTs = item.ts || fetchEpochSec || historyStore[key][dayKey].lastTs;
+      historyStore[key][dayKey].statusText = deriveStatusMeta(item).label;
       historyStore[key][dayKey].id = item.id;
       historyStore[key][dayKey].bot = item.bot;
       historyStore[key][dayKey].symbol = item.symbol;
@@ -609,75 +975,185 @@ function updateHistory(items){
   }
   saveJson(HISTORY_KEY, historyStore);
 }
-function aggregateMonth(items){
-  const ym = currentTWYearMonth();
+async function syncHistory(items){
+  if(!items.length) return;
+
+  if(!fb.ready){
+    updateLocalHistory(items);
+    return;
+  }
+
+  const col = firebaseCollectionRef();
+  if(!col){
+    updateLocalHistory(items);
+    return;
+  }
+
+  const dayKey = epochToTWDate(fetchEpochSec || Math.floor(Date.now()/1000));
+  const writes = [];
+
+  for(const item of items){
+    const st = deriveStatusMeta(item);
+    const openBalance = (Number.isFinite(item.startcapital) && item.startcapital > 0)
+      ? item.startcapital
+      : (Number.isFinite(item.balance) ? item.balance : 0);
+
+    const payload = {
+      key: item.key,
+      id: item.id || '',
+      bot: item.bot || '',
+      symbol: item.symbol || '',
+      day: dayKey,
+      ym: dayKey.slice(0, 7),
+      openBalance,
+      lastEquity: Number.isFinite(item.equity) ? item.equity : 0,
+      lastTs: item.ts || fetchEpochSec || Math.floor(Date.now()/1000),
+      dayTotal: Number.isFinite(item.dayTotal) ? item.dayTotal : 0,
+      realProfit: Number.isFinite(item.realProfit) ? item.realProfit : 0,
+      realPct: Number.isFinite(item.realPct) ? item.realPct : 0,
+      dd: Number.isFinite(item.dd) ? item.dd : 0,
+      orders: Number.isFinite(item.orders) ? item.orders : 0,
+      lots: Number.isFinite(item.lots) ? item.lots : 0,
+      statusCode: item.status || '',
+      statusText: st.label,
+      statusType: st.type,
+      statusReason: st.reason || '',
+      updatedAt: serverTimestamp()
+    };
+
+    const docId = safeDocId(`${item.key}__${dayKey}`);
+    const fingerprint = JSON.stringify([
+      payload.openBalance,
+      payload.lastEquity,
+      payload.lastTs,
+      payload.dayTotal,
+      payload.realProfit,
+      payload.realPct,
+      payload.dd,
+      payload.orders,
+      payload.lots,
+      payload.statusCode,
+      payload.statusText,
+      payload.statusReason
+    ]);
+
+    if(syncFingerprintMap.get(docId) === fingerprint) continue;
+    syncFingerprintMap.set(docId, fingerprint);
+
+    if(payload.ym === state.calendarYM){
+      fb.monthDocs[docId] = { ...(fb.monthDocs[docId] || {}), ...payload };
+    }
+
+    writes.push(setDoc(doc(col, docId), payload, { merge: true }));
+  }
+
+  if(writes.length){
+    await Promise.allSettled(writes);
+  }
+}
+function aggregateMonth(items, ym = state.calendarYM){
+  const allowedKeys = new Set((items.length ? items : []).map(x => x.key));
   let totalProfit = 0;
   let totalBase = 0;
   const days = {};
-  const allowedKeys = new Set((items.length ? items : []).map(x => x.key));
-  for(const [key, perDay] of Object.entries(historyStore)){
-    if(items.length && !allowedKeys.has(key)) continue;
-    for(const [day, rec] of Object.entries(perDay)){
-      if(!day.startsWith(ym)) continue;
+
+  if(fb.ready){
+    for(const rec of Object.values(fb.monthDocs)){
+      if(rec.ym !== ym) continue;
+      if(items.length && !allowedKeys.has(rec.key)) continue;
       const pnl = (Number(rec.lastEquity) || 0) - (Number(rec.openBalance) || 0);
       const base = Number(rec.openBalance) || 0;
       totalProfit += pnl;
       totalBase += base;
-      if(!days[day]) days[day] = { pnl:0, base:0, bots:0 };
-      days[day].pnl += pnl;
-      days[day].base += base;
-      days[day].bots += 1;
+      if(!days[rec.day]){
+        days[rec.day] = { pnl:0, base:0, bots:0, note:'' };
+      }
+      days[rec.day].pnl += pnl;
+      days[rec.day].base += base;
+      days[rec.day].bots += 1;
+      days[rec.day].note = days[rec.day].bots > 1 ? `${days[rec.day].bots} bot` : (rec.statusText || '');
+    }
+  }else{
+    for(const [key, perDay] of Object.entries(historyStore)){
+      if(items.length && !allowedKeys.has(key)) continue;
+      for(const [day, rec] of Object.entries(perDay)){
+        if(!day.startsWith(ym)) continue;
+        const pnl = (Number(rec.lastEquity) || 0) - (Number(rec.openBalance) || 0);
+        const base = Number(rec.openBalance) || 0;
+        totalProfit += pnl;
+        totalBase += base;
+        if(!days[day]){
+          days[day] = { pnl:0, base:0, bots:0, note:'' };
+        }
+        days[day].pnl += pnl;
+        days[day].base += base;
+        days[day].bots += 1;
+        days[day].note = days[day].bots > 1 ? `${days[day].bots} bot` : (rec.statusText || '');
+      }
     }
   }
-  const pct = totalBase > 0 ? (totalProfit/totalBase)*100 : 0;
+
+  const pct = totalBase > 0 ? (totalProfit / totalBase) * 100 : 0;
   return { totalProfit, pct, days };
 }
+
 function renderHome(allItems){
   const filtered = selectedItems(allItems);
   const hero = filtered[0] || allItems[0] || null;
+  const source = filtered.length ? filtered : allItems;
+  const month = aggregateMonth(source, state.calendarYM);
+
   els.filterNote.textContent = els.search.value.trim() ? `Đang lọc: ${els.search.value.trim()}` : 'Tất cả bot';
+
   if(!isConfigured()){
-    els.heroCard.innerHTML = `<div class="empty">Chưa cấu hình link heartbeat và token. Vào <strong>Cài đặt</strong> để nhập rồi lưu cục bộ trên thiết bị này.</div>`;
-  } else if(!hero){
+    els.heroCard.innerHTML = `<div class="empty">Chưa cấu hình link heartbeat và token. Vào <strong>Cài đặt</strong> để nhập rồi lưu.</div>`;
+  }else if(!hero){
     els.heroCard.innerHTML = '<div class="empty">Chưa có bot nào để hiển thị.</div>';
-  } else {
-    const hb = heartbeatState(hero);
+  }else{
+    const st = deriveStatusMeta(hero);
     els.heroCard.innerHTML = `
       <div class="hero-top">
         <div>
           <div class="hero-name">${escapeHtml(hero.bot)}</div>
           <div class="hero-meta">ID ${escapeHtml(hero.id || '--')} • ${escapeHtml(hero.symbol)} • ${escapeHtml(hero.timeMode)} • ${fmtAgo(hero.ts)}</div>
         </div>
-        <div class="badge ${hb.cls}">${hb.label}</div>
+        <div class="badge ${st.cls}">${st.label}</div>
       </div>
+      <div class="status-reason">${escapeHtml(st.reason || '--')}</div>
       <div class="grid-2" style="margin-top:14px">
         <div class="mini"><div class="k">Balance</div><div class="big">${fmtNum(hero.balance)}</div></div>
         <div class="mini"><div class="k">Equity</div><div class="big">${fmtNum(hero.equity)}</div></div>
         <div class="mini"><div class="k">Lãi vốn thực</div><div class="v ${hero.realProfit >= 0 ? 'green' : 'red'}">${fmtNum(hero.realProfit)}</div></div>
         <div class="mini"><div class="k">Tổng hôm nay</div><div class="v ${hero.dayTotal >= 0 ? 'green' : 'red'}">${fmtNum(hero.dayTotal)}</div></div>
-      </div>`;
+      </div>
+    `;
     els.heroCard.onclick = () => openBotDetail(hero.key);
   }
-  const online = allItems.filter(x => heartbeatState(x).online).length;
-  const running = allItems.filter(x => x.status.includes('RUN')).length;
-  const paused = allItems.filter(x => x.status.includes('PAUSE')).length;
-  const month = aggregateMonth(filtered.length ? filtered : allItems);
+
+  const online = allItems.filter(x => deriveStatusMeta(x).online).length;
+  const running = allItems.filter(x => deriveStatusMeta(x).type === 'running').length;
+  const paused = allItems.filter(x => ['pause','schedule','target'].includes(deriveStatusMeta(x).type)).length;
+  const targetDone = allItems.filter(x => deriveStatusMeta(x).type === 'target').length;
+  const schedulePause = allItems.filter(x => deriveStatusMeta(x).type === 'schedule').length;
+
   els.summaryGrid.innerHTML = [
     ['Tổng bot', allItems.length, 'blue'],
-    ['Đang chạy', running, running ? 'green' : 'muted'],
-    ['Đang tắt', paused, paused ? 'red' : 'muted'],
     ['Bot online', online, online ? 'green' : 'red'],
-    ['Tổng lãi bot tháng', fmtNum(month.totalProfit), month.totalProfit >= 0 ? 'green' : 'red'],
-    ['Tổng % bot tháng', `${fmtNum(month.pct)}%`, month.pct >= 0 ? 'green' : 'red'],
-    ['Lọc hiện tại', filtered.length || allItems.length, 'blue'],
-    ['Cập nhật', fetchEpochSec ? new Date(fetchEpochSec * 1000).toLocaleTimeString('vi-VN') : '--', 'muted'],
-  ].map(([k,v,cls]) => metricCard(k,v,cls)).join('');
+    ['Đang chạy', running, running ? 'green' : 'muted'],
+    ['Pause tổng', paused, paused ? 'yellow' : 'muted'],
+    ['Đủ target', targetDone, targetDone ? 'yellow' : 'muted'],
+    ['Pause theo giờ', schedulePause, schedulePause ? 'yellow' : 'muted'],
+    ['Lãi tháng', fmtNum(month.totalProfit), month.totalProfit >= 0 ? 'green' : 'red'],
+    ['% tháng', `${fmtNum(month.pct)}%`, month.pct >= 0 ? 'green' : 'red'],
+  ].map(([k,v,cls]) => metricCard(k, v, cls)).join('');
+
   els.quickChips.innerHTML = [
     `<span class="chip"><strong>${allItems.length}</strong> bot trên server</span>`,
-    `<span class="chip"><strong>${running}</strong> bot đang chạy</span>`,
-    `<span class="chip"><strong>${paused}</strong> bot đang tắt</span>`,
+    `<span class="chip"><strong>${online}</strong> bot online</span>`,
+    `<span class="chip"><strong>${targetDone}</strong> bot đủ target</span>`,
     `<span class="chip"><strong>${filtered.length || allItems.length}</strong> bot đang hiển thị</span>`
   ].join('');
+
   els.summaryTime.textContent = fetchEpochSec ? `Server ${new Date(fetchEpochSec * 1000).toLocaleTimeString('vi-VN')}` : '--';
   renderBotList(filtered);
 }
@@ -687,8 +1163,9 @@ function renderBotList(items){
     els.botList.innerHTML = '<div class="empty">Không có bot nào khớp ID hoặc tên bot.</div>';
     return;
   }
+
   els.botList.innerHTML = items.map(x => {
-    const hb = heartbeatState(x);
+    const st = deriveStatusMeta(x);
     return `
       <div class="bot-card" data-select-key="${escapeHtml(x.key)}">
         <div class="bot-top">
@@ -696,8 +1173,9 @@ function renderBotList(items){
             <div class="bot-name">${escapeHtml(x.bot)}</div>
             <div class="bot-meta">ID ${escapeHtml(x.id || '--')} • ${escapeHtml(x.symbol)} • ${escapeHtml(x.timeMode)} • ${fmtAgo(x.ts)}</div>
           </div>
-          <div class="badge ${hb.cls}">${hb.label}</div>
+          <div class="badge ${st.cls}">${st.label}</div>
         </div>
+        <div class="status-reason">${escapeHtml(st.reason || '--')}</div>
         <div class="bot-kv">
           <div class="mini"><div class="k">Balance</div><div class="v">${fmtNum(x.balance)}</div></div>
           <div class="mini"><div class="k">Equity</div><div class="v">${fmtNum(x.equity)}</div></div>
@@ -706,110 +1184,169 @@ function renderBotList(items){
           <div class="mini"><div class="k">% vốn thực</div><div class="v ${x.realPct >= 0 ? 'green' : 'red'}">${fmtNum(x.realPct)}%</div></div>
           <div class="mini"><div class="k">Tổng hôm nay</div><div class="v ${x.dayTotal >= 0 ? 'green' : 'red'}">${fmtNum(x.dayTotal)}</div></div>
         </div>
-      </div>`;
+      </div>
+    `;
   }).join('');
-  document.querySelectorAll('[data-select-key]').forEach(node => node.addEventListener('click', () => openBotDetail(node.getAttribute('data-select-key'))));
+
+  document.querySelectorAll('[data-select-key]').forEach(node => {
+    node.addEventListener('click', () => openBotDetail(node.getAttribute('data-select-key')));
+  });
 }
 function renderCalendar(items){
-  const month = aggregateMonth(items);
-  const ym = currentTWYearMonth();
+  const ym = state.calendarYM;
+  const month = aggregateMonth(items, ym);
   const [year, mon] = ym.split('-').map(Number);
   const first = new Date(year, mon - 1, 1);
   const startDay = first.getDay();
   const daysInMonth = new Date(year, mon, 0).getDate();
   const today = currentTWDate();
-  const monthLabel = `tháng ${mon} năm ${year}`;
-  els.monthName.textContent = monthLabel;
+
+  els.monthName.textContent = `tháng ${mon} năm ${year}`;
+  els.monthSubText.textContent = fb.ready
+    ? `Firebase • ${state.firebaseWorkspace}`
+    : 'Local fallback';
   els.monthTotalBadge.className = `badge ${month.totalProfit >= 0 ? 'running' : 'paused'}`;
   els.monthTotalBadge.textContent = `${fmtNum(month.totalProfit)} • ${fmtNum(month.pct)}%`;
+
   const cells = [];
-  for(let i = 0; i < startDay; i++) cells.push('<div class="day empty"></div>');
+  for(let i = 0; i < startDay; i++){
+    cells.push('<div class="day empty"></div>');
+  }
+
   for(let d = 1; d <= daysInMonth; d++){
     const key = `${ym}-${String(d).padStart(2,'0')}`;
     const rec = month.days[key];
     const pnl = rec ? rec.pnl : 0;
-    const cls = pnl > 0 ? 'green' : (pnl < 0 ? 'red' : 'muted');
+    const dow = new Date(year, mon - 1, d).getDay();
+    const classes = ['day'];
+    if(key === today) classes.push('today');
+    if(dow === 0 || dow === 6) classes.push('weekend');
+    if(rec){
+      if(pnl > 0) classes.push('pos');
+      else if(pnl < 0) classes.push('neg');
+      else classes.push('zero');
+    }
+
     cells.push(`
-      <div class="day ${key === today ? 'today' : ''}">
+      <div class="${classes.join(' ')}">
         <div class="day-num">${d}</div>
-        <div class="day-profit ${cls}">${rec ? fmtNum(pnl) : '--'}</div>
+        <div class="day-profit ${pnl > 0 ? 'green' : (pnl < 0 ? 'red' : 'muted')}">${rec ? fmtNum(pnl) : '--'}</div>
         <div class="day-base">${rec ? `${fmtNum(rec.base)} vốn` : 'chưa có'}</div>
-      </div>`);
+        <div class="day-note">${rec ? escapeHtml(rec.note || `${rec.bots} bot`) : ((dow === 0 || dow === 6) ? 'weekend' : '')}</div>
+      </div>
+    `);
   }
+
   els.calendarGrid.innerHTML = cells.join('');
-  els.calendarHint.textContent = 'Lịch tháng tính theo equity hiện tại trừ số dư đầu ngày đã lưu trên app. Không dùng kiểu vốn thực cũ.';
+  els.calendarHint.textContent = fb.ready
+    ? 'Lịch profit đang đồng bộ qua Firebase Firestore nên mở trình duyệt khác vẫn giữ nguyên.'
+    : 'Firebase chưa bật, đang dùng local fallback của trình duyệt hiện tại.';
 }
 function renderBotDetail(allItems){
   const selected = getSelectedItem(allItems);
   if(!selected){
-    els.detailHero.innerHTML = '<div class="empty">Chưa chọn bot. Hãy bấm vào một bot ở trang Home.</div>';
+    els.detailHero.innerHTML = '<div class="empty">Chưa chọn bot. Bấm vào bot ở Home.</div>';
     els.detailGrid.innerHTML = '';
     els.rawJson.textContent = '{}';
     els.detailUpdated.textContent = '--';
     return;
   }
-  const hb = heartbeatState(selected);
-  els.detailUpdated.textContent = `${hb.label} • ${fmtAgo(selected.ts)}`;
+
+  const st = deriveStatusMeta(selected);
+  els.detailUpdated.textContent = `${st.label} • ${fmtAgo(selected.ts)}`;
+
   els.detailHero.innerHTML = `
     <div class="hero-top">
       <div>
         <div class="hero-name">${escapeHtml(selected.bot)}</div>
         <div class="hero-meta">ID ${escapeHtml(selected.id || '--')} • ${escapeHtml(selected.symbol)} • ${escapeHtml(selected.name || 'không có tên')} • ${escapeHtml(selected.timeMode)}</div>
       </div>
-      <div class="badge ${hb.cls}">${hb.label}</div>
+      <div class="badge ${st.cls}">${st.label}</div>
     </div>
+    <div class="status-reason">${escapeHtml(st.reason || '--')}</div>
     <div class="grid-2" style="margin-top:14px">
       <div class="mini"><div class="k">Balance</div><div class="big">${fmtNum(selected.balance)}</div></div>
       <div class="mini"><div class="k">Equity</div><div class="big">${fmtNum(selected.equity)}</div></div>
       <div class="mini"><div class="k">Lãi vốn thực</div><div class="v ${selected.realProfit >= 0 ? 'green' : 'red'}">${fmtNum(selected.realProfit)}</div></div>
       <div class="mini"><div class="k">% vốn thực</div><div class="v ${selected.realPct >= 0 ? 'green' : 'red'}">${fmtNum(selected.realPct)}%</div></div>
-    </div>`;
+    </div>
+  `;
+
   const list = [
-    ['Bot', selected.bot], ['ID', selected.id || '--'], ['Tên tài khoản', selected.name || '--'], ['Symbol', selected.symbol],
-    ['Balance', fmtNum(selected.balance)], ['Equity', fmtNum(selected.equity)], ['Tổng vốn', fmtNum(selected.totalcapital)], ['Vốn đầu ngày', fmtNum(selected.startcapital)],
-    ['Vốn hiện tại', fmtNum(selected.aftercapital)], ['Lãi hiện tại', fmtNum(selected.afterprofit)], ['% hôm nay', `${fmtNum(selected.todaypct)}%`], ['Tổng hôm nay', fmtNum(selected.dayTotal)],
-    ['Đã chốt', fmtNum(selected.closedpnl)], ['Đang chạy', fmtNum(selected.floatingpnl)], ['Buy', String(selected.buy)], ['Sell', String(selected.sell)],
-    ['Orders', String(selected.orders)], ['Lots', fmtNum(selected.lots)], ['DD', `${fmtNum(selected.dd)}%`], ['EDD', fmtNum(selected.edd)],
-    ['Score', String(selected.score)], ['Trend', selected.trend], ['Status', selected.status], ['Status tiếng Việt', selected.statusvi],
-    ['Lý do', selected.statusreason || '--'], ['AutoTrade', selected.autotrade], ['Mode', selected.timeMode], ['Lot runtime 1', fmtNum(selected.runlot1)],
-    ['Lot runtime 2', fmtNum(selected.runlot2)], ['Lot runtime 3', fmtNum(selected.runlot3)], ['Lot runtime 4', fmtNum(selected.runlot4)], ['Lot runtime 5', fmtNum(selected.runlot5)],
-    ['Remote status', selected.remotestatus], ['Remote last', selected.remotelast], ['Scope', selected.scope], ['UpdatedAt', selected.updatedAt || '--'],
-    ['Timestamp', String(selected.ts || '--')], ['Heartbeat', fmtAgo(selected.ts)]
+    ['Bot', selected.bot],
+    ['ID', selected.id || '--'],
+    ['Tên tài khoản', selected.name || '--'],
+    ['Symbol', selected.symbol],
+    ['Balance', fmtNum(selected.balance)],
+    ['Equity', fmtNum(selected.equity)],
+    ['Tổng vốn', fmtNum(selected.totalcapital)],
+    ['Vốn đầu ngày', fmtNum(selected.startcapital)],
+    ['Vốn hiện tại', fmtNum(selected.aftercapital)],
+    ['Lãi hiện tại', fmtNum(selected.afterprofit)],
+    ['% hôm nay', `${fmtNum(selected.todaypct)}%`],
+    ['Tổng hôm nay', fmtNum(selected.dayTotal)],
+    ['Đã chốt', fmtNum(selected.closedpnl)],
+    ['Đang chạy', fmtNum(selected.floatingpnl)],
+    ['Buy', String(selected.buy)],
+    ['Sell', String(selected.sell)],
+    ['Orders', String(selected.orders)],
+    ['Lots', fmtNum(selected.lots)],
+    ['DD', `${fmtNum(selected.dd)}%`],
+    ['EDD', fmtNum(selected.edd)],
+    ['Status rõ', st.label],
+    ['Lý do', st.reason || '--'],
+    ['Status code', selected.status],
+    ['Status tiếng Việt', selected.statusvi],
+    ['AutoTrade', selected.autotrade],
+    ['Mode', selected.timeMode],
+    ['Trend', selected.trend],
+    ['Score', String(selected.score)],
+    ['UpdatedAt', selected.updatedAt || '--'],
+    ['Timestamp', String(selected.ts || '--')],
+    ['Heartbeat', fmtAgo(selected.ts)]
   ];
-  els.detailGrid.innerHTML = list.map(([k,v]) => metricCard(escapeHtml(k), escapeHtml(v))).join('');
+
+  els.detailGrid.innerHTML = list.map(([k, v]) => metricCard(escapeHtml(k), escapeHtml(v))).join('');
   els.rawJson.textContent = JSON.stringify(selected.raw, null, 2);
 }
 function updateHeader(items){
-  const online = items.filter(x => heartbeatState(x).online).length;
-  els.metaText.textContent = isConfigured() ? `Realtime ${online}/${items.length} bot • ${fetchEpochSec ? new Date(fetchEpochSec * 1000).toLocaleTimeString('vi-VN') : '--'}` : 'Chưa cấu hình link heartbeat.';
+  const online = items.filter(x => deriveStatusMeta(x).online).length;
+
+  els.metaText.textContent = isConfigured()
+    ? `Realtime ${online}/${items.length} bot • ${fetchEpochSec ? new Date(fetchEpochSec * 1000).toLocaleTimeString('vi-VN') : '--'}`
+    : 'Chưa cấu hình link heartbeat.';
+
   if(!isConfigured()){
     els.globalDot.className = 'dot warn';
     els.globalState.textContent = 'Chưa kết nối';
-  } else if(!items.length){
+    return;
+  }
+  if(!items.length){
     els.globalDot.className = 'dot warn';
     els.globalState.textContent = 'Chưa có bot';
-  } else if(online > 0){
+    return;
+  }
+  if(online > 0){
     els.globalDot.className = 'dot online';
     els.globalState.textContent = `${online} online`;
-  } else {
-    els.globalDot.className = 'dot offline';
-    els.globalState.textContent = 'Mất heartbeat';
+    return;
   }
-}
-function getNormItems(){
-  return Array.isArray(lastPayload?.items) ? lastPayload.items.map(normItem) : [];
-}
-function getSelectedItem(items){
-  if(!items.length) return null;
-  if(!state.selectedKey || !items.some(x => x.key === state.selectedKey)) state.selectedKey = items[0].key;
-  return items.find(x => x.key === state.selectedKey) || items[0] || null;
+  els.globalDot.className = 'dot offline';
+  els.globalState.textContent = 'Mất heartbeat';
 }
 function populateBotSelect(items){
   const filtered = selectedItems(items);
   const source = filtered.length ? filtered : items;
-  if(!source.length){ els.botSelect.innerHTML = '<option value="">Chưa có bot</option>'; return; }
-  if(!state.selectedKey || !source.some(x => x.key === state.selectedKey)) state.selectedKey = source[0].key;
-  els.botSelect.innerHTML = source.map(x => `<option value="${escapeHtml(x.key)}">${escapeHtml(x.bot)} • ${escapeHtml(x.id || '--')} • ${escapeHtml(x.symbol)}</option>`).join('');
+  if(!source.length){
+    els.botSelect.innerHTML = '<option value="">Chưa có bot</option>';
+    return;
+  }
+  if(!state.selectedKey || !source.some(x => x.key === state.selectedKey)){
+    state.selectedKey = source[0].key;
+  }
+  els.botSelect.innerHTML = source.map(x =>
+    `<option value="${escapeHtml(x.key)}">${escapeHtml(x.bot)} • ${escapeHtml(x.id || '--')} • ${escapeHtml(x.symbol)}</option>`
+  ).join('');
   els.botSelect.value = state.selectedKey;
 }
 function renderCpanel(items){
@@ -820,52 +1357,36 @@ function renderCpanel(items){
     els.cpanelState.textContent = 'Chưa chọn bot';
     return;
   }
-  const hb = heartbeatState(selected);
-  els.cpanelState.textContent = `${selected.bot} • ${hb.label}`;
+  const st = deriveStatusMeta(selected);
+  els.cpanelState.textContent = `${selected.bot} • ${st.label}`;
 }
-function setDiagnostic(text){ els.diagnosticText.textContent = text; }
 function renderAll(){
   const items = getNormItems();
-  updateHistory(items);
   updateHeader(items);
   renderHome(items);
-  renderCalendar(selectedItems(items).length ? selectedItems(items) : items);
+  const filtered = selectedItems(items);
+  renderCalendar(filtered.length ? filtered : items);
   renderBotDetail(items);
   renderCpanel(items);
-  setDiagnostic(`Auto ${state.autoRefresh ? 'ON' : 'OFF'} • Refresh ${state.refreshMs}ms • Kết nối ${isConfigured() ? 'đã lưu' : 'chưa lưu'} • CPanel ${isAdminUnlocked() ? 'mở' : 'khóa'}`);
+  setDiagnostic(
+    `Auto ${state.autoRefresh ? 'ON' : 'OFF'} • Refresh ${state.refreshMs}ms • Kết nối ${isConfigured() ? 'đã lưu' : 'chưa lưu'} • Firebase ${fb.ready ? 'ON' : 'OFF'} • CPanel ${isAdminUnlocked() ? 'mở' : 'khóa'}`
+  );
 }
-async function fetchSummary(){
-  if(!isConfigured()){
-    fetchEpochSec = Math.floor(Date.now()/1000);
-    lastPayload = { items: [] };
-    renderAll();
-    return;
-  }
-  const base = state.baseUrl.replace(/\/$/, '');
-  try{
-    const url = `${base}/panel/summary?token=${encodeURIComponent(state.token)}&_=${Date.now()}`;
-    const res = await fetch(url, { cache:'no-store' });
-    if(!res.ok) throw new Error(`HTTP ${res.status}`);
-    const json = await res.json();
-    fetchEpochSec = parseTimestamp(json.server_time) || Math.floor(Date.now()/1000);
-    lastPayload = json;
-    await fetchSelectedBotDetail();
-    renderAll();
-  } catch(err){
-    fetchEpochSec = Math.floor(Date.now()/1000);
-    els.globalDot.className = 'dot offline';
-    els.globalState.textContent = 'Lỗi tải';
-    els.metaText.textContent = `Lỗi tải dữ liệu: ${err.message}`;
-    setDiagnostic(`Lỗi: ${err.message}`);
-  }
-}
+
 async function fetchSelectedBotDetail(){
   if(!isConfigured()) return;
   const items = Array.isArray(lastPayload?.items) ? lastPayload.items.map(normItem) : [];
   const selected = getSelectedItem(items);
   if(!selected) return;
+
   const base = state.baseUrl.replace(/\/$/, '');
-  const qs = new URLSearchParams({ token: state.token, id: selected.id || '', bot: selected.bot || '', symbol: selected.symbol || '' });
+  const qs = new URLSearchParams({
+    token: state.token,
+    id: selected.id || '',
+    bot: selected.bot || '',
+    symbol: selected.symbol || ''
+  });
+
   try{
     const res = await fetch(`${base}/panel/bot?${qs.toString()}&_=${Date.now()}`, { cache:'no-store' });
     if(!res.ok) return;
@@ -875,6 +1396,37 @@ async function fetchSelectedBotDetail(){
       detailMap.set(key, json.item);
     }
   }catch{}
+}
+async function fetchSummary(){
+  if(!isConfigured()){
+    fetchEpochSec = Math.floor(Date.now()/1000);
+    lastPayload = { items: [] };
+    renderAll();
+    return;
+  }
+
+  const base = state.baseUrl.replace(/\/$/, '');
+  try{
+    const url = `${base}/panel/summary?token=${encodeURIComponent(state.token)}&_=${Date.now()}`;
+    const res = await fetch(url, { cache:'no-store' });
+    if(!res.ok) throw new Error(`HTTP ${res.status}`);
+
+    const json = await res.json();
+    fetchEpochSec = parseTimestamp(json.server_time) || Math.floor(Date.now()/1000);
+    lastPayload = json;
+    await fetchSelectedBotDetail();
+
+    const items = getNormItems();
+    syncHistory(items).catch(err => setDiagnostic(`Firebase sync lỗi: ${err.message}`));
+
+    renderAll();
+  }catch(err){
+    fetchEpochSec = Math.floor(Date.now()/1000);
+    els.globalDot.className = 'dot offline';
+    els.globalState.textContent = 'Lỗi tải';
+    els.metaText.textContent = `Lỗi tải dữ liệu: ${err.message}`;
+    setDiagnostic(`Lỗi: ${err.message}`);
+  }
 }
 function restartAuto(){
   if(timer) clearInterval(timer);
@@ -895,13 +1447,29 @@ function openBotDetail(key){
   });
 }
 async function sendCommand(cmd, extras = {}){
-  if(!isAdminUnlocked()){ els.commandResult.textContent = 'CPanel đang khóa.'; return; }
+  if(!isAdminUnlocked()){
+    els.commandResult.textContent = 'CPanel đang khóa.';
+    return;
+  }
   const items = getNormItems();
   const bot = getSelectedItem(items);
-  if(!bot){ els.commandResult.textContent = 'Chưa chọn bot.'; return; }
+  if(!bot){
+    els.commandResult.textContent = 'Chưa chọn bot.';
+    return;
+  }
+
   const base = state.baseUrl.replace(/\/$/, '');
   const path = String(state.commandPath || '/panel/command').trim();
-  const body = { token: state.token, session_token: state.adminSessionToken, id: bot.id || '', bot: bot.bot || '', symbol: bot.symbol || '', cmd, ...extras };
+  const body = {
+    token: state.token,
+    session_token: state.adminSessionToken,
+    id: bot.id || '',
+    bot: bot.bot || '',
+    symbol: bot.symbol || '',
+    cmd,
+    ...extras
+  };
+
   els.commandResult.textContent = `Đang gửi: ${cmd}`;
   try{
     const res = await fetch(`${base}${path.startsWith('/') ? path : '/' + path}`, {
@@ -913,14 +1481,21 @@ async function sendCommand(cmd, extras = {}){
     const text = await res.text();
     els.commandResult.textContent = `HTTP ${res.status} • ${text.slice(0, 220) || '(rỗng)'}`;
     fetchSummary();
-  } catch(err){
+  }catch(err){
     els.commandResult.textContent = `Lỗi gửi lệnh: ${err.message}`;
   }
 }
 async function unlockAdmin(){
-  if(!isConfigured()){ setDiagnostic('Hãy lưu kết nối trước.'); return; }
+  if(!isConfigured()){
+    setDiagnostic('Hãy lưu kết nối trước.');
+    return;
+  }
   const pin = els.adminUnlockPin.value.trim();
-  if(!pin){ setDiagnostic('Hãy nhập PIN quản trị.'); return; }
+  if(!pin){
+    setDiagnostic('Hãy nhập PIN quản trị.');
+    return;
+  }
+
   const base = state.baseUrl.replace(/\/$/, '');
   try{
     const res = await fetch(`${base}/panel/admin/unlock`, {
@@ -931,13 +1506,13 @@ async function unlockAdmin(){
     });
     const json = await res.json();
     if(!res.ok || !json.ok) throw new Error(json.error || `HTTP ${res.status}`);
+
     state.adminSessionToken = json.session_token || '';
     state.adminSessionExpiresAt = Number(json.expires_at_ms || 0);
-    persistSettings();
     els.adminUnlockPin.value = '';
-    updateStatusBoxes();
+    persistSettings();
     activateTab('cpanel');
-    setDiagnostic('Đã mở khóa admin bằng PIN từ server.');
+    setDiagnostic('Đã mở khóa admin.');
   }catch(err){
     setDiagnostic(`Mở khóa thất bại: ${err.message}`);
   }
@@ -957,17 +1532,21 @@ async function lockAdmin(){
   state.adminSessionToken = '';
   state.adminSessionExpiresAt = 0;
   persistSettings();
-  updateStatusBoxes();
-  if(document.querySelector('.view.active')?.id === 'view-cpanel') activateTab('home');
+  if(document.querySelector('.view.active')?.id === 'view-cpanel'){
+    activateTab('home');
+  }
 }
 function syncTopPadding(){
   const h = els.topBar.offsetHeight || 120;
   document.documentElement.style.setProperty('--top-h', `${h}px`);
 }
 
-els.navBtns.forEach(btn => btn.addEventListener('click', () => activateTab(btn.dataset.tab)));
+els.navBtns.forEach(btn => {
+  btn.addEventListener('click', () => activateTab(btn.dataset.tab));
+});
 els.refreshBtn.addEventListener('click', fetchSummary);
-els.search.addEventListener('input', () => renderAll());
+els.search.addEventListener('input', renderAll);
+
 els.saveConnectionBtn.addEventListener('click', () => {
   state.baseUrl = els.baseUrl.value.trim();
   state.token = els.token.value.trim();
@@ -995,31 +1574,148 @@ els.clearConnectionBtn.addEventListener('click', async () => {
 els.clearHistoryBtn.addEventListener('click', () => {
   historyStore = {};
   saveJson(HISTORY_KEY, historyStore);
+  fb.monthDocs = {};
   renderAll();
 });
+
+els.saveFirebaseBtn.addEventListener('click', async () => {
+  state.firebaseWorkspace = els.firebaseWorkspace.value.trim() || 'justincua-main';
+  state.firebaseConfigText = els.firebaseConfigText.value.trim();
+  persistSettings();
+
+  if(!state.firebaseEnabled){
+    setDiagnostic('Đã lưu config Firebase, hãy bấm Bật Firebase.');
+    return;
+  }
+
+  try{
+    await initFirebase(true);
+    startMonthListener(state.calendarYM);
+    setDiagnostic('Đã lưu và kết nối Firebase.');
+    renderAll();
+  }catch(err){
+    setDiagnostic(`Firebase lỗi: ${err.message}`);
+  }
+});
+els.toggleFirebaseBtn.addEventListener('click', async () => {
+  state.firebaseEnabled = !state.firebaseEnabled;
+  persistSettings();
+
+  if(!state.firebaseEnabled){
+    teardownFirebase();
+    renderAll();
+    setDiagnostic('Đã tắt Firebase.');
+    return;
+  }
+
+  state.firebaseWorkspace = els.firebaseWorkspace.value.trim() || 'justincua-main';
+  state.firebaseConfigText = els.firebaseConfigText.value.trim();
+  persistSettings();
+
+  try{
+    await initFirebase(true);
+    startMonthListener(state.calendarYM);
+    setDiagnostic('Đã bật Firebase.');
+    renderAll();
+  }catch(err){
+    setDiagnostic(`Bật Firebase thất bại: ${err.message}`);
+  }
+});
+els.testFirebaseBtn.addEventListener('click', async () => {
+  state.firebaseWorkspace = els.firebaseWorkspace.value.trim() || 'justincua-main';
+  state.firebaseConfigText = els.firebaseConfigText.value.trim();
+  persistSettings();
+  try{
+    await initFirebase(true);
+    startMonthListener(state.calendarYM);
+    setDiagnostic('Firebase kết nối OK.');
+    renderAll();
+  }catch(err){
+    setDiagnostic(`Test Firebase lỗi: ${err.message}`);
+  }
+});
+els.clearFirebaseBtn.addEventListener('click', async () => {
+  state.firebaseEnabled = false;
+  state.firebaseWorkspace = 'justincua-main';
+  state.firebaseConfigText = '';
+  els.firebaseWorkspace.value = 'justincua-main';
+  els.firebaseConfigText.value = '';
+  teardownFirebase();
+  persistSettings();
+  renderAll();
+  setDiagnostic('Đã xóa cấu hình Firebase.');
+});
+
 els.unlockAdminBtn.addEventListener('click', unlockAdmin);
-els.lockSettingsBtn.addEventListener('click', async () => { await lockAdmin(); setDiagnostic('Đã khóa lại admin.'); });
-els.lockAdminBtn.addEventListener('click', async () => { await lockAdmin(); setDiagnostic('Đã khóa lại admin.'); });
+els.lockSettingsBtn.addEventListener('click', async () => {
+  await lockAdmin();
+  setDiagnostic('Đã khóa lại admin.');
+});
+els.lockAdminBtn.addEventListener('click', async () => {
+  await lockAdmin();
+  setDiagnostic('Đã khóa lại admin.');
+});
 els.useSearchBtn.addEventListener('click', () => {
   const items = getNormItems();
   const filtered = selectedItems(items);
   if(filtered[0]) openBotDetail(filtered[0].key);
 });
-els.botSelect.addEventListener('change', () => { state.selectedKey = els.botSelect.value; persistSettings(); fetchSelectedBotDetail().finally(renderAll); });
-els.cmdBtns.forEach(btn => btn.addEventListener('click', () => sendCommand(btn.dataset.cmd)));
+els.botSelect.addEventListener('change', () => {
+  state.selectedKey = els.botSelect.value;
+  persistSettings();
+  fetchSelectedBotDetail().finally(renderAll);
+});
+els.cmdBtns.forEach(btn => {
+  btn.addEventListener('click', () => sendCommand(btn.dataset.cmd));
+});
 els.applyLotsBtn.addEventListener('click', () => {
   const extras = {};
-  els.lotInputs.forEach(input => { if(input.value.trim()) extras[input.dataset.lot] = input.value.trim(); });
+  els.lotInputs.forEach(input => {
+    if(input.value.trim()) extras[input.dataset.lot] = input.value.trim();
+  });
   sendCommand('apply_lots', extras);
 });
+
+els.monthPrevBtn.addEventListener('click', () => {
+  state.calendarYM = shiftYM(state.calendarYM, -1);
+  persistSettings();
+  startMonthListener(state.calendarYM);
+  renderAll();
+});
+els.monthNextBtn.addEventListener('click', () => {
+  state.calendarYM = shiftYM(state.calendarYM, 1);
+  persistSettings();
+  startMonthListener(state.calendarYM);
+  renderAll();
+});
+els.monthTodayBtn.addEventListener('click', () => {
+  state.calendarYM = currentTWYearMonth();
+  persistSettings();
+  startMonthListener(state.calendarYM);
+  renderAll();
+});
+
 window.addEventListener('resize', syncTopPadding);
 window.addEventListener('orientationchange', syncTopPadding);
 
-loadSettings();
-syncTopPadding();
-updateStatusBoxes();
-fetchSummary();
-restartAuto();
+async function boot(){
+  loadSettings();
+  syncTopPadding();
+  updateStatusBoxes();
+
+  try{
+    if(state.firebaseEnabled){
+      await initFirebase(true);
+      startMonthListener(state.calendarYM);
+    }
+  }catch(err){
+    setDiagnostic(`Khởi tạo Firebase lỗi: ${err.message}`);
+  }
+
+  fetchSummary();
+  restartAuto();
+}
+boot();
 </script>
 </body>
 </html>
